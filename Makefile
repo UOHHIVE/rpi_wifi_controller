@@ -11,6 +11,7 @@ CFLAGS_PROD = -std=$(STD) -Wall -Wextra -O3
 
 DIR_SRC = ./src/
 DIR_TARGET = ./target/
+DIR_SCRIPTS = ./scripts/
 
 MAIN = main.c
 TARGET = main.out
@@ -29,6 +30,7 @@ test:
 	@echo "$(CC) $(CFLAGS_TEST) $(SRC) -o $(DIR_TARGET)$(TARGET)"
 	@$(CC) $(CFLAGS_TEST) $(SRC) -o $(DIR_TARGET)$(TARGET)
 	@echo "Build complete."
+	@for file in *.out *.sh; do if [ -e "$file" ]; then chmod +x "$file"; fi; done
 
 build: 
 	@$(MAKE) -f $(THIS_FILE) setup
@@ -36,8 +38,9 @@ build:
 	@echo "$(CC) $(CFLAGS_PROD) $(SRC) -o $(DIR_TARGET)$(TARGET)"
 	@$(CC) $(CFLAGS_PROD) $(SRC) -o $(DIR_TARGET)$(TARGET)
 	@echo "Build complete."
-#	@echo "Copying data files..."
-#	@cp $(DATAFILES) $(DIR_TARGET)
+	@echo "Copying scripts..."
+	@cp $(DIR_SCRIPTS)/* $(DIR_TARGET)
+	@for file in *.out *.sh; do if [ -e "$file" ]; then chmod +x "$file"; fi; done
 
 run: 
 	@$(MAKE) -f $(THIS_FILE) setup
