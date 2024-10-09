@@ -33,3 +33,4 @@
 
 # Target Directory
 target
+.env
