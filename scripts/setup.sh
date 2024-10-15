@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 
-
 # set vars
 DIR_NAME  = "hive_rpi"
 DIR_SRC   = "/usr/src/$DIR_NAME"
