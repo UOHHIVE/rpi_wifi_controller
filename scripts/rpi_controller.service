@@ -1,0 +1,13 @@
+[Unit]
+Description=RPI Controller: Binary to control the Zumo
+After=syslog.target
+After=rsyslog.service
+After=network.target
+After=rpi_updater.service
+
+[Service]
+Type=simple
+WorkingDirectory=/
+ExecStart=/usr/local/hive_rpi/main.out
+Restart=always                          # TODO: once prod, change script to only run on startup
+

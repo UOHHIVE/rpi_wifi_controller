@@ -1,4 +1,5 @@
-#!/bin/bash
+#! /usr/bin/env bash
+
 
 # set vars
 DIR_NAME  = "hive_rpi"

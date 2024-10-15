@@ -1,0 +1,13 @@
+[Unit]
+Description=RPI Updater: Auto Updater for the RPI Controller
+After=syslog.target
+After=rsyslog.service
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/
+ExecStart=/usr/local/hive_rpi/update.sh
+Restart=always                          # TODO: once prod, change script to only run on startup
+RunTimeMaxSec=1800s                     # TODO: check if this is enough time, may need to increase or decrease
+
