@@ -1,6 +1,5 @@
 #! /usr/bin/env bash
 
-
 # set vars
 DIR_NAME  = "hive_rpi"
 DIR_SRC   = "/usr/src/$DIR_NAME"
@@ -23,5 +22,5 @@ if [ "$behind" -gt 0 ]; then
   git pull origin "$current_branch"
   bash "$DIR_LOCAL/setup.sh"
 else
-  echo "Branch '$current_branch' is up to date."
+    echo "Branch '$current_branch' is up to date."
 fi
