@@ -16,8 +16,8 @@
 
 1. Copy over `./scripts/bootstrap.sh`
 2. SSH into pi
-3. Run bootstrap.sh
-4. Enter Creds
+3. Run `bootstrap.sh` as root
+4. Enter GH creds
 5. Profit!!
 
 ## Formatting
