@@ -8,6 +8,7 @@ DIR_LOCAL="/root/local"
 
 # if /usr/src/hive_rpi/ doesnt exist, make it
 if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
+if [ ! -d "$DIR_LOCAL" ]; then mkdir $DIR_LOCAL; fi
 
 # clone repo to src
 git clone "$DIR_REM" "$DIR_SRC" --recurse-submodules
