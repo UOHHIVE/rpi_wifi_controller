@@ -8,6 +8,6 @@ After=rpi_updater.service
 [Service]
 Type=simple
 WorkingDirectory=/
-ExecStart=/usr/local/hive_rpi/main.out
-Restart=always                          # TODO: once prod, change script to only run on startup
+ExecStart=/root/local/main.out
+Restart=always               
 

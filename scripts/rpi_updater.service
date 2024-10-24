@@ -7,6 +7,6 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/
-ExecStart=/usr/local/hive_rpi/update.sh
+ExecStart=/root/local/update.sh
 Restart=always                          
 
