@@ -7,6 +7,6 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/
-ExecStart="/usr/bin/bash /root/local/update.sh"
+ExecStart="/usr/bin/sh /root/local/update.sh"
 Restart=always                          
 
