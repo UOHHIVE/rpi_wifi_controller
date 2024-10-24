@@ -15,10 +15,12 @@ make build
 # if target dir isnt linked, then link it
 if [ ! -d "$DIR_LOCAL" ]; then ln -s "$DIR_SRC/target" "$DIR_LOCAL"; fi
 
+cd "$DIR_LOCAL"
+
 # start and enable rpi_controller.service and rpi_updater.service
 for service_file in "$DIR_SRC"/scripts/*.service; do
     if [ -f "$service_file" ]; then
-        # service_name=$(basename "$service_file")
+        service_name=$(basename "$service_file")
 
         systemctl stop "$service_file"
         systemctl enable "$service_file"
