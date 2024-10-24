@@ -19,10 +19,9 @@ if [ ! -d "$DIR_LOCAL" ]; then ln -s "$DIR_SRC/target" "$DIR_LOCAL"; fi
 for service_file in "$DIR_SRC"/scripts/*.service; do
     if [ -f "$service_file" ]; then
         # service_name=$(basename "$service_file")
-        service_name=$(service_file)
-        
-        systemctl stop "$service_name"
-        systemctl enable "$service_name"
-        systemctl start "$service_name"
+
+        systemctl stop "$service_file"
+        systemctl enable "$service_file"
+        systemctl start "$service_file"
     fi
 done
