@@ -22,6 +22,8 @@ for service_file in "$DIR_SRC"/scripts/*.service; do
     if [ -f "$service_file" ]; then
         service_name=$(basename "$service_file")
 
+        ln -sf "$service_file" "/etc/systemd/system/$service_name"
+
         systemctl stop "$service_file"
         systemctl enable "$service_file"
         systemctl start "$service_file"

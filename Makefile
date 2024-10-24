@@ -1,23 +1,23 @@
 
-CC = clang
+CC = clang++
 STD = c17
 
 #ARCH = arm64
 #ARCH = x86_64
 
-CFLAGS_TEST = -std=$(STD) -Wall -Wextra -Werror -Wpedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-private-field
-CFLAGS_PROD = -std=$(STD) -Wall -Wextra -O3
+CFLAGS_TEST = -Wall -Wextra -Werror -Wpedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-private-field
+CFLAGS_PROD = -Wall -Wextra -O3
 # CFLAGS_PROD = -arch $(ARCH) -std=$(STD) -Wall -Wextra -O3
 
 DIR_SRC = ./src/
 DIR_TARGET = ./target/
 DIR_SCRIPTS = ./scripts/
 
-MAIN = main.c
+MAIN = main.cpp
 TARGET = main.out
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
-SRC = $(wildcard $(DIR_SRC)*.c)
+SRC = $(wildcard $(DIR_SRC)*.cpp)
 
 #DATAFILES = $(wildcard $(DIR_SRC)*.txt) $(wildcard $(DIR_SRC)*.csv)
 
