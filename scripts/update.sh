@@ -1,8 +1,8 @@
 #! /usr/bin/env bash
 
 # set vars
-DIR_SRC="/usr/src"
-DIR_LOCAL="/usr/local"
+DIR_SRC="/root/src"
+DIR_LOCAL="/root/local"
 
 # cd to src
 cd "$DIR_SRC"
