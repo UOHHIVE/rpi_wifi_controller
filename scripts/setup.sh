@@ -1,12 +1,8 @@
 #! /usr/bin/env bash
 
 # set vars
-DIR_NAME=   "hive_rpi"
-DIR_SRC=    "/usr/src/$DIR_NAME"
-DIR_LOCAL=  "/usr/local/$DIR_NAME"
-
-# if /usr/src/hive_rpi/ doesnt exist, make it
-if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
+DIR_SRC="/root/src/"
+DIR_LOCAL="/root/local/"
 
 # cd to /usr/src/hive_rpi and pull
 cd "$DIR_SRC"
