@@ -1,9 +1,8 @@
 #! /usr/bin/env bash
 
 # set vars
-DIR_NAME="hive_rpi"
-DIR_SRC="/usr/src/$DIR_NAME"
-DIR_LOCAL="/usr/local/$DIR_NAME"
+DIR_SRC="/usr/src"
+DIR_LOCAL="/usr/local"
 
 # cd to src
 cd "$DIR_SRC"
