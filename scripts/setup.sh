@@ -24,8 +24,8 @@ for service_file in "$DIR_SRC"/scripts/*.service; do
 
         ln -sf "$service_file" "/etc/systemd/system/$service_name"
 
-        systemctl stop "$service_file"
-        systemctl enable "$service_file"
-        systemctl start "$service_file"
+        systemctl stop "$service_name"
+        systemctl enable "$service_name"
+        systemctl start "$service_name"
     fi
 done
