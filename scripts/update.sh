@@ -24,3 +24,5 @@ if [ "$behind" -gt 0 ]; then
 else
     echo "Branch '$current_branch' is up to date."
 fi
+
+sleep 900
