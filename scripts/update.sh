@@ -31,4 +31,4 @@ else
     echo "Branch '$current_branch' is up to date."
 fi
 
-sleep 300
+sleep 30
