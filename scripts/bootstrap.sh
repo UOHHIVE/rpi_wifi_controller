@@ -1,5 +1,30 @@
 #! /usr/bin/env bash
 
+apt update -y
+apt upgrade -y
+
+apt install software-properties-common wget xz-utils gcc build-essential clang -y
+apt install python3 python3-pip -y
+apt install gpiod libgpoid-dev -y
+apt install fakeroot gettext-base -y
+
+# pip install RPi.GPIO
+# pip install gpiod
+
+git clone https://github.com/WiringPi/WiringPi.git
+cd WiringPi
+
+./build debian
+
+mv debian-template/wiringpi*.deb .
+
+sudo chown -Rv _apt:root /var/cache/apt/archives/partial/
+sudo chmod -Rv 700 /var/cache/apt/archives/partial/
+
+apt install ./wiringpi*.deb
+
+cd .. 
+rm -rf WiringPi/
 
 # set vars
 DIR_REM="https://github.com/UoH-HIVE/raspberry_pi_wifi_controller.git"
