@@ -5,7 +5,7 @@ DIR_SRC="/root/src"
 DIR_LOCAL="/root/local"
 
 apt update -y
-apt upgrade
+apt upgrade -y
 
 apt install software-properties-common wget xz-utils gcc build-essential clang -y
 apt install python3 python3-pip -y
