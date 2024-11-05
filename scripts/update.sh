@@ -4,6 +4,13 @@
 DIR_SRC="/root/src"
 DIR_LOCAL="/root/local"
 
+apt install software-properties-common wget xz-utils gcc openssl libssl-dev libffi7 libffi-dev build-essential clang -y
+apt install python3 python3-pip -y
+apt install gpiod libgpoid-dev -y
+
+pip install RPi.GPIO
+
+
 # cd to src
 cd "$DIR_SRC"
 

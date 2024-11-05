@@ -8,6 +8,6 @@ After=rpi_updater.service
 [Service]
 Type=simple
 WorkingDirectory=/
-ExecStart=/root/local/main.out
+ExecStart=python3 /root/local/test.py
 Restart=always               
 
