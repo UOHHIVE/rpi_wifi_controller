@@ -9,6 +9,9 @@
 #     GPIO.output(17,GPIO.LOW)
 #     time.sleep(1)
 
+import gpiod
+import time
+
 PIN_NO = 17
 chip = gpiod.Chip('gpiochip4')
 led_line = chip.get_line(PIN_NO)
