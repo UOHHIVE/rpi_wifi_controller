@@ -4,7 +4,10 @@
 DIR_SRC="/root/src"
 DIR_LOCAL="/root/local"
 
-apt install software-properties-common wget xz-utils gcc openssl libssl-dev libffi7 libffi-dev build-essential clang -y
+apt update -y
+apt upgrade
+
+apt install software-properties-common wget xz-utils gcc build-essential clang -y
 apt install python3 python3-pip -y
 apt install gpiod libgpoid-dev -y
 
