@@ -10,10 +10,11 @@ using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
 void blink(int pin) {
-  digitalWrite(17, HIGH);
-  delay(4000);
-  digitalWrite(17, LOW);
-  delay(1000);
+  printf("blinking %d", pin);
+  digitalWrite(pin, HIGH);
+  delay(400);
+  digitalWrite(pin, LOW);
+  delay(100);
 }
 
 int main(void) {
@@ -35,6 +36,9 @@ int main(void) {
   // }
 
   pinMode(17, OUTPUT);
+  pinMode(27, OUTPUT);
+  pinMode(16, OUTPUT);
+  pinMode(26, OUTPUT);
 
   for (;;) {
     blink(17);
