@@ -29,16 +29,19 @@ void stop() { digitalWrite(HBREAK, LOW); }
 void go() {
   digitalWrite(TRACK_L, HIGH);
   digitalWrite(TRACK_R, HIGH);
+  start();
 }
 
 void turn_left() {
   digitalWrite(TRACK_L, HIGH);
   digitalWrite(TRACK_R, LOW);
+  start();
 }
 
 void turn_right() {
   digitalWrite(TRACK_L, LOW);
   digitalWrite(TRACK_R, HIGH);
+  start();
 }
 
 void clear() {
@@ -60,6 +63,18 @@ int main(void) {
   pinMode(27, OUTPUT);
   pinMode(16, OUTPUT);
   pinMode(26, OUTPUT);
+
+  digitalWrite(17, HIGH);
+  digitalWrite(27, HIGH);
+  digitalWrite(16, HIGH);
+  digitalWrite(26, HIGH);
+
+  sleep_for(2s);
+
+  digitalWrite(17, LOW);
+  digitalWrite(27, LOW);
+  digitalWrite(16, LOW);
+  digitalWrite(26, LOW);
 
   digitalWrite(SAFETY, HIGH);
 
