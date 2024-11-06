@@ -21,8 +21,8 @@ cd WiringPi
 ./build debian
 
 # give access to apt
-sudo chown -Rv _apt:root /var/cache/apt/archives/partial/
-sudo chmod -Rv 700 /var/cache/apt/archives/partial/
+chown -Rv _apt:root /var/cache/apt/archives/partial/
+chmod -Rv 700 /var/cache/apt/archives/partial/
 
 # install wiring pi
 mv debian-template/wiringpi*.deb .
