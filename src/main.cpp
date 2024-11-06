@@ -9,6 +9,13 @@ using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
+void blink(int pin) {
+  digitalWrite(17, HIGH);
+  delay(4000);
+  digitalWrite(17, LOW);
+  delay(1000);
+}
+
 int main(void) {
   // uses BCM numbering of the GPIOs and directly accesses the GPIO registers.
   wiringPiSetupGpio();
@@ -30,10 +37,10 @@ int main(void) {
   pinMode(17, OUTPUT);
 
   for (;;) {
-    digitalWrite(17, HIGH); // On
-    delay(4000);            // mS
-    digitalWrite(17, LOW);  // Off
-    delay(1000);
+    blink(17);
+    blink(27);
+    blink(16);
+    blink(26);
   }
   return 0;
 }
