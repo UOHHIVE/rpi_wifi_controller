@@ -9,5 +9,7 @@ Type=simple
 User=root
 WorkingDirectory=/
 ExecStart=/usr/bin/env bash /root/local/update.sh
-Restart=always                          
+Restart=always  
 
+[Install]
+WantedBy=multi-user.target

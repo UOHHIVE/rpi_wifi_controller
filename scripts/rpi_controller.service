@@ -10,3 +10,5 @@ WorkingDirectory=/
 ExecStart=/root/local/main.out
 Restart=always               
 
+[Install]
+WantedBy=multi-user.target
