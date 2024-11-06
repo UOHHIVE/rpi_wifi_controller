@@ -1,8 +1,10 @@
 #! /usr/bin/env bash
 
+# update repos, install updates
 apt update -y
 apt upgrade -y
 
+# make sure required software is installed
 apt install software-properties-common wget xz-utils gcc build-essential clang -y
 apt install python3 python3-pip -y
 apt install gpiod libgpoid-dev -y
@@ -11,18 +13,22 @@ apt install fakeroot gettext-base -y
 # pip install RPi.GPIO
 # pip install gpiod
 
+# clone wiring pi 
 git clone https://github.com/WiringPi/WiringPi.git
 cd WiringPi
 
+# build from source
 ./build debian
 
-mv debian-template/wiringpi*.deb .
-
+# give access to apt
 sudo chown -Rv _apt:root /var/cache/apt/archives/partial/
 sudo chmod -Rv 700 /var/cache/apt/archives/partial/
 
+# install wiring pi
+mv debian-template/wiringpi*.deb .
 apt install ./wiringpi*.deb
 
+# post install clean
 cd .. 
 rm -rf WiringPi/
 
