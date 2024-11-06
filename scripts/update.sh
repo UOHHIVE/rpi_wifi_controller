@@ -7,13 +7,6 @@ DIR_LOCAL="/root/local"
 apt update -y
 apt upgrade -y
 
-apt install software-properties-common wget xz-utils gcc build-essential clang -y
-apt install python3 python3-pip -y
-apt install gpiod libgpoid-dev -y
-
-# pip install RPi.GPIO
-# pip install gpiod
-
 # cd to src
 cd "$DIR_SRC"
 
