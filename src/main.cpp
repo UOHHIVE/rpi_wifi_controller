@@ -26,22 +26,19 @@ void start() { digitalWrite(HBREAK, HIGH); }
 
 void stop() { digitalWrite(HBREAK, LOW); }
 
-void go() {
+void forward() {
   digitalWrite(TRACK_L, HIGH);
   digitalWrite(TRACK_R, HIGH);
-  start();
 }
 
 void turn_left() {
   digitalWrite(TRACK_L, HIGH);
   digitalWrite(TRACK_R, LOW);
-  start();
 }
 
 void turn_right() {
   digitalWrite(TRACK_L, LOW);
   digitalWrite(TRACK_R, HIGH);
-  start();
 }
 
 void clear() {
@@ -93,13 +90,16 @@ int main(void) {
     stop();
     clear();
 
-    go();
+    forward();
+    start();
     clear();
 
     turn_left();
+    start();
     clear();
 
     turn_right();
+    start();
     clear();
   }
   return 0;
