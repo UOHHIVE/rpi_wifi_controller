@@ -42,11 +42,12 @@ void turn_right() {
 }
 
 void clear() {
-  sleep_for(0.5s);
+  sleep_for(0.8s);
   digitalWrite(TRACK_L, LOW);
   digitalWrite(TRACK_R, LOW);
   digitalWrite(HBREAK, LOW);
   // digitalWrite(SAFETY, LOW);
+  sleep_for(0.2s);
 }
 
 int main(void) {
@@ -64,10 +65,10 @@ int main(void) {
 
   // blink lights in sequence
   for (;;) {
-    blink(17);
-    blink(27);
-    blink(16);
-    blink(26);
+    // blink(17);
+    // blink(27);
+    // blink(16);
+    // blink(26);
 
     clear();
 
