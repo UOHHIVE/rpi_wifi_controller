@@ -82,6 +82,7 @@ void blink(int pin) {
 // } // namespace zumo_utils
 
 int main(void) {
+  printf("hello, world");
 
   // zumo_utils::setup();
 
