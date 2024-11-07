@@ -56,10 +56,10 @@ int main(void) {
   wiringPiSetupGpio();
 
   // Initialise pins
-  pinMode(17, OUTPUT);
-  pinMode(27, OUTPUT);
-  pinMode(16, OUTPUT);
-  pinMode(26, OUTPUT);
+  pinMode(TRACK_L, OUTPUT);
+  pinMode(TRACK_R, OUTPUT);
+  pinMode(SAFETY, OUTPUT);
+  pinMode(HBREAK, OUTPUT);
 
   digitalWrite(17, HIGH);
   digitalWrite(27, HIGH);
