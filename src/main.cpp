@@ -17,10 +17,6 @@ using std::chrono::system_clock;
 
 namespace zumo_movement {
 
-void safe() { digitalWrite(SAFETY, HIGH); }
-
-void unsafe() { digitalWrite(SAFETY, LOW); }
-
 void start() { digitalWrite(HBREAK, HIGH); }
 
 void stop() { digitalWrite(HBREAK, LOW); }
@@ -48,6 +44,10 @@ void turn_right() {
 } // namespace zumo_movement
 
 namespace zumo_utils {
+
+void safe() { digitalWrite(SAFETY, HIGH); }
+
+void unsafe() { digitalWrite(SAFETY, LOW); }
 
 void setup() {
   wiringPiSetupGpio(); // uses BCM numbering, direct GPIO register access
@@ -85,41 +85,44 @@ int main(void) {
 
   zumo_utils::setup();
 
+  printf("1");
   zumo_utils::block();
   sleep_for(2s);
 
+  printf("2");
   zumo_utils::clear();
   sleep_for(0.5s);
   zumo_utils::block();
 
+  printf("3");
   sleep_for(2s);
   zumo_utils::clear();
   sleep_for(1s);
 
-  digitalWrite(SAFETY, HIGH);
+  zumo_utils::safe();
 
   // blink lights in sequence
-  for (;;) {
+  // for (;;) {
 
-    zumo_utils::clear();
+  zumo_utils::clear();
 
-    zumo_movement::start();
-    zumo_utils::clear();
+  zumo_movement::start();
+  zumo_utils::clear();
 
-    zumo_movement::stop();
-    zumo_utils::clear();
+  zumo_movement::stop();
+  zumo_utils::clear();
 
-    zumo_movement::forward();
-    zumo_movement::start();
-    zumo_utils::clear();
+  zumo_movement::forward();
+  zumo_movement::start();
+  zumo_utils::clear();
 
-    zumo_movement::turn_left();
-    zumo_movement::start();
-    zumo_utils::clear();
+  zumo_movement::turn_left();
+  zumo_movement::start();
+  zumo_utils::clear();
 
-    zumo_movement::turn_right();
-    zumo_movement::start();
-    zumo_utils::clear();
-  }
+  zumo_movement::turn_right();
+  zumo_movement::start();
+  zumo_utils::clear();
+  // }
   return 0;
 }
