@@ -32,6 +32,14 @@ void testfn() {
 
 } // namespace test
 
+namespace zumo_movement {
+
+void start() { digitalWrite(HBREAK, HIGH); }
+
+void stop() { digitalWrite(HBREAK, LOW); }
+
+} // namespace zumo_movement
+
 namespace zumo_utils {
 
 void setup() {
