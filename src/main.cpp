@@ -41,6 +41,17 @@ void turn_right() {
   digitalWrite(TRACK_R, HIGH);
 }
 
+void setup() {
+  // uses BCM numbering of the GPIOs and directly accesses the GPIO registers.
+  wiringPiSetupGpio();
+
+  // Initialise pins
+  pinMode(TRACK_L, OUTPUT);
+  pinMode(TRACK_R, OUTPUT);
+  pinMode(SAFETY, OUTPUT);
+  pinMode(HBREAK, OUTPUT);
+}
+
 void safe() { digitalWrite(SAFETY, HIGH); }
 
 void unsafe() { digitalWrite(SAFETY, LOW); }
