@@ -1,4 +1,3 @@
-// #include "zumo.h"
 #include <chrono>
 #include <stdio.h>
 #include <thread>
@@ -15,7 +14,13 @@ using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
-// namespace zumo_movement {
+void blink(int pin) {
+  printf("blinking %d", pin);
+  digitalWrite(pin, HIGH);
+  delay(400);
+  digitalWrite(pin, LOW);
+  delay(100);
+}
 
 void start() { digitalWrite(HBREAK, HIGH); }
 
@@ -24,11 +29,6 @@ void stop() { digitalWrite(HBREAK, LOW); }
 void forward() {
   digitalWrite(TRACK_L, HIGH);
   digitalWrite(TRACK_R, HIGH);
-}
-
-void reverse() {
-  digitalWrite(TRACK_L, LOW);
-  digitalWrite(TRACK_R, LOW);
 }
 
 void turn_left() {
@@ -41,95 +41,66 @@ void turn_right() {
   digitalWrite(TRACK_R, HIGH);
 }
 
-// } // namespace zumo_movement
-
-// namespace zumo_utils {
-
-void safe() { digitalWrite(SAFETY, HIGH); }
-
-void unsafe() { digitalWrite(SAFETY, LOW); }
-
-void setup() {
-  wiringPiSetupGpio(); // uses BCM numbering, direct GPIO register access
-  pinMode(TRACK_L, OUTPUT);
-  pinMode(TRACK_R, OUTPUT);
-  pinMode(SAFETY, OUTPUT);
-  pinMode(HBREAK, OUTPUT);
-}
-
 void clear() {
+  sleep_for(0.8s);
   digitalWrite(TRACK_L, LOW);
   digitalWrite(TRACK_R, LOW);
-  digitalWrite(SAFETY, LOW);
   digitalWrite(HBREAK, LOW);
+  // digitalWrite(SAFETY, LOW);
+  sleep_for(0.2s);
 }
-
-void block() {
-  digitalWrite(TRACK_L, HIGH);
-  digitalWrite(TRACK_R, HIGH);
-  digitalWrite(SAFETY, HIGH);
-  digitalWrite(HBREAK, HIGH);
-}
-
-void blink(int pin) {
-  // printf("blinking %d", pin);
-  digitalWrite(pin, HIGH);
-  delay(400);
-  digitalWrite(pin, LOW);
-  delay(100);
-}
-
-// } // namespace zumo_utils
 
 int main(void) {
-  printf("hello, world");
 
-  // zumo_utils::setup();
+  // uses BCM numbering of the GPIOs and directly accesses the GPIO registers.
+  wiringPiSetupGpio();
 
-  wiringPiSetupGpio(); // uses BCM numbering, direct GPIO register access
+  // Initialise pins
   pinMode(17, OUTPUT);
   pinMode(27, OUTPUT);
   pinMode(16, OUTPUT);
   pinMode(26, OUTPUT);
 
-  printf("1");
-  block();
+  digitalWrite(17, HIGH);
+  digitalWrite(27, HIGH);
+  digitalWrite(16, HIGH);
+  digitalWrite(26, HIGH);
+
   sleep_for(2s);
 
-  printf("2");
-  clear();
-  sleep_for(0.5s);
-  block();
+  digitalWrite(17, LOW);
+  digitalWrite(27, LOW);
+  digitalWrite(16, LOW);
+  digitalWrite(26, LOW);
 
-  printf("3");
-  sleep_for(2s);
-  clear();
-  sleep_for(1s);
-
-  safe();
+  digitalWrite(SAFETY, HIGH);
 
   // blink lights in sequence
-  // for (;;) {
+  for (;;) {
+    // blink(17);
+    // blink(27);
+    // blink(16);
+    // blink(26);
 
-  clear();
+    clear();
 
-  start();
-  clear();
+    start();
+    clear();
 
-  stop();
-  clear();
+    stop();
+    clear();
 
-  forward();
-  start();
-  clear();
+    forward();
+    start();
+    clear();
 
-  turn_left();
-  start();
-  clear();
+    turn_left();
+    start();
+    clear();
 
-  turn_right();
-  start();
-  clear();
-  // }
+    turn_right();
+    start();
+    clear();
+  }
   return 0;
 }
