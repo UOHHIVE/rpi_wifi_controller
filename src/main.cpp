@@ -83,7 +83,13 @@ void blink(int pin) {
 
 int main(void) {
 
-  zumo_utils::setup();
+  // zumo_utils::setup();
+
+  wiringPiSetupGpio(); // uses BCM numbering, direct GPIO register access
+  pinMode(TRACK_L, OUTPUT);
+  pinMode(TRACK_R, OUTPUT);
+  pinMode(SAFETY, OUTPUT);
+  pinMode(HBREAK, OUTPUT);
 
   printf("1");
   zumo_utils::block();
