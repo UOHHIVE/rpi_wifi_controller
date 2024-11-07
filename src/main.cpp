@@ -34,17 +34,6 @@ void turn_right() {
   digitalWrite(TRACK_R, HIGH);
 }
 
-void setup() {
-  // uses BCM numbering of the GPIOs and directly accesses the GPIO registers.
-  wiringPiSetupGpio();
-
-  // Initialise pins
-  pinMode(TRACK_L, OUTPUT);
-  pinMode(TRACK_R, OUTPUT);
-  pinMode(SAFETY, OUTPUT);
-  pinMode(HBREAK, OUTPUT);
-}
-
 void clear() {
   sleep_for(0.8s);
   digitalWrite(TRACK_L, LOW);
@@ -56,7 +45,7 @@ void clear() {
 
 int main(void) {
 
-  setup();
+  zumo_utils::setup();
 
   test::testfn();
 
