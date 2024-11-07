@@ -2,7 +2,7 @@
 #include <chrono>
 #include <stdio.h>
 #include <thread>
-#include <wiringPi.h> // Include WiringPi library!
+// #include <wiringPi.h> // Include WiringPi library!
 
 // #define TRACK_L 17 // Left Track pin
 // #define TRACK_R 27 // Right Track Pin
