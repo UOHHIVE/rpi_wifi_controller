@@ -14,13 +14,23 @@ using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
-void blink(int pin) {
-  printf("blinking %d", pin);
-  digitalWrite(pin, HIGH);
-  delay(400);
-  digitalWrite(pin, LOW);
-  delay(100);
+namespace test {
+
+void testfn() {
+  digitalWrite(TRACK_L, HIGH);
+  digitalWrite(TRACK_R, HIGH);
+  digitalWrite(SAFETY, HIGH);
+  digitalWrite(HBREAK, HIGH);
+
+  sleep_for(2s);
+
+  digitalWrite(TRACK_L, LOW);
+  digitalWrite(TRACK_R, LOW);
+  digitalWrite(SAFETY, LOW);
+  digitalWrite(HBREAK, LOW);
 }
+
+} // namespace test
 
 void start() { digitalWrite(HBREAK, HIGH); }
 
@@ -67,26 +77,9 @@ void clear() {
 
 int main(void) {
 
-  // uses BCM numbering of the GPIOs and directly accesses the GPIO registers.
-  wiringPiSetupGpio();
+  setup();
 
-  // Initialise pins
-  pinMode(TRACK_L, OUTPUT);
-  pinMode(TRACK_R, OUTPUT);
-  pinMode(SAFETY, OUTPUT);
-  pinMode(HBREAK, OUTPUT);
-
-  digitalWrite(17, HIGH);
-  digitalWrite(27, HIGH);
-  digitalWrite(16, HIGH);
-  digitalWrite(26, HIGH);
-
-  sleep_for(2s);
-
-  digitalWrite(17, LOW);
-  digitalWrite(27, LOW);
-  digitalWrite(16, LOW);
-  digitalWrite(26, LOW);
+  test::testfn();
 
   sleep_for(0.5s);
 
