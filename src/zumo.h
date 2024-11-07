@@ -31,3 +31,11 @@ void testfn() {
 }
 
 } // namespace test
+
+namespace zumo_utils {
+
+void safe() { digitalWrite(SAFETY, HIGH); }
+
+void unsafe() { digitalWrite(SAFETY, LOW); }
+
+} // namespace zumo_utils

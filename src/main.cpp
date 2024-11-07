@@ -45,10 +45,6 @@ void setup() {
   pinMode(HBREAK, OUTPUT);
 }
 
-void safe() { digitalWrite(SAFETY, HIGH); }
-
-void unsafe() { digitalWrite(SAFETY, LOW); }
-
 void clear() {
   sleep_for(0.8s);
   digitalWrite(TRACK_L, LOW);
@@ -80,7 +76,7 @@ int main(void) {
 
   sleep_for(2s);
 
-  safe();
+  zumo_utils::safe();
 
   // blink lights in sequence
   for (;;) {
