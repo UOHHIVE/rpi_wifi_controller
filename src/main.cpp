@@ -44,21 +44,8 @@ int main(void) {
   zumo_utils::setup();
 
   test::testfn();
-
   sleep_for(0.5s);
-
-  digitalWrite(17, HIGH);
-  digitalWrite(27, HIGH);
-  digitalWrite(16, HIGH);
-  digitalWrite(26, HIGH);
-
-  sleep_for(2s);
-
-  digitalWrite(17, LOW);
-  digitalWrite(27, LOW);
-  digitalWrite(16, LOW);
-  digitalWrite(26, LOW);
-
+  test::testfn();
   sleep_for(2s);
 
   zumo_utils::safe();
