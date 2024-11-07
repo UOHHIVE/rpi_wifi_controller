@@ -14,7 +14,7 @@ apt install fakeroot gettext-base -y
 # pip install gpiod
 
 # clone wiring pi 
-git clone https://github.com/WiringPi/WiringPi.git
+git clone https://github.com/WiringPi/WiringPi.git --recursive
 cd WiringPi
 
 # build from source
