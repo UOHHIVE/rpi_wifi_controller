@@ -14,23 +14,7 @@ using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
-namespace test {
-
-void testfn() {
-  digitalWrite(TRACK_L, HIGH);
-  digitalWrite(TRACK_R, HIGH);
-  digitalWrite(SAFETY, HIGH);
-  digitalWrite(HBREAK, HIGH);
-
-  sleep_for(2s);
-
-  digitalWrite(TRACK_L, LOW);
-  digitalWrite(TRACK_R, LOW);
-  digitalWrite(SAFETY, LOW);
-  digitalWrite(HBREAK, LOW);
-}
-
-} // namespace test
+namespace test {} // namespace test
 
 namespace zumo_movement {
 
@@ -58,10 +42,8 @@ void turn_right() {
 namespace zumo_utils {
 
 void setup() {
-  // uses BCM numbering of the GPIOs and directly accesses the GPIO registers.
-  wiringPiSetupGpio();
+  wiringPiSetupGpio(); // uses BCM numbering of the GPIOs
 
-  // Initialise pins
   pinMode(TRACK_L, OUTPUT);
   pinMode(TRACK_R, OUTPUT);
   pinMode(SAFETY, OUTPUT);
@@ -79,6 +61,20 @@ void clear() {
   digitalWrite(HBREAK, LOW);
   // digitalWrite(SAFETY, LOW);
   sleep_for(0.2s);
+}
+
+void blink() {
+  digitalWrite(TRACK_L, HIGH);
+  digitalWrite(TRACK_R, HIGH);
+  digitalWrite(SAFETY, HIGH);
+  digitalWrite(HBREAK, HIGH);
+
+  sleep_for(2s);
+
+  digitalWrite(TRACK_L, LOW);
+  digitalWrite(TRACK_R, LOW);
+  digitalWrite(SAFETY, LOW);
+  digitalWrite(HBREAK, LOW);
 }
 
 } // namespace zumo_utils
