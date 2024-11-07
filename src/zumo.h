@@ -57,4 +57,13 @@ void safe() { digitalWrite(SAFETY, HIGH); }
 
 void unsafe() { digitalWrite(SAFETY, LOW); }
 
+void clear() {
+  sleep_for(0.8s);
+  digitalWrite(TRACK_L, LOW);
+  digitalWrite(TRACK_R, LOW);
+  digitalWrite(HBREAK, LOW);
+  // digitalWrite(SAFETY, LOW);
+  sleep_for(0.2s);
+}
+
 } // namespace zumo_utils

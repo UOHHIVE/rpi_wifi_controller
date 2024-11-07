@@ -30,15 +30,6 @@ void turn_right() {
   digitalWrite(TRACK_R, HIGH);
 }
 
-void clear() {
-  sleep_for(0.8s);
-  digitalWrite(TRACK_L, LOW);
-  digitalWrite(TRACK_R, LOW);
-  digitalWrite(HBREAK, LOW);
-  // digitalWrite(SAFETY, LOW);
-  sleep_for(0.2s);
-}
-
 int main(void) {
 
   zumo_utils::setup();
@@ -50,32 +41,27 @@ int main(void) {
 
   zumo_utils::safe();
 
-  // blink lights in sequence
   for (;;) {
-    // blink(17);
-    // blink(27);
-    // blink(16);
-    // blink(26);
 
-    clear();
+    zumo_utils::clear();
 
     zumo_movement::start();
-    clear();
+    zumo_utils::clear();
 
     zumo_movement::stop();
-    clear();
+    zumo_utils::clear();
 
     forward();
     zumo_movement::start();
-    clear();
+    zumo_utils::clear();
 
     turn_left();
     zumo_movement::start();
-    clear();
+    zumo_utils::clear();
 
     turn_right();
     zumo_movement::start();
-    clear();
+    zumo_utils::clear();
   }
   return 0;
 }
