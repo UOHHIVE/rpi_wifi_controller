@@ -1,3 +1,4 @@
+#include "zumo.h"
 #include <chrono>
 #include <stdio.h>
 #include <thread>
@@ -13,24 +14,6 @@
 using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
-
-namespace test {
-
-void testfn() {
-  digitalWrite(TRACK_L, HIGH);
-  digitalWrite(TRACK_R, HIGH);
-  digitalWrite(SAFETY, HIGH);
-  digitalWrite(HBREAK, HIGH);
-
-  sleep_for(2s);
-
-  digitalWrite(TRACK_L, LOW);
-  digitalWrite(TRACK_R, LOW);
-  digitalWrite(SAFETY, LOW);
-  digitalWrite(HBREAK, LOW);
-}
-
-} // namespace test
 
 void start() { digitalWrite(HBREAK, HIGH); }
 
