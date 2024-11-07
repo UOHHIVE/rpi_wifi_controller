@@ -15,7 +15,7 @@ using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
-namespace zumo_movement {
+// namespace zumo_movement {
 
 void start() { digitalWrite(HBREAK, HIGH); }
 
@@ -41,9 +41,9 @@ void turn_right() {
   digitalWrite(TRACK_R, HIGH);
 }
 
-} // namespace zumo_movement
+// } // namespace zumo_movement
 
-namespace zumo_utils {
+// namespace zumo_utils {
 
 void safe() { digitalWrite(SAFETY, HIGH); }
 
@@ -79,7 +79,7 @@ void blink(int pin) {
   delay(100);
 }
 
-} // namespace zumo_utils
+// } // namespace zumo_utils
 
 int main(void) {
 
@@ -92,43 +92,43 @@ int main(void) {
   pinMode(HBREAK, OUTPUT);
 
   printf("1");
-  zumo_utils::block();
+  block();
   sleep_for(2s);
 
   printf("2");
-  zumo_utils::clear();
+  clear();
   sleep_for(0.5s);
-  zumo_utils::block();
+  block();
 
   printf("3");
   sleep_for(2s);
-  zumo_utils::clear();
+  clear();
   sleep_for(1s);
 
-  zumo_utils::safe();
+  safe();
 
   // blink lights in sequence
   // for (;;) {
 
-  zumo_utils::clear();
+  clear();
 
-  zumo_movement::start();
-  zumo_utils::clear();
+  start();
+  clear();
 
-  zumo_movement::stop();
-  zumo_utils::clear();
+  stop();
+  clear();
 
-  zumo_movement::forward();
-  zumo_movement::start();
-  zumo_utils::clear();
+  forward();
+  start();
+  clear();
 
-  zumo_movement::turn_left();
-  zumo_movement::start();
-  zumo_utils::clear();
+  turn_left();
+  start();
+  clear();
 
-  zumo_movement::turn_right();
-  zumo_movement::start();
-  zumo_utils::clear();
+  turn_right();
+  start();
+  clear();
   // }
   return 0;
 }
