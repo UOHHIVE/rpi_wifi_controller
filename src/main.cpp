@@ -4,9 +4,9 @@
 #include <thread>
 #include <wiringPi.h> // Include WiringPi library!
 
-#define TRACK_L 17 // Left Track pin
+#define TRACK_L 16 // Left Track pin
 #define TRACK_R 27 // Right Track Pin
-#define SAFETY 16  // Safety Pin
+#define SAFETY 17  // Safety Pin
 #define HBREAK 26  // Break Pin
 
 // URL:
