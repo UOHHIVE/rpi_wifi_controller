@@ -51,10 +51,10 @@ void unsafe() { digitalWrite(SAFETY, LOW); }
 
 void setup() {
   wiringPiSetupGpio(); // uses BCM numbering, direct GPIO register access
-  pinMode(TRACK_L, OUTPUT);
-  pinMode(TRACK_R, OUTPUT);
-  pinMode(SAFETY, OUTPUT);
-  pinMode(HBREAK, OUTPUT);
+  pinMode(17, OUTPUT);
+  pinMode(27, OUTPUT);
+  pinMode(16, OUTPUT);
+  pinMode(26, OUTPUT);
 }
 
 void clear() {
