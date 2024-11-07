@@ -15,21 +15,6 @@ using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
-void forward() {
-  digitalWrite(TRACK_L, HIGH);
-  digitalWrite(TRACK_R, HIGH);
-}
-
-void turn_left() {
-  digitalWrite(TRACK_L, HIGH);
-  digitalWrite(TRACK_R, LOW);
-}
-
-void turn_right() {
-  digitalWrite(TRACK_L, LOW);
-  digitalWrite(TRACK_R, HIGH);
-}
-
 int main(void) {
 
   zumo_utils::setup();
@@ -51,15 +36,15 @@ int main(void) {
     zumo_movement::stop();
     zumo_utils::clear();
 
-    forward();
+    zumo_movement::forward();
     zumo_movement::start();
     zumo_utils::clear();
 
-    turn_left();
+    zumo_movement::turn_left();
     zumo_movement::start();
     zumo_utils::clear();
 
-    turn_right();
+    zumo_movement::turn_right();
     zumo_movement::start();
     zumo_utils::clear();
   }

@@ -38,6 +38,21 @@ void start() { digitalWrite(HBREAK, HIGH); }
 
 void stop() { digitalWrite(HBREAK, LOW); }
 
+void forward() {
+  digitalWrite(TRACK_L, HIGH);
+  digitalWrite(TRACK_R, HIGH);
+}
+
+void turn_left() {
+  digitalWrite(TRACK_L, HIGH);
+  digitalWrite(TRACK_R, LOW);
+}
+
+void turn_right() {
+  digitalWrite(TRACK_L, LOW);
+  digitalWrite(TRACK_R, HIGH);
+}
+
 } // namespace zumo_movement
 
 namespace zumo_utils {
