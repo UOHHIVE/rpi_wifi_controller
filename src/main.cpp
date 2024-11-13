@@ -40,19 +40,13 @@ int main(void) {
     t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
     t_delay = MSPT;
 
-    // printf("Last iteration, did stuff for: %d\n", t_delay);
-
-    if (t_delay > MSPT) {
-      printf("AAAAAAAA");
-    }
+    // TODO: read state
+    // TODO: compute state
+    // TODO: do movement stuff...
 
     p2 = std::chrono::system_clock::now().time_since_epoch();
     t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
     t_delay -= (t2 - t1);
-
-    // TODO: read state
-    // TODO: compute state
-    // TODO: do movement stuff...
 
     std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
   }
