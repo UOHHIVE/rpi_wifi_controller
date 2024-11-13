@@ -33,7 +33,7 @@ int main(void) {
   int t_delay;
 
   std::chrono::_V2::system_clock::duration p2 = std::chrono::system_clock::now().time_since_epoch();
-  int64_t t2 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
+  int64_t t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
 
   for (;;) {
 
