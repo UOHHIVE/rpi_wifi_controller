@@ -28,16 +28,17 @@ int main(void) {
   // TODO: spawn listener
 
   // define timing stuff
-  auto p1 = std::chrono::system_clock::now().time_since_epoch();
-  auto t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
-  int t_delay = MSPT;
+  std::chrono::_V2::system_clock::duration p1;
+  int64_t t1;
+  int t_delay;
 
-  auto p2 = std::chrono::system_clock::now().time_since_epoch();
-  auto t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
+  std::chrono::_V2::system_clock::duration p2 = std::chrono::system_clock::now().time_since_epoch();
+  int64_t t2 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
 
   for (;;) {
-    p1 = std::chrono::system_clock::now().time_since_epoch();
-    t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
+
+    p1 = p2;
+    t1 = t2;
     t_delay = MSPT;
 
     // TODO: read state
