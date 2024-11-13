@@ -10,67 +10,52 @@ using namespace std::this_thread;     // sleep_for, sleep_until
 using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::system_clock;
 
-#define TPS 120
-#define MSPT 1000000 / (float)TPS
+#define TPS 120            // ticks per second
+#define MSPT 1000000 / TPS // microseconds per tick
+
+void tcp_listener() {
+  while (1) {
+    printf("Listening...");
+
+    // TODO: add code to set up the listener stuff
+  }
+}
 
 int main(void) {
 
-  // TODO:
-  // - init state rwlock
-  // - init buffer
-  // - spawn listener
-  // - while true to move the bot
+  // TODO: init state rwlock
+  // TODO: init buffer
+  // TODO: spawn listener
 
+  // define timing stuff
   auto p1 = std::chrono::system_clock::now().time_since_epoch();
   auto t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
-  auto t_target = t1 + MSPT;
+  int t_delay = MSPT;
 
-  // auto p2 = std::chrono::system_clock::now().time_since_epoch();
-  // auto t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
+  auto p2 = std::chrono::system_clock::now().time_since_epoch();
+  auto t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
 
-  while (1) {
-
+  for (;;) {
     p1 = std::chrono::system_clock::now().time_since_epoch();
     t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
-    t_target = t1 + MSPT;
+    t_delay = MSPT;
+
+    // printf("Last iteration, did stuff for: %d\n", t_delay);
+
+    if (t_delay > MSPT) {
+      printf("AAAAAAAA");
+    }
+
+    p2 = std::chrono::system_clock::now().time_since_epoch();
+    t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
+    t_delay -= (t2 - t1);
 
     // TODO: read state
     // TODO: compute state
     // TODO: do movement stuff...
 
-    // sleep_until(p1); // TODO: how do I get this working?
+    std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
   }
 
-  // zumo_utils::setup();
-
-  // zumo_utils::blink();
-  // sleep_for(0.5s);
-  // zumo_utils::blink();
-  // sleep_for(2s);
-
-  // zumo_utils::safe();
-
-  // for (;;) {
-
-  //   zumo_utils::clear();
-
-  //   zumo_movement::start();
-  //   zumo_utils::clear();
-
-  //   zumo_movement::stop();
-  //   zumo_utils::clear();
-
-  //   zumo_movement::forward();
-  //   zumo_movement::start();
-  //   zumo_utils::clear();
-
-  //   zumo_movement::turn_left();
-  //   zumo_movement::start();
-  //   zumo_utils::clear();
-
-  //   zumo_movement::turn_right();
-  //   zumo_movement::start();
-  //   zumo_utils::clear();
-  // }
   return 0;
 }
