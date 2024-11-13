@@ -1,3 +1,5 @@
+#include "commons/src/locks/buffer.hpp"
+#include "commons/src/locks/rw_lock.hpp"
 #include "commons/src/zumo.h"
 #include <chrono>
 #include <stdio.h>
@@ -13,6 +15,10 @@ using std::chrono::system_clock;
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 
+// TODO: make sure buff is right size
+static BufferLock BUFFER;
+static RWLock<int> STATE;
+
 void tcp_listener() {
   while (1) {
     printf("Listening...");
@@ -21,10 +27,24 @@ void tcp_listener() {
   }
 }
 
-int main(void) {
+void test_thread() {
+  for (int i; i < 100000; i++) {
+    STATE.write(STATE.read() + 1);
+  }
+}
 
-  // TODO: init state rwlock
-  // TODO: init buffer
+int main(void) {
+  auto s = sizeof(BUFFER.read());
+  printf("%lu", s);
+
+  BUFFER.write("Hello, world! I am Ash :3");
+
+  s = sizeof(BUFFER.read());
+  printf("%lu", s);
+}
+
+int main2(void) {
+
   // TODO: spawn listener
 
   // define timing stuff
@@ -35,7 +55,7 @@ int main(void) {
   std::chrono::_V2::system_clock::duration p2 = std::chrono::system_clock::now().time_since_epoch();
   int64_t t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
 
-  for (;;) {
+  while (true) {
 
     p1 = p2;
     t1 = t2;
