@@ -28,19 +28,23 @@ void tcp_listener() {
 }
 
 void test_thread() {
-  for (int i; i < 100000; i++) {
-    STATE.write(STATE.read() + 1);
+  for (int i = 0; i < 1000; i++) {
+    int current_state = STATE.locking_read();
+    STATE.write(current_state + 1);
   }
+
+  // auto current = BUFFER.read();
+  // printf(current);
 }
 
 int main(void) {
-  auto s = sizeof(BUFFER.read());
-  printf("%lu", s);
+  std::thread p1(test_thread);
+  std::thread p2(test_thread);
 
-  BUFFER.write("Hello, world! I am Ash :3");
+  p1.join();
+  p2.join();
 
-  s = sizeof(BUFFER.read());
-  printf("%lu", s);
+  printf("%d", STATE.read());
 }
 
 int main2(void) {
