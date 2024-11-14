@@ -1,4 +1,5 @@
 #include "commons/src/locks/buffer.hpp"
+#include "commons/src/locks/lock.hpp"
 #include "commons/src/locks/rw_lock.hpp"
 #include "commons/src/zumo.h"
 #include <chrono>
@@ -16,8 +17,10 @@ using std::chrono::system_clock;
 #define MSPT 1000000 / TPS // microseconds per tick
 
 // TODO: make sure buff is right size
+// static RWLock<int> STATE;
+static Lock<int> STATE;
 static BufferLock BUFFER;
-static RWLock<int> STATE;
+static bool test_bool = true;
 
 void tcp_listener() {
   while (1) {
@@ -28,21 +31,34 @@ void tcp_listener() {
 }
 
 void test_thread() {
-  for (int i = 0; i < 1000; i++) {
-    int current_state = STATE.locking_read();
-    STATE.write(current_state + 1);
+  for (int i = 0; i < 100000; i++) {
+    std::lock_guard<std::mutex> lock(STATE.mtx);
+    auto data = STATE.read();
+    STATE.inner = data + 1;
+
+    if (STATE.read() >= 200000) {
+      test_bool = false;
+    }
   }
 
   // auto current = BUFFER.read();
   // printf(current);
 }
 
+void printer_thread() {
+  while (test_bool) {
+    printf("%d\n", STATE.read());
+  }
+}
+
 int main(void) {
   std::thread p1(test_thread);
   std::thread p2(test_thread);
+  std::thread p3(printer_thread);
 
   p1.join();
   p2.join();
+  p3.join();
 
   printf("%d", STATE.read());
 }
