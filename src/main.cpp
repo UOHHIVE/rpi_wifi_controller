@@ -14,7 +14,7 @@ using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
 using std::chrono::high_resolution_clock;
 using std::chrono::system_clock;
 
-#define TPS 1              // ticks per second
+#define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 
 // TODO: make sure buff is right size
@@ -43,11 +43,12 @@ int main(void) {
 
   // define timing stuff
   std::chrono::_V2::system_clock::duration p1;
-  int64_t t1;
-  int t_delay;
+  std::chrono::_V2::system_clock::duration p2;
 
-  std::chrono::_V2::system_clock::duration p2 = std::chrono::high_resolution_clock::now().time_since_epoch();
-  int64_t t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
+  int64_t t1;
+  int64_t t2;
+
+  int t_delay;
 
   while (true) {
 
