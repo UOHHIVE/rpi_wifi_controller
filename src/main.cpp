@@ -48,24 +48,33 @@ int main(void) {
   std::chrono::_V2::system_clock::duration p2 = std::chrono::system_clock::now().time_since_epoch();
   int64_t t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
 
+  bool ticked = false;
+
   while (true) {
 
     p1 = p2;
     t1 = t2;
-
-    printf("state=%d (tick delay: %d)\n", STATE.read(), t_delay);
     t_delay = MSPT;
 
-    // TODO: read state
-    // TODO: compute state
-    // TODO: do movement stuff...
+    if (!ticked) {
+
+      // TODO: read state
+      // TODO: compute state
+      // TODO: do movement stuff...
+
+      printf("tick \n");
+
+      ticked = true;
+    }
 
     p2 = std::chrono::system_clock::now().time_since_epoch();
     t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
     t_delay -= (t2 - t1);
 
     if (t_delay > 0) { // time keeps going backwards ?? no clue why
+      printf("state=%d (tick delay: %d)\n", STATE.read(), t_delay);
       std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
+      ticked = false;
     }
   }
 
