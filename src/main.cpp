@@ -19,6 +19,7 @@ using namespace netcode;
 
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
+#define TICK false
 
 // TODO: make sure buff is right size
 // static RWLock<int> STATE;
@@ -28,6 +29,17 @@ static bool test_bool = true;
 
 void tcp_listener() {
   printf("started listening...\n");
+
+  ConnManager::cm_connect("10.140.10.61", 6009);
+
+  char *hello = "Hello from client";
+  ConnManager::cm_send(hello);
+
+  ConnManager::cm_recv();
+  printf("BUFFER: %s\n", BUFFER);
+
+  ConnManager::cm_disconnect();
+
   while (1) {
     // TODO: sort out magic number connections
     // TODO: start listening
@@ -54,7 +66,7 @@ int main(void) {
 
   int t_delay;
 
-  while (true) {
+  while (TICK) {
 
     p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
     t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
