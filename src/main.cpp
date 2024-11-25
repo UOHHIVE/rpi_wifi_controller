@@ -30,12 +30,13 @@ static bool test_bool = true;
 void tcp_listener() {
   printf("started listening...\n");
 
-  ConnManager::cm_connect("10.140.10.61", 6009);
+  // ConnManager::cm_connect("10.140.10.61", 6009);
+  Socket s = Socket("10.140.10.61", 6009);
 
   char *hello = "Hello from client";
-  ConnManager::cm_send(hello);
+  s._send(hello, sizeof(hello));
 
-  ConnManager::cm_recv();
+  s._read(BUFFER, 1024);
   printf("BUFFER: %s\n", BUFFER);
 
   // while (1) {
