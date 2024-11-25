@@ -38,19 +38,22 @@ void tcp_listener() {
   ConnManager::cm_recv();
   printf("BUFFER: %s\n", BUFFER);
 
-  ConnManager::cm_disconnect();
+  // while (1) {
+  //   // TODO: start listening
 
-  while (1) {
-    // TODO: sort out magic number connections
-    // TODO: start listening
+  //   std::lock_guard<std::mutex> lock(STATE.mtx);
+  //   STATE.inner += 1;
 
-    std::lock_guard<std::mutex> lock(STATE.mtx);
-    STATE.inner += 1;
+  //   if (STATE.inner > 69) {
+  //     STATE.inner = 0;
+  //   }
 
-    if (STATE.inner > 69) {
-      STATE.inner = 0;
-    }
-  }
+  //   ConnManager::cm_send(reinterpret_cast<char *>(&STATE.inner));
+  // }
+
+  // ConnManager::cm_disconnect();
+
+  sleep_for(5s);
 }
 
 int main(void) {
