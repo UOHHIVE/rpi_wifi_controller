@@ -1,4 +1,4 @@
-#include "commons/src/dotenv/dotenv.hpp"
+#include "commons/src/dotenv/dotenv.cpp"
 #include "commons/src/locks/buffer.hpp"
 #include "commons/src/locks/lock.hpp"
 #include "commons/src/locks/rw_lock.hpp"
@@ -27,42 +27,42 @@ static Lock<int> STATE;
 static char BUFFER[1024];
 
 void tcp_listener() {
-  // printf("started listening...\n");
+  printf("started listening...\n");
 
-  // // ConnManager::cm_connect("10.140.10.61", 6009);
-  // Socket s = Socket("10.140.10.61", 6009);
+  // ConnManager::cm_connect("10.140.10.61", 6009);
+  Socket s = Socket("10.140.10.61", 6000);
 
   // uint32_t test = 69;
-  // s._send(reinterpret_cast<char *>(&test), sizeof(test));
+  // s._send(reinterpret_cast<char *>(&test));
 
-  // char *hello = "Hello from client";
-  // s._send(hello, sizeof(hello));
+  char *hello = "Hello from client";
+  s._send(hello);
 
   // s._read(BUFFER, 1024);
   // printf("BUFFER: %s\n", BUFFER);
 
-  // while (1) {
-  //   // TODO: start listening
+  while (1) {
+    // TODO: start listening
 
-  //   // std::lock_guard<std::mutex> lock(STATE.mtx);
-  //   // STATE.inner += 1;
+    // std::lock_guard<std::mutex> lock(STATE.mtx);
+    // STATE.inner += 1;
 
-  //   // if (STATE.inner >= 70) {
-  //   //   STATE.inner = 0;
-  //   // }
+    // if (STATE.inner >= 70) {
+    //   STATE.inner = 0;
+    // }
 
-  //   // s._send(reinterpret_cast<char *>(&STATE.inner), sizeof(STATE.inner));
-  // }
+    // s._send(reinterpret_cast<char *>(&STATE.inner), sizeof(STATE.inner));
+  }
 
-  // sleep_for(5s);
-  // s._disconnect();
+  sleep_for(5s);
+  s._disconnect();
 }
 
 int main(void) {
 
-  dotenv::DotEnv::load("./.env");
-
-  std::cout << dotenv::DotEnv::get("TEST") << std::endl;
+  // // TODO: fix smth borked
+  // dotenv::DotEnv::load("./.env");
+  // std::cout << dotenv::DotEnv::get("TEST") << std::endl;
 
   std::thread p_listener(tcp_listener);
 
