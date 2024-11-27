@@ -60,11 +60,6 @@ void tcp_listener() {
 
 int main(void) {
 
-  std::string testing = "this is a test";
-
-  std::cout << "test 1: " << testing[2] << std::endl;
-  std::cout << "test 2: " << &testing[2] << std::endl;
-
   std::thread p_listener(tcp_listener);
 
   // define timing stuff
@@ -96,14 +91,6 @@ int main(void) {
   }
 
   p_listener.join();
-
-  string test_1 = "test=1234 # this is a comment";
-  string test_2 = "test=\"ab\\\"cd \" # this is another cool comment";
-
-  dotenv::DotEnv::kv_pair a = dotenv::DotEnv::parse_line(test_2);
-  dotenv::DotEnv::parse_line(test_2);
-
-  std::cout << a.key << ": `" << a.val << "`" << std::endl;
 
   return 0;
 }
