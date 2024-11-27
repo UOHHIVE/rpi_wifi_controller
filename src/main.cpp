@@ -1,9 +1,5 @@
-#include "commons/src/dotenv/dotenv.cpp"
-#include "commons/src/locks/buffer.hpp"
-#include "commons/src/locks/lock.hpp"
-#include "commons/src/locks/rw_lock.hpp"
-#include "commons/src/netcode/netcode.cpp"
-#include "commons/src/zumo.h"
+// #include "commons/src/dotenv/dotenv.cpp"
+#include "commons/hive_commons.hpp"
 #include <chrono>
 #include <stdio.h>
 #include <sys/time.h>
@@ -50,14 +46,19 @@ void tcp_listener() {
   }
 
   sleep_for(5s);
-  s._disconnect();
+  s.close_conn();
 }
 
 int main(void) {
 
-  // // TODO: fix smth borked
-  // dotenv::DotEnv::load("./.env");
-  // std::cout << dotenv::DotEnv::get("TEST") << std::endl;
+  // TODO: fix smth borked
+  dotenv::DotEnv::load("../.env");
+
+  std::cout << dotenv::DotEnv::get("BOT_NAME") << std::endl;
+  std::cout << dotenv::DotEnv::get("BOT_COLOUR") << std::endl;
+  std::cout << dotenv::DotEnv::get("DC_ADDRESS") << std::endl;
+  std::cout << dotenv::DotEnv::get("DC_PORT") << std::endl;
+  std::cout << dotenv::DotEnv::get("ID_OVERRIDE") << std::endl;
 
   std::thread p_listener(tcp_listener);
 
