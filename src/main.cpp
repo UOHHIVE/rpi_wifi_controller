@@ -60,6 +60,10 @@ void tcp_listener() {
 
 int main(void) {
 
+  dotenv::DotEnv::load("./.env");
+
+  std::cout << dotenv::DotEnv::get("TEST") << std::endl;
+
   std::thread p_listener(tcp_listener);
 
   // define timing stuff
