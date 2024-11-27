@@ -13,6 +13,7 @@ using std::chrono::high_resolution_clock;
 using std::chrono::system_clock;
 
 using namespace netcode;
+using namespace dotenv;
 
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
@@ -23,9 +24,12 @@ static Lock<int> STATE;
 static char BUFFER[1024];
 
 void tcp_listener() {
+
   printf("started listening...\n");
 
-  Socket s = Socket("10.140.10.61", 6000);
+  string dc_address = DotEnv::get("DC_ADDRESS");
+  string dc_port = DotEnv::get("DC_PORT");
+  Socket s = Socket(dc_address.data(), std::stoi(dc_port));
 
   // TODO: construct subscriber fb
   // char *hello = "Hello from client";
@@ -51,14 +55,8 @@ void tcp_listener() {
 
 int main(void) {
 
-  // TODO: fix smth borked
+  // TODO: change this path later...
   dotenv::DotEnv::load("../.env");
-
-  std::cout << dotenv::DotEnv::get("BOT_NAME") << std::endl;
-  std::cout << dotenv::DotEnv::get("BOT_COLOUR") << std::endl;
-  std::cout << dotenv::DotEnv::get("DC_ADDRESS") << std::endl;
-  std::cout << dotenv::DotEnv::get("DC_PORT") << std::endl;
-  std::cout << dotenv::DotEnv::get("ID_OVERRIDE") << std::endl;
 
   std::thread p_listener(tcp_listener);
 
