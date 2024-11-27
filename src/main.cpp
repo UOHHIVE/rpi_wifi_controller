@@ -29,20 +29,15 @@ static char BUFFER[1024];
 void tcp_listener() {
   printf("started listening...\n");
 
-  // ConnManager::cm_connect("10.140.10.61", 6009);
   Socket s = Socket("10.140.10.61", 6000);
 
-  // uint32_t test = 69;
-  // s._send(reinterpret_cast<char *>(&test));
-
-  char *hello = "Hello from client";
-  s._send(hello);
-
-  // s._read(BUFFER, 1024);
-  // printf("BUFFER: %s\n", BUFFER);
+  // TODO: construct subscriber fb
+  // char *hello = "Hello from client";
+  // s._send(hello);
 
   while (1) {
     // TODO: start listening
+    // TODO: on recv, update state
 
     // std::lock_guard<std::mutex> lock(STATE.mtx);
     // STATE.inner += 1;
