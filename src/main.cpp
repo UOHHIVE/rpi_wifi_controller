@@ -1,3 +1,4 @@
+#include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/locks/buffer.hpp"
 #include "commons/src/locks/lock.hpp"
 #include "commons/src/locks/rw_lock.hpp"
@@ -26,38 +27,43 @@ static Lock<int> STATE;
 static char BUFFER[1024];
 
 void tcp_listener() {
-  printf("started listening...\n");
+  // printf("started listening...\n");
 
-  // ConnManager::cm_connect("10.140.10.61", 6009);
-  Socket s = Socket("10.140.10.61", 6009);
+  // // ConnManager::cm_connect("10.140.10.61", 6009);
+  // Socket s = Socket("10.140.10.61", 6009);
 
-  uint32_t test = 69;
-  s._send(reinterpret_cast<char *>(&test), sizeof(test));
+  // uint32_t test = 69;
+  // s._send(reinterpret_cast<char *>(&test), sizeof(test));
 
-  char *hello = "Hello from client";
-  s._send(hello, sizeof(hello));
+  // char *hello = "Hello from client";
+  // s._send(hello, sizeof(hello));
 
-  s._read(BUFFER, 1024);
-  printf("BUFFER: %s\n", BUFFER);
+  // s._read(BUFFER, 1024);
+  // printf("BUFFER: %s\n", BUFFER);
 
-  while (1) {
-    // TODO: start listening
+  // while (1) {
+  //   // TODO: start listening
 
-    // std::lock_guard<std::mutex> lock(STATE.mtx);
-    // STATE.inner += 1;
+  //   // std::lock_guard<std::mutex> lock(STATE.mtx);
+  //   // STATE.inner += 1;
 
-    // if (STATE.inner >= 70) {
-    //   STATE.inner = 0;
-    // }
+  //   // if (STATE.inner >= 70) {
+  //   //   STATE.inner = 0;
+  //   // }
 
-    // s._send(reinterpret_cast<char *>(&STATE.inner), sizeof(STATE.inner));
-  }
+  //   // s._send(reinterpret_cast<char *>(&STATE.inner), sizeof(STATE.inner));
+  // }
 
-  sleep_for(5s);
-  s._disconnect();
+  // sleep_for(5s);
+  // s._disconnect();
 }
 
 int main(void) {
+
+  std::string testing = "this is a test";
+
+  std::cout << "test 1: " << testing[2] << std::endl;
+  std::cout << "test 2: " << &testing[2] << std::endl;
 
   std::thread p_listener(tcp_listener);
 
@@ -90,5 +96,14 @@ int main(void) {
   }
 
   p_listener.join();
+
+  string test_1 = "test=1234 # this is a comment";
+  string test_2 = "test=\"ab\\\"cd \" # this is another cool comment";
+
+  dotenv::DotEnv::kv_pair a = dotenv::DotEnv::parse_line(test_2);
+  dotenv::DotEnv::parse_line(test_2);
+
+  std::cout << a.key << ": `" << a.val << "`" << std::endl;
+
   return 0;
 }
