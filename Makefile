@@ -1,12 +1,12 @@
 
 CC = clang++
-STD = c17
+STD = c++23
 
 #ARCH = arm64
 #ARCH = x86_64
 
-CFLAGS_TEST = -Wall -Wextra -l wiringPi # -Werror -Wpedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-private-field -l wiringPi
-CFLAGS_PROD = -flto -Wall -Wextra -O3 -l wiringPi
+CFLAGS_TEST = -std=$(STD) -Wall -Wextra -l wiringPi # -Werror -Wpedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-private-field -l wiringPi
+CFLAGS_PROD = -std=$(STD) -flto -Wall -Wextra -O3 -l wiringPi
 # CFLAGS_PROD = -arch $(ARCH) -std=$(STD) -Wall -Wextra -O3
 
 DIR_SRC = ./src/
