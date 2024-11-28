@@ -6,9 +6,9 @@
 #include <sys/time.h>
 #include <thread>
 #include <type_traits>
+#include <utility>
 
 #include "commons/src/flatbuf/commons_generated.h"
-#include <utility>
 
 // URL:
 // https://stackoverflow.com/questions/158585/how-do-you-add-a-timed-delay-to-a-c-program
