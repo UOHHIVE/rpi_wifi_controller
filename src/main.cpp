@@ -24,6 +24,9 @@ using namespace dotenv;
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK false
 
+// TODO: Make a struct or a class to hold the bots dynamic info.
+// use that as a placeholder for the loop while figuring out other stuff
+
 // TODO: make sure buff is right size
 static Lock<int> STATE;
 static char BUFFER[1024];
