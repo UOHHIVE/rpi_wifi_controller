@@ -23,17 +23,37 @@ using namespace dotenv;
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK false
+#define EB_XYZ 0.05
+#define EB_ROT 0.05
 
 // TODO: Make a struct or a class to hold the bots dynamic info.
 // use that as a placeholder for the loop while figuring out other stuff
 
+struct vec3 {
+  int x;
+  int y;
+  int z;
+};
+
+struct BotState {
+  uint64_t id;
+  vec3 current_pos;
+  vec3 current_rot;
+  vec3 target_pos;
+  bool halted;
+  bool aligned;
+};
+
+template <typename T, typename C> bool in_bound(T val, T comp, C bound) { return val - bound <= val <= val + bound; }
+template <typename T, typename C> bool in_bound(T val, C bound) { return val - bound <= val <= val + bound; }
+template <typename T> bool in_bound(T val, T comp, T bound) { return comp - bound <= val <= comp + bound; }
+template <typename T> bool in_bound(T val, T bound) { return val - bound <= val <= val + bound; }
+
 // TODO: make sure buff is right size
-static Lock<int> STATE;
+static Lock<BotState> STATE;
 static char BUFFER[1024];
 
-inline uint16_t encodeSubscriptionType(const HiveCommon::SubscriptionType type, const uint16_t subscription = 0) {
-  return static_cast<uint16_t>(1 << std::to_underlying(type)) | subscription;
-}
+inline uint16_t encodeSubscriptionType(const HiveCommon::SubscriptionType type, const uint16_t subscription = 0) { return static_cast<uint16_t>(1 << std::to_underlying(type)) | subscription; }
 
 void tcp_listener() {
 
@@ -113,7 +133,35 @@ int main(void) {
 
     // TODO: read state
     // TODO: compute state
-    // TODO: do movement stuff...
+
+    auto s = STATE.read();
+
+    if (!s.halted) {
+
+      // TODO: do movement stuff...
+      if (!s.aligned) {
+        // TODO: calculate which direction to turn
+        // TODO: turn til matched
+        // TODO: lock state, set aligned
+      } else {
+        // TODO: check current pos
+        // TODO: if x OR y are equal to target, realign
+        // TODO: if current pos not matched, move forward
+        if (in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ) xor in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ)) {
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+          STATE.inner.aligned = false;
+        } else if (in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ) and in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ)) {
+          zumo_movement::forward();
+        }
+      }
+
+    } else {
+      zumo_movement::stop();
+
+      // always reallign after a halt
+      std::lock_guard<std::mutex> lock(STATE.mtx);
+      STATE.inner.aligned = false;
+    }
 
     printf("tick \n");
     printf("state=%d (tick delay: %d)\n", STATE.read(), t_delay);
