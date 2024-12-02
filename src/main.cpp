@@ -29,6 +29,8 @@ using namespace dotenv;
 // TODO: Make a struct or a class to hold the bots dynamic info.
 // use that as a placeholder for the loop while figuring out other stuff
 
+// TODO: clean this section up, move to commons.
+
 struct vec3 {
   int x;
   int y;
@@ -131,28 +133,24 @@ int main(void) {
     p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
     t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
 
-    // TODO: read state
-    // TODO: compute state
-
     auto s = STATE.read();
 
     if (!s.halted) {
-
-      // TODO: do movement stuff...
-      if (!s.aligned) {
-        // TODO: calculate which direction to turn
-        // TODO: turn til matched
-        // TODO: lock state, set aligned
-      } else {
-        // TODO: check current pos
-        // TODO: if x OR y are equal to target, realign
-        // TODO: if current pos not matched, move forward
+      if (s.aligned) {
         if (in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ) xor in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ)) {
+          zumo_movement::stop();
+
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.aligned = false;
         } else if (in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ) and in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ)) {
+          zumo_movement::stop();
+        } else {
           zumo_movement::forward();
         }
+      } else {
+        // TODO: calculate which direction to turn
+        // TODO: turn til matched
+        // TODO: lock state, set aligned
       }
 
     } else {
