@@ -156,9 +156,6 @@ int main(void) {
           zumo_movement::forward();
         }
       } else {
-        // TODO: calculate which direction to turn
-        // TODO: turn til matched
-        // TODO: lock state, set aligned
 
         float delta_x = s.target_pos.x - s.current_pos.x;
         float delta_z = s.target_pos.x - s.current_pos.z;
