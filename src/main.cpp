@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "commons/src/flatbuf/commons_generated.h"
+#include <cmath>
 
 // URL:
 // https://stackoverflow.com/questions/158585/how-do-you-add-a-timed-delay-to-a-c-program
@@ -31,22 +32,29 @@ using namespace dotenv;
 
 // TODO: clean this section up, move to commons.
 
-struct vec3 {
-  int x;
-  int y;
-  int z;
+struct float3 {
+  float x;
+  float y;
+  float z;
+};
+
+struct float4 {
+  float x;
+  float y;
+  float z;
+  float w;
 };
 
 struct BotState {
   uint64_t id;
-  vec3 current_pos;
-  vec3 current_rot;
-  vec3 target_pos;
+  float3 current_pos;
+  float4 current_rot;
+  float3 target_pos;
   bool halted;
   bool aligned;
 };
 
-template <typename T, typename C> bool in_bound(T val, T comp, C bound) { return val - bound <= val <= val + bound; }
+template <typename T, typename C> bool in_bound(T val, T comp, C bound) { return comp - bound <= val <= comp + bound; }
 template <typename T, typename C> bool in_bound(T val, C bound) { return val - bound <= val <= val + bound; }
 template <typename T> bool in_bound(T val, T comp, T bound) { return comp - bound <= val <= comp + bound; }
 template <typename T> bool in_bound(T val, T bound) { return val - bound <= val <= val + bound; }
@@ -151,6 +159,22 @@ int main(void) {
         // TODO: calculate which direction to turn
         // TODO: turn til matched
         // TODO: lock state, set aligned
+
+        float delta_x = s.target_pos.x - s.current_pos.x;
+        float delta_z = s.target_pos.x - s.current_pos.z;
+
+        float mag_current = std::sqrt(s.current_rot.x * s.current_rot.x + s.current_rot.z * s.current_rot.z);
+        float mag_target = std::sqrt(delta_x * delta_x + delta_z * delta_z);
+
+        float lhs = mag_current * mag_target;
+        float rhs = s.current_rot.x * delta_x + s.current_rot.z * delta_z;
+
+        bool ib = in_bound(lhs - rhs, EB_ROT);
+
+        if (ib) {
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+          STATE.inner.aligned = ib;
+        }
       }
 
     } else {
