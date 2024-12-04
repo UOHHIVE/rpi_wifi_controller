@@ -159,11 +159,6 @@ int main(void) {
       } else {
 
         // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
-        // TODO: calculate quaternal angle from current_rot.y
-        // TODO: calc CQ
-        // TODO: calc point Q (1 away from front of bot)z
-        // TODO: check QT where x = C.x, if greater than C.y, set turning to clockwise
-        // TODO: Dot QC and QT, if close enough to EB_ROT, its aligned
 
         float theta_q = 2 * asinf(s.current_rot.w);
 
