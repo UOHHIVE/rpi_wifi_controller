@@ -52,6 +52,7 @@ struct BotState {
   float3 target_pos;
   bool halted;
   bool aligned;
+  bool clockwise;
 };
 
 template <typename T, typename C> bool in_bound(T val, T comp, C bound) { return comp - bound <= val <= comp + bound; }
@@ -157,21 +158,74 @@ int main(void) {
         }
       } else {
 
-        float delta_x = s.target_pos.x - s.current_pos.x;
-        float delta_z = s.target_pos.x - s.current_pos.z;
+        // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
+        // TODO: calculate quaternal angle from current_rot.y
+        // TODO: calc CQ
+        // TODO: calc point Q (1 away from front of bot)z
+        // TODO: check QT where x = C.x, if greater than C.y, set turning to clockwise
+        // TODO: Dot QC and QT, if close enough to EB_ROT, its aligned
 
-        float mag_current = std::sqrt(s.current_rot.x * s.current_rot.x + s.current_rot.z * s.current_rot.z);
-        float mag_target = std::sqrt(delta_x * delta_x + delta_z * delta_z);
+        float theta_q = 2 * asinf(s.current_rot.w);
 
-        float lhs = mag_current * mag_target;
-        float rhs = s.current_rot.x * delta_x + s.current_rot.z * delta_z;
+        float cq_x = cos(theta_q);
+        float cq_z = sin(theta_q);
 
-        bool ib = in_bound(lhs - rhs, EB_ROT);
+        float ct_x = s.target_pos.x - s.current_pos.x;
+        float ct_z = s.target_pos.z - s.current_pos.z;
 
-        if (ib) {
+        float q_x = s.current_pos.x + cq_x;
+        float q_z = s.current_pos.z + cq_z;
+
+        float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
+        float rhs = ct_x * cq_x + ct_z * cq_z;
+
+        float dot_ct_cq = rhs / lhs;
+
+        if (in_bound(dot_ct_cq, EB_ROT)) {
           std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.aligned = ib;
+          STATE.inner.aligned = true;
+        } else {
+
+          float qt_x = s.target_pos.x - q_x;
+          float qt_z = s.target_pos.z - q_z;
+
+          float m = qt_z / qt_x;
+          float x = s.current_pos.x - q_x;
+          float z = m * x + q_z;
+
+          bool clockwise = z > s.current_pos.z;
+
+          if (clockwise xor s.clockwise) {
+            std::lock_guard<std::mutex> lock(STATE.mtx);
+            STATE.inner.clockwise = true;
+          }
         }
+
+        // float3 quat_as_unit_vec;
+        // float3 target_unit_vec;
+
+        // float aaa;
+        // bool clockwise = s.current_pos.y >= aaa;
+
+        // float delta_x = s.target_pos.x - s.current_pos.x;
+        // float delta_z = s.target_pos.x - s.current_pos.z;
+
+        // float mag_current = std::sqrt(s.current_rot.x * s.current_rot.x + s.current_rot.z * s.current_rot.z);
+        // float mag_target = std::sqrt(delta_x * delta_x + delta_z * delta_z);
+
+        // float lhs = mag_current * mag_target;
+        // float rhs = s.current_rot.x * delta_x + s.current_rot.z * delta_z;
+        // float lmr = lhs - rhs;
+
+        // // bool lr =
+        // bool ib = in_bound(lmr, EB_ROT);
+
+        // if (ib) {
+        //   std::lock_guard<std::mutex> lock(STATE.mtx);
+        //   STATE.inner.aligned = ib;
+        // }
+
+        // // bool top =
       }
 
     } else {
