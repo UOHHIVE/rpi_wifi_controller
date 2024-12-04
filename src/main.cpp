@@ -200,32 +200,6 @@ int main(void) {
             STATE.inner.clockwise = true;
           }
         }
-
-        // float3 quat_as_unit_vec;
-        // float3 target_unit_vec;
-
-        // float aaa;
-        // bool clockwise = s.current_pos.y >= aaa;
-
-        // float delta_x = s.target_pos.x - s.current_pos.x;
-        // float delta_z = s.target_pos.x - s.current_pos.z;
-
-        // float mag_current = std::sqrt(s.current_rot.x * s.current_rot.x + s.current_rot.z * s.current_rot.z);
-        // float mag_target = std::sqrt(delta_x * delta_x + delta_z * delta_z);
-
-        // float lhs = mag_current * mag_target;
-        // float rhs = s.current_rot.x * delta_x + s.current_rot.z * delta_z;
-        // float lmr = lhs - rhs;
-
-        // // bool lr =
-        // bool ib = in_bound(lmr, EB_ROT);
-
-        // if (ib) {
-        //   std::lock_guard<std::mutex> lock(STATE.mtx);
-        //   STATE.inner.aligned = ib;
-        // }
-
-        // // bool top =
       }
 
     } else {
