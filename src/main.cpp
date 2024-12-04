@@ -186,6 +186,20 @@ int main(void) {
           STATE.inner.aligned = true;
         } else {
 
+          // float qt_x = s.target_pos.x - q_x;
+          // float qt_z = s.target_pos.z - q_z;
+
+          // float m = qt_z / qt_x;
+          // float x = s.current_pos.x - q_x;
+          // float z = m * x + q_z;
+
+          // bool clockwise = z > s.current_pos.z;
+
+          // if (clockwise xor s.clockwise) {
+          //   std::lock_guard<std::mutex> lock(STATE.mtx);
+          //   STATE.inner.clockwise = true;
+          // }
+
           float qt_x = s.target_pos.x - q_x;
           float qt_z = s.target_pos.z - q_z;
 
@@ -193,12 +207,10 @@ int main(void) {
           float x = s.current_pos.x - q_x;
           float z = m * x + q_z;
 
-          bool clockwise = z > s.current_pos.z;
+          bool _clockwise = z > s.current_pos.z;
 
-          if (clockwise xor s.clockwise) {
-            std::lock_guard<std::mutex> lock(STATE.mtx);
-            STATE.inner.clockwise = true;
-          }
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+          STATE.inner.clockwise = s.current_pos.x > s.target_pos.x ? !_clockwise : _clockwise;
         }
       }
 
