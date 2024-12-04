@@ -181,6 +181,8 @@ int main(void) {
 
         float dot_ct_cq = rhs / lhs;
 
+        bool clockwise;
+
         if (in_bound(dot_ct_cq, EB_ROT)) {
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.aligned = true;
@@ -193,10 +195,16 @@ int main(void) {
           float x = s.current_pos.x - q_x;
           float z = m * x + q_z;
 
-          bool _clockwise = z > s.current_pos.z;
+          clockwise = z > s.current_pos.z;
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.clockwise = s.current_pos.x > s.target_pos.x ? !_clockwise : _clockwise;
+        }
+
+        if (clockwise) {
+          zumo_movement::turn_right();
+        } else {
+          zumo_movement::turn_left();
         }
       }
 
