@@ -107,6 +107,8 @@ void tcp_listener() {
     // TODO: start listening
     // TODO: on recv, update state
 
+    HiveCommon::State s;
+
     // std::lock_guard<std::mutex> lock(STATE.mtx);
     // STATE.inner += 1;
 
