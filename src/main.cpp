@@ -47,10 +47,9 @@ struct float4 {
 
 struct BotState {
   uint64_t id;
-  float3 current_pos;
-  // HiveCommon::Vec3 current_pos;
-  float4 current_rot;
-  float3 target_pos;
+  HiveCommon::Vec3 current_pos;
+  HiveCommon::Vec4 current_rot;
+  HiveCommon::Vec3 target_pos;
   bool halted;
   bool aligned;
   bool clockwise;
@@ -128,14 +127,8 @@ void tcp_listener() {
         std::lock_guard<std::mutex> lock(STATE.mtx);
 
         // TODO: theres gotta be an easier way to do this...
-        STATE.inner.current_pos.x = pos->x();
-        STATE.inner.current_pos.y = pos->y();
-        STATE.inner.current_pos.z = pos->z();
-
-        STATE.inner.current_rot.w = rot->w();
-        STATE.inner.current_rot.x = rot->x();
-        STATE.inner.current_rot.y = rot->y();
-        STATE.inner.current_rot.z = rot->z();
+        STATE.inner.current_pos = *pos;
+        STATE.inner.current_rot = *rot;
       }
       case HiveCommon::EntityUnion_Command: {
 
@@ -147,16 +140,11 @@ void tcp_listener() {
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          // TODO: ask warren if theres a better way to do this
           // TODO: ask about other data in moveto just to clarify
-          STATE.inner.target_pos.x = moveto->destination()->x();
-          STATE.inner.target_pos.y = moveto->destination()->y();
-          STATE.inner.target_pos.z = moveto->destination()->z();
+          STATE.inner.target_pos = *moveto->destination();
         }
         case HiveCommon::CommandUnion_Sleep: {
           const auto sleep = command->command_as_Sleep();
-
-          // TODO: ask warren if sleep timer is handled by orchestrator or...
 
           // TODO: extract command
           // TODO: lock mtx
@@ -213,12 +201,12 @@ int main(void) {
 
     if (!s.halted) {
       if (s.aligned) {
-        if (in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ) xor in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ)) {
+        if (in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
           zumo_movement::stop();
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.aligned = false;
-        } else if (in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ) and in_bound(s.current_pos.x, s.target_pos.x, EB_XYZ)) {
+        } else if (in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) and in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
           zumo_movement::stop();
         } else {
           zumo_movement::forward();
@@ -227,16 +215,16 @@ int main(void) {
 
         // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
 
-        float theta_q = 2 * asinf(s.current_rot.w);
+        float theta_q = 2 * asinf(s.current_rot.w());
 
         float cq_x = cos(theta_q);
         float cq_z = sin(theta_q);
 
-        float ct_x = s.target_pos.x - s.current_pos.x;
-        float ct_z = s.target_pos.z - s.current_pos.z;
+        float ct_x = s.target_pos.x() - s.current_pos.x();
+        float ct_z = s.target_pos.z() - s.current_pos.z();
 
-        float q_x = s.current_pos.x + cq_x;
-        float q_z = s.current_pos.z + cq_z;
+        float q_x = s.current_pos.x() + cq_x;
+        float q_z = s.current_pos.z() + cq_z;
 
         float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
         float rhs = ct_x * cq_x + ct_z * cq_z;
@@ -248,17 +236,17 @@ int main(void) {
           STATE.inner.aligned = true;
         } else {
 
-          float qt_x = s.target_pos.x - q_x;
-          float qt_z = s.target_pos.z - q_z;
+          float qt_x = s.target_pos.x() - q_x;
+          float qt_z = s.target_pos.z() - q_z;
 
           float m = qt_z / qt_x;
-          float x = s.current_pos.x - q_x;
+          float x = s.current_pos.x() - q_x;
           float z = m * x + q_z;
 
-          bool clockwise = z > s.current_pos.z;
+          bool clockwise = z > s.current_pos.z();
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.clockwise = s.current_pos.x > s.target_pos.x ? !clockwise : clockwise;
+          STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
 
           if (clockwise) {
             zumo_movement::turn_right();
