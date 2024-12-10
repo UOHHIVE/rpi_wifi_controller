@@ -165,14 +165,8 @@ void tcp_listener() {
         continue;
       }
     }
-    // TODO: filter by bot ID
-
-    std::lock_guard<std::mutex> lock(STATE.mtx);
-
-    // TODO: update state
   }
 
-  sleep_for(5s);
   sock.close_conn();
 }
 
