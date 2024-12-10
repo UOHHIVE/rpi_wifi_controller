@@ -48,6 +48,7 @@ struct float4 {
 struct BotState {
   uint64_t id;
   float3 current_pos;
+  // HiveCommon::Vec3 current_pos;
   float4 current_rot;
   float3 target_pos;
   bool halted;
@@ -107,10 +108,75 @@ void tcp_listener() {
     string message;
     sock.read_data(message); // TODO: look into fixing this
 
-    const HiveCommon::State *s = HiveCommon::GetState(message.c_str() + 4);
-    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p_arr = s->payload();
-    // TODO: get each payload out of p
-    // TODO: filter each payload by being in the Node union
+    const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+
+    for (const auto &e : *p) {
+      const HiveCommon::Entity *entity = e->data_nested_root();
+
+      switch (entity->entity_type()) {
+      case HiveCommon::EntityUnion_Node: {
+        const auto node = entity->entity_as_Node();
+
+        if (node->id() != STATE.read().id) {
+          continue;
+        }
+
+        const auto pos = node->position();
+        const auto rot = node->rotation();
+
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+
+        // TODO: theres gotta be an easier way to do this...
+        STATE.inner.current_pos.x = pos->x();
+        STATE.inner.current_pos.y = pos->y();
+        STATE.inner.current_pos.z = pos->z();
+
+        STATE.inner.current_rot.w = rot->w();
+        STATE.inner.current_rot.x = rot->x();
+        STATE.inner.current_rot.y = rot->y();
+        STATE.inner.current_rot.z = rot->z();
+      }
+      case HiveCommon::EntityUnion_Command: {
+
+        const HiveCommon::Command *command = entity->entity_as_Command();
+
+        switch (command->command_type()) {
+        case HiveCommon::CommandUnion_MoveTo: {
+          const auto moveto = command->command_as_MoveTo();
+
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+
+          // TODO: ask warren if theres a better way to do this
+          // TODO: ask about other data in moveto just to clarify
+          STATE.inner.target_pos.x = moveto->destination()->x();
+          STATE.inner.target_pos.y = moveto->destination()->y();
+          STATE.inner.target_pos.z = moveto->destination()->z();
+        }
+        case HiveCommon::CommandUnion_Sleep: {
+          const auto sleep = command->command_as_Sleep();
+
+          // TODO: ask warren if sleep timer is handled by orchestrator or...
+
+          // TODO: extract command
+          // TODO: lock mtx
+          // TODO: sleep bot
+        }
+        case HiveCommon::CommandUnion_Owner:
+        case HiveCommon::CommandUnion_NONE:
+          continue;
+        }
+      }
+      case HiveCommon::EntityUnion_Robot:
+      case HiveCommon::EntityUnion_Generic:
+      case HiveCommon::EntityUnion_Geometry:
+      case HiveCommon::EntityUnion_Headset:
+      case HiveCommon::EntityUnion_Observer:
+      case HiveCommon::EntityUnion_Presenter:
+      case HiveCommon::EntityUnion_NONE:
+        continue;
+      }
+    }
     // TODO: filter by bot ID
 
     std::lock_guard<std::mutex> lock(STATE.mtx);
