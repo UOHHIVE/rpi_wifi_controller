@@ -32,25 +32,13 @@ using namespace dotenv;
 
 // TODO: clean this section up, move to commons.
 
-struct float3 {
-  float x;
-  float y;
-  float z;
-};
-
-struct float4 {
-  float x;
-  float y;
-  float z;
-  float w;
-};
-
 struct BotState {
   uint64_t id;
   HiveCommon::Vec3 current_pos;
   HiveCommon::Vec4 current_rot;
   HiveCommon::Vec3 target_pos;
-  bool halted;
+  bool sleep;
+  long duration;
   bool aligned;
   bool clockwise;
 };
@@ -126,7 +114,6 @@ void tcp_listener() {
 
         std::lock_guard<std::mutex> lock(STATE.mtx);
 
-        // TODO: theres gotta be an easier way to do this...
         STATE.inner.current_pos = *pos;
         STATE.inner.current_rot = *rot;
       }
@@ -140,15 +127,15 @@ void tcp_listener() {
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          // TODO: ask about other data in moveto just to clarify
           STATE.inner.target_pos = *moveto->destination();
         }
         case HiveCommon::CommandUnion_Sleep: {
           const auto sleep = command->command_as_Sleep();
 
-          // TODO: extract command
-          // TODO: lock mtx
-          // TODO: sleep bot
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+
+          STATE.inner.sleep = sleep->sleep();
+          STATE.inner.sleep = (long)(sleep->duration() * 1000000);
         }
         case HiveCommon::CommandUnion_Owner:
         case HiveCommon::CommandUnion_NONE:
@@ -193,7 +180,7 @@ int main(void) {
 
     auto s = STATE.read();
 
-    if (!s.halted) {
+    if (!s.sleep) {
       if (s.aligned) {
         if (in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
           zumo_movement::stop();
@@ -253,13 +240,21 @@ int main(void) {
     } else {
       zumo_movement::stop();
 
-      // always reallign after a halt
-      std::lock_guard<std::mutex> lock(STATE.mtx);
-      STATE.inner.aligned = false;
-    }
+      if (s.sleep > 0) {
+        std::this_thread::sleep_for(std::chrono::microseconds(s.sleep));
 
-    printf("tick \n");
-    printf("state=%d (tick delay: %d)\n", STATE.read(), t_delay);
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+        STATE.inner.duration = 0;
+        STATE.inner.sleep = false;
+      }
+
+      // always reallign after a halt
+      // shouldnt deadlock, but keep an eye
+      if (s.aligned) {
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+        STATE.inner.aligned = false;
+      }
+    }
 
     p2 = std::chrono::high_resolution_clock::now().time_since_epoch();
     t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
