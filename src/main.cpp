@@ -72,7 +72,7 @@ void tcp_listener() {
 
   string dc_address = DotEnv::get("DC_ADDRESS");
   string dc_port = DotEnv::get("DC_PORT");
-  Socket s = Socket(dc_address.data(), std::stoi(dc_port));
+  Socket sock = Socket(dc_address.data(), std::stoi(dc_port));
 
   string name = DotEnv::get("BOT_NAME");
   uint64_t id = std::stoll(DotEnv::get("ID_OVERRIDE")); // TODO: this borked when using hex
@@ -101,26 +101,25 @@ void tcp_listener() {
   const auto state = HiveCommon::CreateState(fbb2, payloads);
   fbb2.FinishSizePrefixed(state);
 
-  s.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
+  sock.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
 
   while (1) {
-    // TODO: start listening
-    // TODO: on recv, update state
+    string message;
+    sock.read_data(message); // TODO: look into fixing this
 
-    HiveCommon::State s;
+    const HiveCommon::State *s = HiveCommon::GetState(message.c_str() + 4);
+    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p_arr = s->payload(); // auto is evil
+    // TODO: get each payload out of p
+    // TODO: filter each payload by being in the Node union
+    // TODO: filter by bot ID
 
-    // std::lock_guard<std::mutex> lock(STATE.mtx);
-    // STATE.inner += 1;
+    std::lock_guard<std::mutex> lock(STATE.mtx);
 
-    // if (STATE.inner >= 70) {
-    //   STATE.inner = 0;
-    // }
-
-    // s._send(reinterpret_cast<char *>(&STATE.inner), sizeof(STATE.inner));
+    // TODO: update state
   }
 
   sleep_for(5s);
-  s.close_conn();
+  sock.close_conn();
 }
 
 int main(void) {
