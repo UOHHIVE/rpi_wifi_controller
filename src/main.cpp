@@ -108,7 +108,7 @@ void tcp_listener() {
     sock.read_data(message); // TODO: look into fixing this
 
     const HiveCommon::State *s = HiveCommon::GetState(message.c_str() + 4);
-    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p_arr = s->payload(); // auto is evil
+    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p_arr = s->payload();
     // TODO: get each payload out of p
     // TODO: filter each payload by being in the Node union
     // TODO: filter by bot ID
