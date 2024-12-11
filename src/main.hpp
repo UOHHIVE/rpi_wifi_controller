@@ -1,20 +1,12 @@
 #ifndef H_MAIN
 #define H_MAIN
 
-// #include "commons/src/flatbuf/commons_generated.h"
-// #include "commons/src/utils/lock.hpp"
+#include "commons/src/flatbuf/commons_generated.h"
+#include "commons/src/utils/lock.hpp"
 
-#include "commons/hive_commons.hpp"
-
-#include <chrono>
 #include <cmath>
-#include <memory>
-#include <mutex>
-#include <stdio.h>
 #include <sys/time.h>
-#include <thread>
-#include <type_traits>
-#include <utility>
+#include <cstdint>
 
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
@@ -22,6 +14,8 @@
 #define EB_XYZ 0.05        //
 #define EB_ROT 0.05        //
 #define TESTING true       // disables the movement, for use when testing
+
+
 
 // Struct representing the bots state
 struct BotState {
@@ -36,7 +30,7 @@ struct BotState {
 };
 
 // Global State
-extern Lock<BotState> STATE;
+extern utils::Lock<BotState> STATE;
 
 // Function declarations
 void bot_logic();

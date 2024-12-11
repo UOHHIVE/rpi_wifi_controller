@@ -1,6 +1,13 @@
 #include "main.hpp"
+#include "commons/src/utils/logging.hpp"
+#include "commons/src/utils/misc.hpp"
+#include "commons/src/dotenv/dotenv.hpp"
+#include "commons/src/netcode/netcode.hpp"
+#include "commons/src/zumo/zumo.h"
 
-Lock<BotState> STATE;
+#include <string>
+
+utils::Lock<BotState> STATE;
 
 // TCP listener that gets spawned
 extern void tcp_listener() {
