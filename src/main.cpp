@@ -99,61 +99,71 @@ void tcp_listener() {
     std::cout << "Message: " << message << std::endl;
 
     const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+
+    if (!s) {
+      continue;
+    }
+
     const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
 
+    if (!p) {
+      continue;
+    }
+
+    std::cout << "p length: " << p->size() << std::endl;
     for (const auto &e : *p) {
-      const HiveCommon::Entity *entity = e->data_nested_root();
+      // const HiveCommon::Entity *entity = e->data_nested_root();
 
-      switch (entity->entity_type()) {
-      case HiveCommon::EntityUnion_Node: {
-        const auto node = entity->entity_as_Node();
+      // switch (entity->entity_type()) {
+      // case HiveCommon::EntityUnion_Node: {
+      //   const auto node = entity->entity_as_Node();
 
-        if (node->id() != STATE.read().id) {
-          continue;
-        }
+      //   if (node->id() != STATE.read().id) {
+      //     continue;
+      //   }
 
-        const auto pos = node->position();
-        const auto rot = node->rotation();
+      //   const auto pos = node->position();
+      //   const auto rot = node->rotation();
 
-        std::lock_guard<std::mutex> lock(STATE.mtx);
+      //   std::lock_guard<std::mutex> lock(STATE.mtx);
 
-        STATE.inner.current_pos = *pos;
-        STATE.inner.current_rot = *rot;
-      }
-      case HiveCommon::EntityUnion_Command: {
+      //   STATE.inner.current_pos = *pos;
+      //   STATE.inner.current_rot = *rot;
+      // }
+      // case HiveCommon::EntityUnion_Command: {
 
-        const HiveCommon::Command *command = entity->entity_as_Command();
+      //   const HiveCommon::Command *command = entity->entity_as_Command();
 
-        switch (command->command_type()) {
-        case HiveCommon::CommandUnion_MoveTo: {
-          const auto moveto = command->command_as_MoveTo();
+      //   switch (command->command_type()) {
+      //   case HiveCommon::CommandUnion_MoveTo: {
+      //     const auto moveto = command->command_as_MoveTo();
 
-          std::lock_guard<std::mutex> lock(STATE.mtx);
+      //     std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          STATE.inner.target_pos = *moveto->destination();
-        }
-        case HiveCommon::CommandUnion_Sleep: {
-          const auto sleep = command->command_as_Sleep();
+      //     STATE.inner.target_pos = *moveto->destination();
+      //   }
+      //   case HiveCommon::CommandUnion_Sleep: {
+      //     const auto sleep = command->command_as_Sleep();
 
-          std::lock_guard<std::mutex> lock(STATE.mtx);
+      //     std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          STATE.inner.sleep = sleep->sleep();
-          STATE.inner.sleep = (long)(sleep->duration() * 1000000);
-        }
-        case HiveCommon::CommandUnion_Owner:
-        case HiveCommon::CommandUnion_NONE:
-          continue;
-        }
-      }
-      case HiveCommon::EntityUnion_Robot:
-      case HiveCommon::EntityUnion_Generic:
-      case HiveCommon::EntityUnion_Geometry:
-      case HiveCommon::EntityUnion_Headset:
-      case HiveCommon::EntityUnion_Observer:
-      case HiveCommon::EntityUnion_Presenter:
-      case HiveCommon::EntityUnion_NONE:
-        continue;
-      }
+      //     STATE.inner.sleep = sleep->sleep();
+      //     STATE.inner.sleep = (long)(sleep->duration() * 1000000);
+      //   }
+      //   case HiveCommon::CommandUnion_Owner:
+      //   case HiveCommon::CommandUnion_NONE:
+      //     continue;
+      //   }
+      // }
+      // case HiveCommon::EntityUnion_Robot:
+      // case HiveCommon::EntityUnion_Generic:
+      // case HiveCommon::EntityUnion_Geometry:
+      // case HiveCommon::EntityUnion_Headset:
+      // case HiveCommon::EntityUnion_Observer:
+      // case HiveCommon::EntityUnion_Presenter:
+      // case HiveCommon::EntityUnion_NONE:
+      //   continue;
+      // }
     }
   }
 
