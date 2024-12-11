@@ -1,8 +1,6 @@
-#include "state.hpp"
+#include "main.hpp"
 
 Lock<BotState> STATE;
-
-#include "state.hpp"
 
 // TCP listener that gets spawned
 extern void tcp_listener() {
