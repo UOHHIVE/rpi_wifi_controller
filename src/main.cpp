@@ -128,21 +128,7 @@ extern void tcp_listener() {
   sock.close_conn();
 }
 
-int main(void) {
-
-  logging::log("Startup", TESTING);
-
-  // TODO: change this path later...
-  dotenv::DotEnv::load("../.env");
-
-  logging::log("Loaded EnvFile", TESTING);
-
-  std::thread p_listener(tcp_listener);
-  logging::log("Spawned Listener", TESTING);
-
-  // std::thread p_bot(bot_logic);
-  // logging::log("Spawned Bot Logic", TESTING);
-
+extern void bot_logic() {
   // define timing stuff
   std::chrono::_V2::system_clock::duration p1;
   std::chrono::_V2::system_clock::duration p2;
@@ -196,6 +182,22 @@ int main(void) {
     t_delay = MSPT - (t2 - t1);
     std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
   }
+}
+
+int main(void) {
+
+  logging::log("Startup", TESTING);
+
+  // TODO: change this path later...
+  dotenv::DotEnv::load("../.env");
+
+  logging::log("Loaded EnvFile", TESTING);
+
+  std::thread p_listener(tcp_listener);
+  logging::log("Spawned Listener", TESTING);
+
+  std::thread p_bot(bot_logic);
+  logging::log("Spawned Bot Logic", TESTING);
 
   // p_bot.join();
   p_listener.join();
