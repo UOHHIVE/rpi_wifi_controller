@@ -44,20 +44,13 @@ struct BotState {
   bool clockwise;
 };
 
-template <typename T, typename C> bool in_bound(T val, T comp, C bound) { return comp - bound <= val <= comp + bound; }
-template <typename T, typename C> bool in_bound(T val, C bound) { return val - bound <= val <= val + bound; }
-template <typename T> bool in_bound(T val, T comp, T bound) { return comp - bound <= val <= comp + bound; }
-template <typename T> bool in_bound(T val, T bound) { return val - bound <= val <= val + bound; }
-
 // TODO: make sure buff is right size
 static Lock<BotState> STATE;
 static char BUFFER[1024];
 
-inline uint16_t encodeSubscriptionType(const HiveCommon::SubscriptionType type, const uint16_t subscription = 0) { return static_cast<uint16_t>(1 << std::to_underlying(type)) | subscription; }
-
 void tcp_listener() {
 
-  printf("started listening...\n");
+  logging::log("Starting Listener...", HEADLESS);
 
   string dc_address = DotEnv::get("DC_ADDRESS");
   string dc_port = DotEnv::get("DC_PORT");
@@ -70,7 +63,7 @@ void tcp_listener() {
   uint16_t sub = 0;
 
   // sub = encodeSubscriptionType(HiveCommon::SubscriptionType_Headset, sub);
-  sub = encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
+  sub = misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
   flatbuffers::FlatBufferBuilder fbb1;
   const auto fb_name = fbb1.CreateString(name);
   const auto robot = HiveCommon::CreateRobot(fbb1, id, fb_name, sub, HiveCommon::SubscriptionRate_Half);
@@ -90,91 +83,108 @@ void tcp_listener() {
   const auto state = HiveCommon::CreateState(fbb2, payloads);
   fbb2.FinishSizePrefixed(state);
 
+  logging::log("Sending Magic Num...", HEADLESS);
+
   sock.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
+
+  logging::log("Connection established", HEADLESS);
 
   while (1) {
     string message;
     sock.read_data(message); // TODO: look into fixing this
 
-    std::cout << "Message: " << message << std::endl;
+    if (message.size() > 0) {
 
-    const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+      logging::log("Message: " + message, HEADLESS, logging::INFO, "dc_response");
 
-    if (!s) {
-      continue;
-    }
+      const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
 
-    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+      if (!s) {
+        logging::log("No State", HEADLESS, logging::WARN);
+        continue;
+      }
 
-    if (!p) {
-      continue;
-    }
+      const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
 
-    for (const auto &e : *p) {
-      // const HiveCommon::Entity *entity = e->data_nested_root();
+      if (!p) {
+        logging::log("No Payload", HEADLESS, logging::WARN);
+        continue;
+      }
 
-      // switch (entity->entity_type()) {
-      // case HiveCommon::EntityUnion_Node: {
-      //   const auto node = entity->entity_as_Node();
+      for (const auto &e : *p) {
+        const HiveCommon::Entity *entity = e->data_nested_root();
 
-      //   if (node->id() != STATE.read().id) {
-      //     continue;
-      //   }
+        switch (entity->entity_type()) {
+        case HiveCommon::EntityUnion_Node: {
+          const auto node = entity->entity_as_Node();
 
-      //   const auto pos = node->position();
-      //   const auto rot = node->rotation();
+          if (node->id() != STATE.read().id) {
+            logging::log("Filtered ID", HEADLESS, logging::INFO, "filtered_node");
+            continue;
+          }
 
-      //   std::lock_guard<std::mutex> lock(STATE.mtx);
+          const auto pos = node->position();
+          const auto rot = node->rotation();
 
-      //   STATE.inner.current_pos = *pos;
-      //   STATE.inner.current_rot = *rot;
-      // }
-      // case HiveCommon::EntityUnion_Command: {
+          std::lock_guard<std::mutex> lock(STATE.mtx);
 
-      //   const HiveCommon::Command *command = entity->entity_as_Command();
+          STATE.inner.current_pos = *pos;
+          STATE.inner.current_rot = *rot;
+        }
+        case HiveCommon::EntityUnion_Command: {
 
-      //   switch (command->command_type()) {
-      //   case HiveCommon::CommandUnion_MoveTo: {
-      //     const auto moveto = command->command_as_MoveTo();
+          const HiveCommon::Command *command = entity->entity_as_Command();
 
-      //     std::lock_guard<std::mutex> lock(STATE.mtx);
+          // TODO: add logging here
 
-      //     STATE.inner.target_pos = *moveto->destination();
-      //   }
-      //   case HiveCommon::CommandUnion_Sleep: {
-      //     const auto sleep = command->command_as_Sleep();
+          switch (command->command_type()) {
+          case HiveCommon::CommandUnion_MoveTo: {
+            const auto moveto = command->command_as_MoveTo();
 
-      //     std::lock_guard<std::mutex> lock(STATE.mtx);
+            std::lock_guard<std::mutex> lock(STATE.mtx);
 
-      //     STATE.inner.sleep = sleep->sleep();
-      //     STATE.inner.sleep = (long)(sleep->duration() * 1000000);
-      //   }
-      //   case HiveCommon::CommandUnion_Owner:
-      //   case HiveCommon::CommandUnion_NONE:
-      //     continue;
-      //   }
-      // }
-      // case HiveCommon::EntityUnion_Robot:
-      // case HiveCommon::EntityUnion_Generic:
-      // case HiveCommon::EntityUnion_Geometry:
-      // case HiveCommon::EntityUnion_Headset:
-      // case HiveCommon::EntityUnion_Observer:
-      // case HiveCommon::EntityUnion_Presenter:
-      // case HiveCommon::EntityUnion_NONE:
-      //   continue;
-      // }
+            STATE.inner.target_pos = *moveto->destination();
+          }
+          case HiveCommon::CommandUnion_Sleep: {
+            const auto sleep = command->command_as_Sleep();
+
+            std::lock_guard<std::mutex> lock(STATE.mtx);
+
+            STATE.inner.sleep = sleep->sleep();
+            STATE.inner.sleep = (long)(sleep->duration() * 1000000);
+          }
+          case HiveCommon::CommandUnion_Owner:
+          case HiveCommon::CommandUnion_NONE:
+            continue;
+          }
+        }
+        case HiveCommon::EntityUnion_Robot:
+        case HiveCommon::EntityUnion_Generic:
+        case HiveCommon::EntityUnion_Geometry:
+        case HiveCommon::EntityUnion_Headset:
+        case HiveCommon::EntityUnion_Observer:
+        case HiveCommon::EntityUnion_Presenter:
+        case HiveCommon::EntityUnion_NONE:
+          continue;
+        }
+      }
     }
   }
-
   sock.close_conn();
 }
 
 int main(void) {
 
+  logging::log("Startup", HEADLESS);
+
   // TODO: change this path later...
   dotenv::DotEnv::load("../.env");
 
+  logging::log("Loaded EnvFile", HEADLESS);
+
   std::thread p_listener(tcp_listener);
+
+  logging::log("Spawned Listener", HEADLESS);
 
   // define timing stuff
   std::chrono::_V2::system_clock::duration p1;
@@ -185,6 +195,8 @@ int main(void) {
 
   int t_delay;
 
+  logging::log("Starting Ticking", HEADLESS);
+
   while (TICK) {
 
     p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
@@ -194,30 +206,18 @@ int main(void) {
 
     if (!s.sleep) {
       if (s.aligned) {
-        if (in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
+        if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
 
-          if (HEADLESS) {
-            printf("stop \n");
-          } else {
-            zumo_movement::stop();
-          }
+          logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.aligned = false;
-        } else if (in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) and in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
+        } else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) and misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
 
-          if (HEADLESS) {
-            printf("stop \n");
-          } else {
-            zumo_movement::stop();
-          }
+          logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
 
         } else {
-          if (HEADLESS) {
-            printf("forward \n");
-          } else {
-            zumo_movement::forward();
-          }
+          logging::catch_debug(HEADLESS, zumo_movement::forward, "ZUMO: FORWARD");
         }
       } else {
 
@@ -239,7 +239,7 @@ int main(void) {
 
         float dot_ct_cq = rhs / lhs;
 
-        if (in_bound(dot_ct_cq, EB_ROT)) {
+        if (misc::in_bound(dot_ct_cq, EB_ROT)) {
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.aligned = true;
         } else {
@@ -257,29 +257,17 @@ int main(void) {
           STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
 
           if (clockwise) {
-            if (HEADLESS) {
-              printf("right \n");
-            } else {
-              zumo_movement::turn_right();
-            }
+            logging::catch_debug(HEADLESS, zumo_movement::turn_right, "ZUMO: RIGHT");
 
           } else {
-            if (HEADLESS) {
-              printf("left \n");
-            } else {
-              zumo_movement::turn_left();
-            }
+            logging::catch_debug(HEADLESS, zumo_movement::turn_left, "ZUMO: LEFT");
           }
         }
       }
 
     } else {
 
-      if (HEADLESS) {
-        printf("stop \n");
-      } else {
-        zumo_movement::stop();
-      }
+      logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
 
       if (s.sleep > 0) {
         std::this_thread::sleep_for(std::chrono::microseconds(s.sleep));
