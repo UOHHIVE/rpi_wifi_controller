@@ -1,23 +1,10 @@
 #ifndef H_MAIN
 #define H_MAIN
 
-#include "commons/hive_commons.hpp"
-#include <chrono>
-#include <cmath>
-#include <memory>
-#include <mutex>
-#include <stdio.h>
-#include <sys/time.h>
-#include <thread>
-#include <type_traits>
-#include <utility>
+// #include "commons/src/flatbuf/commons_generated.h"
+// #include "commons/src/utils/lock.hpp"
 
-// URL:
-// https://stackoverflow.com/questions/158585/how-do-you-add-a-timed-delay-to-a-c-program
-using namespace std::this_thread;     // sleep_for, sleep_until
-using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
-using std::chrono::high_resolution_clock;
-using std::chrono::system_clock;
+#include "commons/hive_commons.hpp"
 
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
@@ -46,3 +33,20 @@ void bot_logic();
 void tcp_listener();
 
 #endif // MAIN
+
+// #include <chrono>
+// #include <cmath>
+// #include <memory>
+// #include <mutex>
+// #include <stdio.h>
+// #include <sys/time.h>
+// #include <thread>
+// #include <type_traits>
+// #include <utility>
+
+// // URL:
+// // https://stackoverflow.com/questions/158585/how-do-you-add-a-timed-delay-to-a-c-program
+// using namespace std::this_thread;     // sleep_for, sleep_until
+// using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
+// using std::chrono::high_resolution_clock;
+// using std::chrono::system_clock;
