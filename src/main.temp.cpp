@@ -163,7 +163,7 @@ int main(void) {
   // TODO: change this path later...
   dotenv::DotEnv::load("../.env");
 
-  // std::thread p_listener(tcp_listener);nn
+  std::thread p_listener(tcp_listener);
 
   // define timing stuff
   std::chrono::_V2::system_clock::duration p1;
@@ -293,7 +293,7 @@ int main(void) {
     std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
   }
 
-  // p_listener.join();
+  p_listener.join();
 
   return 0;
 }
