@@ -1,11 +1,12 @@
 #include "main.hpp"
-#include "commons/src/utils/logging.hpp"
+#include "commons/src/logging/logging.hpp"
 #include "commons/src/utils/misc.hpp"
 #include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/netcode/netcode.hpp"
-#include "commons/src/zumo/zumo.h"
+#include "commons/src/zumo/zumo.hpp"
 
 #include <string>
+#include <thread>
 
 utils::Lock<BotState> STATE;
 
