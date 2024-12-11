@@ -1,5 +1,6 @@
-// #include "commons/src/dotenv/dotenv.cpp"
 #include "commons/hive_commons.hpp"
+
+// #include "commons/src/dotenv/dotenv.cpp"
 #include <chrono>
 #include <memory>
 #include <stdio.h>
@@ -11,16 +12,6 @@
 #include "commons/src/flatbuf/commons_generated.h"
 #include <cmath>
 
-// URL:
-// https://stackoverflow.com/questions/158585/how-do-you-add-a-timed-delay-to-a-c-program
-using namespace std::this_thread;     // sleep_for, sleep_until
-using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
-using std::chrono::high_resolution_clock;
-using std::chrono::system_clock;
-
-using namespace netcode;
-using namespace dotenv;
-
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK false         //
@@ -28,11 +19,7 @@ using namespace dotenv;
 #define EB_ROT 0.05        //
 #define HEADLESS true      // disables the movement, for use when testing
 
-// TODO: Make a struct or a class to hold the bots dynamic info.
-// use that as a placeholder for the loop while figuring out other stuff
-
-// TODO: clean this section up, move to commons.
-
+// State of the bot
 struct BotState {
   uint64_t id;
   HiveCommon::Vec3 current_pos;
@@ -48,15 +35,134 @@ struct BotState {
 static Lock<BotState> STATE;
 static char BUFFER[1024];
 
+// URL:
+// https://stackoverflow.com/questions/158585/how-do-you-add-a-timed-delay-to-a-c-program
+using namespace std::this_thread;     // sleep_for, sleep_until
+using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
+using std::chrono::high_resolution_clock;
+using std::chrono::system_clock;
+
+// using namespace netcode;
+// using namespace dotenv;
+
+void bot_logic() {
+  // define timing stuff
+  std::chrono::_V2::system_clock::duration p1;
+  std::chrono::_V2::system_clock::duration p2;
+
+  int64_t t1;
+  int64_t t2;
+
+  int t_delay;
+
+  logging::log("Starting Ticking", HEADLESS);
+
+  while (TICK) {
+
+    p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
+    t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
+
+    auto s = STATE.read();
+
+    if (!s.sleep) {
+      if (s.aligned) {
+        if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
+
+          logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
+
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+          STATE.inner.aligned = false;
+        } else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) and misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
+
+          logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
+
+        } else {
+          logging::catch_debug(HEADLESS, zumo_movement::forward, "ZUMO: FORWARD");
+        }
+      } else {
+
+        // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
+
+        float theta_q = 2 * asinf(s.current_rot.w());
+
+        float cq_x = cos(theta_q);
+        float cq_z = sin(theta_q);
+
+        float ct_x = s.target_pos.x() - s.current_pos.x();
+        float ct_z = s.target_pos.z() - s.current_pos.z();
+
+        float q_x = s.current_pos.x() + cq_x;
+        float q_z = s.current_pos.z() + cq_z;
+
+        float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
+        float rhs = ct_x * cq_x + ct_z * cq_z;
+
+        float dot_ct_cq = rhs / lhs;
+
+        if (misc::in_bound(dot_ct_cq, EB_ROT)) {
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+          STATE.inner.aligned = true;
+        } else {
+
+          float qt_x = s.target_pos.x() - q_x;
+          float qt_z = s.target_pos.z() - q_z;
+
+          float m = qt_z / qt_x;
+          float x = s.current_pos.x() - q_x;
+          float z = m * x + q_z;
+
+          bool clockwise = z > s.current_pos.z();
+
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+          STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
+
+          if (clockwise) {
+            logging::catch_debug(HEADLESS, zumo_movement::turn_right, "ZUMO: RIGHT");
+
+          } else {
+            logging::catch_debug(HEADLESS, zumo_movement::turn_left, "ZUMO: LEFT");
+          }
+        }
+      }
+
+    } else {
+
+      logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
+
+      if (s.sleep > 0) {
+        std::this_thread::sleep_for(std::chrono::microseconds(s.sleep));
+
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+        STATE.inner.duration = 0;
+        STATE.inner.sleep = false;
+      }
+
+      // always reallign after a halt
+      // shouldnt deadlock, but keep an eye
+      if (s.aligned) {
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+        STATE.inner.aligned = false;
+      }
+    }
+
+    p2 = std::chrono::high_resolution_clock::now().time_since_epoch();
+    t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
+
+    t_delay = MSPT - (t2 - t1);
+    std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
+  }
+}
+
+// TCP listener that gets spawned
 void tcp_listener() {
 
   logging::log("Starting Listener...", HEADLESS);
 
-  string dc_address = DotEnv::get("DC_ADDRESS");
-  string dc_port = DotEnv::get("DC_PORT");
-  Socket sock = Socket(dc_address.data(), std::stoi(dc_port));
+  string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
+  string dc_port = dotenv::DotEnv::get("DC_PORT");
+  netcode::Socket sock = netcode::Socket(dc_address.data(), std::stoi(dc_port));
 
-  string name = DotEnv::get("BOT_NAME");
+  string name = dotenv::DotEnv::get("BOT_NAME");
   uint64_t id = std::stoll(DotEnv::get("ID_OVERRIDE")); // TODO: this borked when using hex
 
   // Build the Presenter which is to be used in the Payload as a byte vector
@@ -183,115 +289,12 @@ int main(void) {
   logging::log("Loaded EnvFile", HEADLESS);
 
   std::thread p_listener(tcp_listener);
-
   logging::log("Spawned Listener", HEADLESS);
 
-  // define timing stuff
-  std::chrono::_V2::system_clock::duration p1;
-  std::chrono::_V2::system_clock::duration p2;
+  std::thread p_bot(bot_logic);
+  logging::log("Spawned Bot Logic", HEADLESS);
 
-  int64_t t1;
-  int64_t t2;
-
-  int t_delay;
-
-  logging::log("Starting Ticking", HEADLESS);
-
-  while (TICK) {
-
-    p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
-    t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
-
-    auto s = STATE.read();
-
-    if (!s.sleep) {
-      if (s.aligned) {
-        if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-
-          logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
-
-          std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.aligned = false;
-        } else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) and misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-
-          logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
-
-        } else {
-          logging::catch_debug(HEADLESS, zumo_movement::forward, "ZUMO: FORWARD");
-        }
-      } else {
-
-        // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
-
-        float theta_q = 2 * asinf(s.current_rot.w());
-
-        float cq_x = cos(theta_q);
-        float cq_z = sin(theta_q);
-
-        float ct_x = s.target_pos.x() - s.current_pos.x();
-        float ct_z = s.target_pos.z() - s.current_pos.z();
-
-        float q_x = s.current_pos.x() + cq_x;
-        float q_z = s.current_pos.z() + cq_z;
-
-        float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
-        float rhs = ct_x * cq_x + ct_z * cq_z;
-
-        float dot_ct_cq = rhs / lhs;
-
-        if (misc::in_bound(dot_ct_cq, EB_ROT)) {
-          std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.aligned = true;
-        } else {
-
-          float qt_x = s.target_pos.x() - q_x;
-          float qt_z = s.target_pos.z() - q_z;
-
-          float m = qt_z / qt_x;
-          float x = s.current_pos.x() - q_x;
-          float z = m * x + q_z;
-
-          bool clockwise = z > s.current_pos.z();
-
-          std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
-
-          if (clockwise) {
-            logging::catch_debug(HEADLESS, zumo_movement::turn_right, "ZUMO: RIGHT");
-
-          } else {
-            logging::catch_debug(HEADLESS, zumo_movement::turn_left, "ZUMO: LEFT");
-          }
-        }
-      }
-
-    } else {
-
-      logging::catch_debug(HEADLESS, zumo_movement::stop, "ZUMO: STOP");
-
-      if (s.sleep > 0) {
-        std::this_thread::sleep_for(std::chrono::microseconds(s.sleep));
-
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.duration = 0;
-        STATE.inner.sleep = false;
-      }
-
-      // always reallign after a halt
-      // shouldnt deadlock, but keep an eye
-      if (s.aligned) {
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.aligned = false;
-      }
-    }
-
-    p2 = std::chrono::high_resolution_clock::now().time_since_epoch();
-    t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
-
-    t_delay = MSPT - (t2 - t1);
-    std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
-  }
-
+  p_bot.join();
   p_listener.join();
 
   return 0;
