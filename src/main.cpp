@@ -110,7 +110,6 @@ void tcp_listener() {
       continue;
     }
 
-    std::cout << "p length: " << p->size() << std::endl;
     for (const auto &e : *p) {
       // const HiveCommon::Entity *entity = e->data_nested_root();
 
