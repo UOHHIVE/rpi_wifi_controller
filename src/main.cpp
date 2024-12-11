@@ -92,68 +92,70 @@ void tcp_listener() {
 
   sock.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
 
-  // while (1) {
-  //   string message;
-  //   // sock.read_data(message); // TODO: look into fixing this
+  while (1) {
+    string message;
+    sock.read_data(message); // TODO: look into fixing this
 
-  //   const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
-  //   const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+    std::cout << "Message: " << message << std::endl;
 
-  //   for (const auto &e : *p) {
-  //     const HiveCommon::Entity *entity = e->data_nested_root();
+    const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
 
-  //     switch (entity->entity_type()) {
-  //     case HiveCommon::EntityUnion_Node: {
-  //       const auto node = entity->entity_as_Node();
+    for (const auto &e : *p) {
+      const HiveCommon::Entity *entity = e->data_nested_root();
 
-  //       if (node->id() != STATE.read().id) {
-  //         continue;
-  //       }
+      switch (entity->entity_type()) {
+      case HiveCommon::EntityUnion_Node: {
+        const auto node = entity->entity_as_Node();
 
-  //       const auto pos = node->position();
-  //       const auto rot = node->rotation();
+        if (node->id() != STATE.read().id) {
+          continue;
+        }
 
-  //       std::lock_guard<std::mutex> lock(STATE.mtx);
+        const auto pos = node->position();
+        const auto rot = node->rotation();
 
-  //       STATE.inner.current_pos = *pos;
-  //       STATE.inner.current_rot = *rot;
-  //     }
-  //     case HiveCommon::EntityUnion_Command: {
+        std::lock_guard<std::mutex> lock(STATE.mtx);
 
-  //       const HiveCommon::Command *command = entity->entity_as_Command();
+        STATE.inner.current_pos = *pos;
+        STATE.inner.current_rot = *rot;
+      }
+      case HiveCommon::EntityUnion_Command: {
 
-  //       switch (command->command_type()) {
-  //       case HiveCommon::CommandUnion_MoveTo: {
-  //         const auto moveto = command->command_as_MoveTo();
+        const HiveCommon::Command *command = entity->entity_as_Command();
 
-  //         std::lock_guard<std::mutex> lock(STATE.mtx);
+        switch (command->command_type()) {
+        case HiveCommon::CommandUnion_MoveTo: {
+          const auto moveto = command->command_as_MoveTo();
 
-  //         STATE.inner.target_pos = *moveto->destination();
-  //       }
-  //       case HiveCommon::CommandUnion_Sleep: {
-  //         const auto sleep = command->command_as_Sleep();
+          std::lock_guard<std::mutex> lock(STATE.mtx);
 
-  //         std::lock_guard<std::mutex> lock(STATE.mtx);
+          STATE.inner.target_pos = *moveto->destination();
+        }
+        case HiveCommon::CommandUnion_Sleep: {
+          const auto sleep = command->command_as_Sleep();
 
-  //         STATE.inner.sleep = sleep->sleep();
-  //         STATE.inner.sleep = (long)(sleep->duration() * 1000000);
-  //       }
-  //       case HiveCommon::CommandUnion_Owner:
-  //       case HiveCommon::CommandUnion_NONE:
-  //         continue;
-  //       }
-  //     }
-  //     case HiveCommon::EntityUnion_Robot:
-  //     case HiveCommon::EntityUnion_Generic:
-  //     case HiveCommon::EntityUnion_Geometry:
-  //     case HiveCommon::EntityUnion_Headset:
-  //     case HiveCommon::EntityUnion_Observer:
-  //     case HiveCommon::EntityUnion_Presenter:
-  //     case HiveCommon::EntityUnion_NONE:
-  //       continue;
-  //     }
-  //   }
-  // }
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+
+          STATE.inner.sleep = sleep->sleep();
+          STATE.inner.sleep = (long)(sleep->duration() * 1000000);
+        }
+        case HiveCommon::CommandUnion_Owner:
+        case HiveCommon::CommandUnion_NONE:
+          continue;
+        }
+      }
+      case HiveCommon::EntityUnion_Robot:
+      case HiveCommon::EntityUnion_Generic:
+      case HiveCommon::EntityUnion_Geometry:
+      case HiveCommon::EntityUnion_Headset:
+      case HiveCommon::EntityUnion_Observer:
+      case HiveCommon::EntityUnion_Presenter:
+      case HiveCommon::EntityUnion_NONE:
+        continue;
+      }
+    }
+  }
 
   sock.close_conn();
 }
