@@ -6,6 +6,16 @@
 
 #include "commons/hive_commons.hpp"
 
+#include <chrono>
+#include <cmath>
+#include <memory>
+#include <mutex>
+#include <stdio.h>
+#include <sys/time.h>
+#include <thread>
+#include <type_traits>
+#include <utility>
+
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK false         //
@@ -13,7 +23,7 @@
 #define EB_ROT 0.05        //
 #define TESTING true       // disables the movement, for use when testing
 
-// State of the bot
+// Struct representing the bots state
 struct BotState {
   uint64_t id;
   HiveCommon::Vec3 current_pos;
@@ -25,7 +35,7 @@ struct BotState {
   bool clockwise;
 };
 
-// Global state
+// Global State
 extern Lock<BotState> STATE;
 
 // Function declarations
@@ -33,6 +43,8 @@ void bot_logic();
 void tcp_listener();
 
 #endif // MAIN
+
+// keeping these jic:
 
 // #include <chrono>
 // #include <cmath>
