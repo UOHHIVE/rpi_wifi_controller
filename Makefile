@@ -17,7 +17,8 @@ MAIN = main.cpp
 TARGET = main.out
 
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
-SRC = $(wildcard $(DIR_SRC)*.cpp)
+SRC = $(shell find $(DIR_SRC) -type f -name '*.cpp')
+# SRC = $(wildcard $(DIR_SRC)*.cpp)
 
 #DATAFILES = $(wildcard $(DIR_SRC)*.txt) $(wildcard $(DIR_SRC)*.csv)
 

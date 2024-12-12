@@ -15,8 +15,6 @@
 #define EB_ROT 0.05        //
 #define TESTING true       // disables the movement, for use when testing
 
-
-
 // Struct representing the bots state
 struct BotState {
   uint64_t id;
@@ -33,8 +31,8 @@ struct BotState {
 extern utils::Lock<BotState> STATE;
 
 // Function declarations
-void bot_logic();
-void tcp_listener();
+extern void bot_logic();
+extern void tcp_listener();
 
 #endif // MAIN
 
