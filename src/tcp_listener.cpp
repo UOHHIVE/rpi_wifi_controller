@@ -1,5 +1,5 @@
-#include "commons/src/logging/logging.hpp"
 #include "commons/src/dotenv/dotenv.hpp"
+#include "commons/src/logging/logging.hpp"
 #include "commons/src/netcode/netcode.hpp"
 #include "commons/src/utils/misc.hpp"
 #include "main.hpp"
@@ -7,7 +7,7 @@
 // TCP listener that gets spawned
 extern void tcp_listener() {
 
-  logging::log("Starting Listener...", TESTING);
+  logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1);
 
   string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
   string dc_port = dotenv::DotEnv::get("DC_PORT");
@@ -40,11 +40,11 @@ extern void tcp_listener() {
   const auto state = HiveCommon::CreateState(fbb2, payloads);
   fbb2.FinishSizePrefixed(state);
 
-  logging::log("Sending Magic Num...", TESTING);
+  logging::log(LOG_ENABLED, "Sending Magic Num...");
 
   sock.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
 
-  logging::log("Connection established", TESTING);
+  logging::log(LOG_ENABLED, "Connection established");
 
   while (1) {
     string message;
@@ -52,19 +52,19 @@ extern void tcp_listener() {
 
     if (message.size() > 0) {
 
-      logging::log("Message: " + message, TESTING, logging::INFO, "dc_response");
+      logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
 
       const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
 
       if (!s) {
-        logging::log("No State", TESTING, logging::WARN);
+        logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
         continue;
       }
 
       const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
 
       if (!p) {
-        logging::log("No Payload", TESTING, logging::WARN);
+        logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
         continue;
       }
 
@@ -76,7 +76,7 @@ extern void tcp_listener() {
           const auto node = entity->entity_as_Node();
 
           if (node->id() != STATE.read().id) {
-            logging::log("Filtered ID", TESTING, logging::INFO, "filtered_node");
+            logging::log(LOG_ENABLED, "Filtered ID", LOG_LEVEL, 2, LogType::INFO);
             continue;
           }
 

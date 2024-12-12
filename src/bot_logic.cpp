@@ -1,11 +1,10 @@
-#include "main.hpp"
-#include "commons/src/utils/misc.hpp"
 #include "commons/src/logging/logging.hpp"
+#include "commons/src/utils/misc.hpp"
 #include "commons/src/zumo/zumo.hpp"
+#include "main.hpp"
 
 #include <string>
 #include <thread>
-
 
 extern void bot_logic() {
 
@@ -18,7 +17,7 @@ extern void bot_logic() {
 
   int t_delay;
 
-  logging::log("Starting Ticking", TESTING);
+  logging::log(LOG_ENABLED, "Starting Ticking");
 
   // Tick loop
   while (TICK) {
@@ -37,7 +36,7 @@ extern void bot_logic() {
 
         // realign if bot on axis of target
         if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-          logging::catch_debug(TESTING, zumo_movement::stop, "ZUMO: STOP");
+          logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.aligned = false;
@@ -45,12 +44,12 @@ extern void bot_logic() {
 
         // stop if bot on target
         else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-          logging::catch_debug(TESTING, zumo_movement::stop, "ZUMO: STOP");
+          logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
         }
 
         // keep going forward. bot not on target, but still aligned
         else {
-          logging::catch_debug(TESTING, zumo_movement::forward, "ZUMO: FORWARD");
+          logging::catch_debug(LOG_ENABLED, "ZUMO: FORWARD", zumo_movement::forward);
         }
       } else {
         // TODO: document this...
@@ -95,14 +94,14 @@ extern void bot_logic() {
           STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
 
           if (clockwise) {
-            logging::catch_debug(TESTING, zumo_movement::turn_right, "ZUMO: RIGHT");
+            logging::catch_debug(LOG_ENABLED, "ZUMO: RIGHT", zumo_movement::turn_right);
           } else {
-            logging::catch_debug(TESTING, zumo_movement::turn_left, "ZUMO: LEFT");
+            logging::catch_debug(LOG_ENABLED, "ZUMO: LEFT", zumo_movement::turn_left);
           }
         }
       }
     } else {
-      logging::catch_debug(TESTING, zumo_movement::stop, "ZUMO: STOP");
+      logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
 
       // sleep for zero if duration is greater, if less, its permanent
       if (s.sleep > 0) {

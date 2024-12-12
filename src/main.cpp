@@ -1,7 +1,6 @@
 #include "main.hpp"
-#include "commons/src/logging/logging.hpp"
 #include "commons/src/dotenv/dotenv.hpp"
-#include "commons/src/netcode/netcode.hpp"
+#include "commons/src/logging/logging.hpp"
 
 #include <string>
 #include <thread>
@@ -10,19 +9,19 @@ utils::Lock<BotState> STATE;
 
 int main(void) {
 
-  logging::log("Startup", TESTING);
+  logging::log(LOG_ENABLED, "Startup");
 
   // load envfile
   // TODO: change this path later...
   dotenv::DotEnv::load("../.env");
-  logging::log("Loaded EnvFile", TESTING);
+  logging::log(LOG_ENABLED, "Loaded EnvFile");
 
   // spawn threads
   std::thread p_listener(tcp_listener);
-  logging::log("Spawned Listener", TESTING);
+  logging::log(LOG_ENABLED, "Spawned Listener");
 
   std::thread p_bot(bot_logic);
-  logging::log("Spawned Bot Logic", TESTING);
+  logging::log(LOG_ENABLED, "Spawned Bot Logic");
 
   // joins threads
   p_bot.join();

@@ -5,15 +5,16 @@
 #include "commons/src/utils/lock.hpp"
 
 #include <cmath>
-#include <sys/time.h>
 #include <cstdint>
+#include <sys/time.h>
 
 #define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK false         //
 #define EB_XYZ 0.05        //
 #define EB_ROT 0.05        //
-#define TESTING true       // disables the movement, for use when testing
+#define LOG_ENABLED true   // disables the movement if loggings enabled, for use when testing
+#define LOG_LEVEL 3        // log level
 
 // Struct representing the bots state
 struct BotState {
