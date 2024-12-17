@@ -1,129 +1,112 @@
-#include "commons/src/logging/logging.hpp"
-#include "commons/src/utils/misc.hpp"
-#include "commons/src/zumo/zumo.hpp"
-#include "main.hpp"
+// #include "commons/src/logging/logging.hpp"
+// #include "commons/src/utils/misc.hpp"
+// #include "commons/src/utils/tick.hpp"
+// #include "commons/src/zumo/zumo.hpp"
+// #include "main.hpp"
 
-#include <string>
-#include <thread>
+// #include <string>
+// #include <thread>
 
-extern void bot_logic() {
+// void tick_bot() {
+//   // read state
+//   auto s = STATE.read();
 
-  // define timing stuff
-  std::chrono::_V2::system_clock::duration p1;
-  std::chrono::_V2::system_clock::duration p2;
+//   if (!s.sleep) {
 
-  int64_t t1;
-  int64_t t2;
+//     // if the bot is not asleep
+//     if (s.aligned) {
 
-  int t_delay;
+//       // realign if bot on axis of target
+//       if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
+//         logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
 
-  logging::log(LOG_ENABLED, "Starting Ticking");
+//         std::lock_guard<std::mutex> lock(STATE.mtx);
+//         STATE.inner.aligned = false;
+//       }
 
-  // Tick loop
-  while (TICK) {
+//       // stop if bot on target
+//       else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
+//         logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+//       }
 
-    // get first time
-    p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
-    t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
+//       // keep going forward. bot not on target, but still aligned
+//       else {
+//         logging::catch_debug(LOG_ENABLED, "ZUMO: FORWARD", zumo_movement::forward);
+//       }
+//     } else {
+//       // TODO: document this...
 
-    // read state
-    auto s = STATE.read();
+//       // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
 
-    if (!s.sleep) {
+//       // get angle from north
+//       float theta_q = 2 * asinf(s.current_rot.w());
 
-      // if the bot is not asleep
-      if (s.aligned) {
+//       // get vec
+//       float cq_x = cos(theta_q);
+//       float cq_z = sin(theta_q);
 
-        // realign if bot on axis of target
-        if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-          logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+//       // figure out where bot is pointing
+//       float ct_x = s.target_pos.x() - s.current_pos.x();
+//       float ct_z = s.target_pos.z() - s.current_pos.z();
 
-          std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.aligned = false;
-        }
+//       // find point
+//       float q_x = s.current_pos.x() + cq_x;
+//       float q_z = s.current_pos.z() + cq_z;
 
-        // stop if bot on target
-        else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-          logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
-        }
+//       float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
+//       float rhs = ct_x * cq_x + ct_z * cq_z;
 
-        // keep going forward. bot not on target, but still aligned
-        else {
-          logging::catch_debug(LOG_ENABLED, "ZUMO: FORWARD", zumo_movement::forward);
-        }
-      } else {
-        // TODO: document this...
+//       float dot_ct_cq = rhs / lhs;
 
-        // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
+//       if (misc::in_bound(dot_ct_cq, EB_ROT)) {
+//         std::lock_guard<std::mutex> lock(STATE.mtx);
+//         STATE.inner.aligned = true;
+//       } else {
 
-        // get angle from north
-        float theta_q = 2 * asinf(s.current_rot.w());
+//         float qt_x = s.target_pos.x() - q_x;
+//         float qt_z = s.target_pos.z() - q_z;
 
-        // get vec
-        float cq_x = cos(theta_q);
-        float cq_z = sin(theta_q);
+//         float m = qt_z / qt_x;
+//         float x = s.current_pos.x() - q_x;
+//         float z = m * x + q_z;
 
-        // figure out where bot is pointing
-        float ct_x = s.target_pos.x() - s.current_pos.x();
-        float ct_z = s.target_pos.z() - s.current_pos.z();
+//         bool clockwise = z > s.current_pos.z();
 
-        // find point
-        float q_x = s.current_pos.x() + cq_x;
-        float q_z = s.current_pos.z() + cq_z;
+//         std::lock_guard<std::mutex> lock(STATE.mtx);
+//         STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
 
-        float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
-        float rhs = ct_x * cq_x + ct_z * cq_z;
+//         if (clockwise) {
+//           logging::catch_debug(LOG_ENABLED, "ZUMO: RIGHT", zumo_movement::turn_right);
+//         } else {
+//           logging::catch_debug(LOG_ENABLED, "ZUMO: LEFT", zumo_movement::turn_left);
+//         }
+//       }
+//     }
+//   } else {
+//     logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
 
-        float dot_ct_cq = rhs / lhs;
+//     // sleep for zero if duration is greater, if less, its permanent
+//     if (s.sleep > 0) {
+//       std::this_thread::sleep_for(std::chrono::microseconds(s.sleep));
+//       std::lock_guard<std::mutex> lock(STATE.mtx);
+//       STATE.inner.duration = 0;
+//       STATE.inner.sleep = false;
+//     }
 
-        if (misc::in_bound(dot_ct_cq, EB_ROT)) {
-          std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.aligned = true;
-        } else {
+//     // Always re-align after a halt
+//     if (s.aligned) {
+//       std::lock_guard<std::mutex> lock(STATE.mtx);
+//       STATE.inner.aligned = false;
+//     }
+//   }
+// }
 
-          float qt_x = s.target_pos.x() - q_x;
-          float qt_z = s.target_pos.z() - q_z;
+// extern void bot_logic() {
 
-          float m = qt_z / qt_x;
-          float x = s.current_pos.x() - q_x;
-          float z = m * x + q_z;
+//   logging::log(LOG_ENABLED, "Starting Ticking Bot");
 
-          bool clockwise = z > s.current_pos.z();
-
-          std::lock_guard<std::mutex> lock(STATE.mtx);
-          STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
-
-          if (clockwise) {
-            logging::catch_debug(LOG_ENABLED, "ZUMO: RIGHT", zumo_movement::turn_right);
-          } else {
-            logging::catch_debug(LOG_ENABLED, "ZUMO: LEFT", zumo_movement::turn_left);
-          }
-        }
-      }
-    } else {
-      logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
-
-      // sleep for zero if duration is greater, if less, its permanent
-      if (s.sleep > 0) {
-        std::this_thread::sleep_for(std::chrono::microseconds(s.sleep));
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.duration = 0;
-        STATE.inner.sleep = false;
-      }
-
-      // Always re-align after a halt
-      if (s.aligned) {
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.aligned = false;
-      }
-    }
-
-    // get second timepoint
-    p2 = std::chrono::high_resolution_clock::now().time_since_epoch();
-    t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
-
-    // delay if less than mspt
-    t_delay = MSPT - (t2 - t1);
-    std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
-  }
-}
+//   while (true) {
+//     tick_bot();
+//   }
+//   // utils::tick(tick_bot, 1, true);
+// }

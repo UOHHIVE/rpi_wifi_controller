@@ -2,16 +2,13 @@
 #include "commons/src/logging/logging.hpp"
 #include "commons/src/netcode/netcode.hpp"
 #include "commons/src/utils/misc.hpp"
+#include "commons/src/utils/tick.hpp"
 #include "main.hpp"
 
-// TCP listener that gets spawned
-extern void tcp_listener() {
-
-  logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1);
-
-  string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
-  string dc_port = dotenv::DotEnv::get("DC_PORT");
-  netcode::Socket sock = netcode::Socket(dc_address.data(), std::stoi(dc_port));
+void make_conn() {
+  // string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
+  // string dc_port = dotenv::DotEnv::get("DC_PORT");
+  // netcode::Socket sock = netcode::Socket(dc_address.data(), std::stoi(dc_port));
 
   string name = dotenv::DotEnv::get("BOT_NAME");
   uint64_t id = std::stoll(dotenv::DotEnv::get("ID_OVERRIDE")); // TODO: this borked when using hex
@@ -42,90 +39,106 @@ extern void tcp_listener() {
 
   logging::log(LOG_ENABLED, "Sending Magic Num...");
 
-  sock.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
+  SOCK.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
+}
 
-  logging::log(LOG_ENABLED, "Connection established");
+void tick_listener() {
 
-  while (1) {
-    string message;
-    sock.read_data(message); // TODO: look into fixing this
+  string message;
+  SOCK.read_data(message); // TODO: look into fixing this
 
-    if (message.size() > 0) {
+  if (message.size() > 0) {
 
-      logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
+    logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
 
-      const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+    const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
 
-      if (!s) {
-        logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
-        continue;
+    if (!s) {
+      logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
+      return;
+    }
+
+    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+
+    if (!p) {
+      logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
+      return;
+    }
+
+    for (const auto &e : *p) {
+      const HiveCommon::Entity *entity = e->data_nested_root();
+
+      switch (entity->entity_type()) {
+      case HiveCommon::EntityUnion_Node: {
+        const auto node = entity->entity_as_Node();
+
+        if (node->id() != STATE.read().id) {
+          logging::log(LOG_ENABLED, "Filtered ID", LOG_LEVEL, 2, LogType::INFO);
+          continue;
+        }
+
+        const auto pos = node->position();
+        const auto rot = node->rotation();
+
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+
+        STATE.inner.current_pos = *pos;
+        STATE.inner.current_rot = *rot;
       }
+      case HiveCommon::EntityUnion_Command: {
 
-      const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+        const HiveCommon::Command *command = entity->entity_as_Command();
 
-      if (!p) {
-        logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
-        continue;
-      }
+        // TODO: add logging here
 
-      for (const auto &e : *p) {
-        const HiveCommon::Entity *entity = e->data_nested_root();
-
-        switch (entity->entity_type()) {
-        case HiveCommon::EntityUnion_Node: {
-          const auto node = entity->entity_as_Node();
-
-          if (node->id() != STATE.read().id) {
-            logging::log(LOG_ENABLED, "Filtered ID", LOG_LEVEL, 2, LogType::INFO);
-            continue;
-          }
-
-          const auto pos = node->position();
-          const auto rot = node->rotation();
+        switch (command->command_type()) {
+        case HiveCommon::CommandUnion_MoveTo: {
+          const auto moveto = command->command_as_MoveTo();
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          STATE.inner.current_pos = *pos;
-          STATE.inner.current_rot = *rot;
+          STATE.inner.target_pos = *moveto->destination();
         }
-        case HiveCommon::EntityUnion_Command: {
+        case HiveCommon::CommandUnion_Sleep: {
+          const auto sleep = command->command_as_Sleep();
 
-          const HiveCommon::Command *command = entity->entity_as_Command();
+          std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          // TODO: add logging here
-
-          switch (command->command_type()) {
-          case HiveCommon::CommandUnion_MoveTo: {
-            const auto moveto = command->command_as_MoveTo();
-
-            std::lock_guard<std::mutex> lock(STATE.mtx);
-
-            STATE.inner.target_pos = *moveto->destination();
-          }
-          case HiveCommon::CommandUnion_Sleep: {
-            const auto sleep = command->command_as_Sleep();
-
-            std::lock_guard<std::mutex> lock(STATE.mtx);
-
-            STATE.inner.sleep = sleep->sleep();
-            STATE.inner.sleep = (long)(sleep->duration() * 1000000);
-          }
-          case HiveCommon::CommandUnion_Owner:
-          case HiveCommon::CommandUnion_NONE:
-            continue;
-          }
+          STATE.inner.sleep = sleep->sleep();
+          STATE.inner.sleep = (long)(sleep->duration() * 1000000);
         }
-        case HiveCommon::EntityUnion_Robot:
-        case HiveCommon::EntityUnion_Generic:
-        case HiveCommon::EntityUnion_Geometry:
-        case HiveCommon::EntityUnion_Headset:
-        case HiveCommon::EntityUnion_Observer:
-        case HiveCommon::EntityUnion_Presenter:
-        case HiveCommon::EntityUnion_NONE:
+        case HiveCommon::CommandUnion_Owner:
+        case HiveCommon::CommandUnion_NONE:
           continue;
         }
       }
+      case HiveCommon::EntityUnion_Robot:
+      case HiveCommon::EntityUnion_Generic:
+      case HiveCommon::EntityUnion_Geometry:
+      case HiveCommon::EntityUnion_Headset:
+      case HiveCommon::EntityUnion_Observer:
+      case HiveCommon::EntityUnion_Presenter:
+      case HiveCommon::EntityUnion_NONE:
+        continue;
+      }
     }
+  } else {
+    logging::log(LOG_ENABLED, "Zero Bytes Read", LOG_LEVEL, 2);
   }
-  sock.close_conn();
+}
+
+// TCP listener that gets spawned
+extern void tcp_listener() {
+
+  logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1);
+
+  make_conn();
+
+  logging::log(LOG_ENABLED, "Connection established");
+
+  utils::tick(tick_listener, MSPT, true);
+
+  std::lock_guard<std::mutex> lock(STATE.mtx);
+
+  SOCK.close_conn();
 }

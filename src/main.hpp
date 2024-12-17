@@ -2,15 +2,16 @@
 #define H_MAIN
 
 #include "commons/src/flatbuf/commons_generated.h"
+#include "commons/src/netcode/netcode.hpp"
 #include "commons/src/utils/lock.hpp"
 
 #include <cmath>
 #include <cstdint>
 #include <sys/time.h>
 
-#define TPS 120            // ticks per second
+#define TPS 1              // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
-#define TICK false         //
+#define TICK true          //
 #define EB_XYZ 0.05        //
 #define EB_ROT 0.05        //
 #define LOG_ENABLED true   // disables the movement if loggings enabled, for use when testing
@@ -30,6 +31,7 @@ struct BotState {
 
 // Global State
 extern utils::Lock<BotState> STATE;
+extern netcode::Socket SOCK; // this could be an issue...
 
 // Function declarations
 extern void bot_logic();
