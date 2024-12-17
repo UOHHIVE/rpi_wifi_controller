@@ -31,7 +31,7 @@ struct BotState {
 
 // Global State
 extern utils::Lock<BotState> STATE;
-extern netcode::Socket SOCK; // this could be an issue...
+// extern netcode::Socket SOCK; // this could be an issue...
 
 // Function declarations
 extern void bot_logic();

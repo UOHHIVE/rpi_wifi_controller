@@ -6,7 +6,7 @@
 #include <thread>
 
 utils::Lock<BotState> STATE;
-netcode::Socket SOCK;
+// netcode::Socket SOCK;
 
 int main(void) {
 
@@ -14,21 +14,21 @@ int main(void) {
 
   // load envfile
   // TODO: change this path later...
-  // dotenv::DotEnv::load("../.env");
-  // logging::log(LOG_ENABLED, "Loaded EnvFile");
+  dotenv::DotEnv::load("../.env");
+  logging::log(LOG_ENABLED, "Loaded EnvFile");
 
   // connect to server
 
   // spawn threads
-  // std::thread p_listener(tcp_listener);
-  // logging::log(LOG_ENABLED, "Spawned Listener");
+  std::thread p_listener(tcp_listener);
+  logging::log(LOG_ENABLED, "Spawned Listener");
 
-  // std::thread p_bot(bot_logic);
-  // logging::log(LOG_ENABLED, "Spawned Bot Logic");
+  std::thread p_bot(bot_logic);
+  logging::log(LOG_ENABLED, "Spawned Bot Logic");
 
   // joins threads
-  // p_bot.join();
-  // p_listener.join();
+  p_bot.join();
+  p_listener.join();
 
   return 0;
 }
