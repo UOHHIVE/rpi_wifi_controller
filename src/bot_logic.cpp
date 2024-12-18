@@ -108,5 +108,5 @@ extern void bot_logic() {
   // while (true) {
   //   tick_bot();
   // }
-  utils::tick(tick_bot, 1000000, false);
+  utils::tick(tick_bot, 1000000, true);
 }

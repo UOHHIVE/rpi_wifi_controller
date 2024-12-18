@@ -1,5 +1,5 @@
 
-CC = clang++
+CC = g++
 STD = c++23
 
 #ARCH = arm64
@@ -28,16 +28,16 @@ setup:
 
 test:
 	@$(MAKE) -f $(THIS_FILE) setup
-	@echo "$(CC) $(CFLAGS_TEST) $(SRC) -o $(DIR_TARGET)$(TARGET)"
-	@$(CC) $(CFLAGS_TEST) $(SRC) -o $(DIR_TARGET)$(TARGET)
+	@echo "$(CC) $(SRC) -o $(DIR_TARGET)$(TARGET) $(CFLAGS_TEST)"
+	@$(CC) $(SRC) -o $(DIR_TARGET)$(TARGET) $(CFLAGS_TEST)
 	@echo "Build complete."
-	@for file in *.out *.sh; do if [ -e "$file" ]; then chmod +x "$file"; fi; done
+
 
 build: 
 	@$(MAKE) -f $(THIS_FILE) setup
 	@echo "Building..."
 	@echo "$(CC) $(CFLAGS_PROD) $(SRC) -o $(DIR_TARGET)$(TARGET)"
-	@$(CC) $(CFLAGS_PROD) $(SRC) -o $(DIR_TARGET)$(TARGET)
+	@$(CC) $(CFLAGS_TEST) $(SRC) -o $(DIR_TARGET)$(TARGET)
 	@echo "Build complete."
 	@echo "Copying scripts..."
 	@cp $(DIR_SCRIPTS)/* $(DIR_TARGET)

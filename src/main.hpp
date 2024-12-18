@@ -9,17 +9,18 @@
 #include <cstdint>
 #include <sys/time.h>
 
-#define TPS 1              // ticks per second
+#define TPS 60             // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK true          //
 #define EB_XYZ 0.05        //
 #define EB_ROT 0.05        //
 #define LOG_ENABLED true   // disables the movement if loggings enabled, for use when testing
-#define LOG_LEVEL 3        // log level
+#define LOG_LEVEL 5        // log level
 
 // Struct representing the bots state
 struct BotState {
   uint64_t id;
+  string name;
   HiveCommon::Vec3 current_pos;
   HiveCommon::Vec4 current_rot;
   HiveCommon::Vec3 target_pos;

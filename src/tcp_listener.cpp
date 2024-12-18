@@ -5,6 +5,9 @@
 #include "commons/src/utils/tick.hpp"
 #include "main.hpp"
 
+#include <iostream>
+#include <string>
+
 // void make_conn() {
 //   // string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
 //   // string dc_port = dotenv::DotEnv::get("DC_PORT");
@@ -132,12 +135,15 @@ extern void tcp_listener() {
 
   logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1);
 
+  //! If any of these are blank, code may crash, needs to be fixed
   string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
   string dc_port = dotenv::DotEnv::get("DC_PORT");
+
+  logging::log(true, "Read EnVars");
+
   netcode::Socket sock = netcode::Socket(dc_address.data(), std::stoi(dc_port));
 
-  string name = dotenv::DotEnv::get("BOT_NAME");
-  uint64_t id = std::stoll(dotenv::DotEnv::get("ID_OVERRIDE")); // TODO: this borked when using hex
+  logging::log(true, "socket created");
 
   // Build the Presenter which is to be used in the Payload as a byte vector
   uint16_t sub = 0;
@@ -145,8 +151,8 @@ extern void tcp_listener() {
   // sub = encodeSubscriptionType(HiveCommon::SubscriptionType_Headset, sub);
   sub = misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
   flatbuffers::FlatBufferBuilder fbb1;
-  const auto fb_name = fbb1.CreateString(name);
-  const auto robot = HiveCommon::CreateRobot(fbb1, id, fb_name, sub, HiveCommon::SubscriptionRate_Half);
+  const auto fb_name = fbb1.CreateString(STATE.read().name);
+  const auto robot = HiveCommon::CreateRobot(fbb1, STATE.read().id, fb_name, sub, HiveCommon::SubscriptionRate_Half);
   const auto entity = HiveCommon::CreateEntity(fbb1, HiveCommon::EntityUnion_Robot, robot.Union());
   fbb1.Finish(entity);
   fbb1.ForceVectorAlignment(fbb1.GetSize(), sizeof(uint8_t), fbb1.GetBufferMinAlignment());
@@ -189,20 +195,20 @@ extern void tcp_listener() {
 
     if (message.size() > 0) {
 
-      logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
+      // logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
 
       const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
 
       if (!s) {
         logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
-        return;
+        continue;
       }
 
       const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
 
       if (!p) {
         logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
-        return;
+        continue;
       }
 
       for (const auto &e : *p) {
@@ -213,7 +219,7 @@ extern void tcp_listener() {
           const auto node = entity->entity_as_Node();
 
           if (node->id() != STATE.read().id) {
-            logging::log(LOG_ENABLED, "Filtered ID", LOG_LEVEL, 2, LogType::INFO);
+            logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO);
             continue;
           }
 
@@ -224,6 +230,8 @@ extern void tcp_listener() {
 
           STATE.inner.current_pos = *pos;
           STATE.inner.current_rot = *rot;
+
+          std::cout << std::to_string(pos->x()) << std::endl;
         }
         case HiveCommon::EntityUnion_Command: {
 
@@ -245,7 +253,7 @@ extern void tcp_listener() {
             std::lock_guard<std::mutex> lock(STATE.mtx);
 
             STATE.inner.sleep = sleep->sleep();
-            STATE.inner.sleep = (long)(sleep->duration() * 1000000);
+            STATE.inner.sleep = (long)(sleep->duration() * 1000);
           }
           case HiveCommon::CommandUnion_Owner:
           case HiveCommon::CommandUnion_NONE:
@@ -262,6 +270,10 @@ extern void tcp_listener() {
           continue;
         }
       }
+
+      // BotState temp = STATE.read();
+      // logging::log(true, "Coords - x=" + std::to_string(temp.current_pos.x()) + " z=" + std::to_string(temp.current_pos.x()));
+
     } else {
       logging::log(LOG_ENABLED, "Zero Bytes Read", LOG_LEVEL, 2);
     }
@@ -274,4 +286,6 @@ extern void tcp_listener() {
     t_delay = MSPT - (t2 - t1);
     std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
   }
+
+  logging::log(true, "listener closed");
 }
