@@ -1,8 +1,9 @@
+#include "main.hpp"
+
 #include "commons/src/logging/logging.hpp"
 #include "commons/src/utils/misc.hpp"
 #include "commons/src/utils/tick.hpp"
 #include "commons/src/zumo/zumo.hpp"
-#include "main.hpp"
 
 #include <string>
 #include <thread>
@@ -10,6 +11,10 @@
 void tick_bot() {
   // read state
   auto s = STATE.read();
+
+  std::string temp_x = std::to_string(s.current_pos.x());
+  std::string temp_z = std::to_string(s.current_pos.z());
+  logging::log(LOG_ENABLED, "x=" + temp_x + ", z=" + temp_z, LOG_LEVEL, 1, "bot_logic");
 
   if (!s.sleep) {
     logging::log(LOG_ENABLED, "Bot is Not Sleeped", LOG_LEVEL, 3, "bot_logic");

@@ -59,6 +59,8 @@ void tcp_tick(netcode::Socket sock) {
       return; // TODO: could cause issues in future
     }
 
+    logging::log(LOG_ENABLED, "Recieved Message", LOG_LEVEL, 1, "tcp_listener");
+
     for (const auto &e : *p) {
       const HiveCommon::Entity *entity = e->data_nested_root();
 

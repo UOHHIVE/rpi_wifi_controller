@@ -9,13 +9,13 @@
 #include <cstdint>
 #include <sys/time.h>
 
-#define TPS 60             // ticks per second
+#define TPS 120            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK true          //
 #define EB_XYZ 0.05        //
 #define EB_ROT 0.05        //
 #define LOG_ENABLED true   // disables the movement if loggings enabled, for use when testing
-#define LOG_LEVEL 5        // log level
+#define LOG_LEVEL 1        // log level
 
 // Struct representing the bots state
 struct BotState {
