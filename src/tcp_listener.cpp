@@ -32,7 +32,7 @@ void tcp_setup(netcode::Socket sock) {
   const auto state = HiveCommon::CreateState(fbb2, payloads);
   fbb2.FinishSizePrefixed(state);
 
-  logging::log(LOG_ENABLED, "Sending Magic Num...");
+  logging::log(LOG_ENABLED, "Sending Magic Num...", LOG_LEVEL, 1, "tcp_listener");
 
   sock.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
 }
@@ -48,30 +48,30 @@ void tcp_tick(netcode::Socket sock) {
     const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
 
     if (!s) {
-      logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
+      logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN, "tcp_listener");
       return; // TODO: could cause issues in future
     }
 
     const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
 
     if (!p) {
-      logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
+      logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN, "tcp_listener");
       return; // TODO: could cause issues in future
     }
 
     for (const auto &e : *p) {
       const HiveCommon::Entity *entity = e->data_nested_root();
 
-      logging::log(true, "Extracted entity");
+      logging::log(LOG_ENABLED, "Extracted entity", LOG_LEVEL, 2, "tcp_listener");
 
       switch (entity->entity_type()) {
       case HiveCommon::EntityUnion_Node: {
-        logging::log(true, "Decoding Node");
+        logging::log(LOG_ENABLED, "Decoding Node", LOG_LEVEL, 2, "tcp_listener");
 
         const auto node = entity->entity_as_Node();
 
         if (node->id() != STATE.read().id) {
-          logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO);
+          logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO, "tcp_listener");
           break;
         }
 
@@ -86,7 +86,7 @@ void tcp_tick(netcode::Socket sock) {
         break;
       }
       case HiveCommon::EntityUnion_Command: {
-        logging::log(true, "Decoding Command");
+        logging::log(LOG_ENABLED, "Decoding Command", LOG_LEVEL, 2, "tcp_listener");
         const HiveCommon::Command *command = entity->entity_as_Command();
 
         // TODO: add logging here
@@ -126,37 +126,37 @@ void tcp_tick(netcode::Socket sock) {
         break;
       }
 
-      logging::log(true, "Finished parsing entity...");
+      logging::log(LOG_ENABLED, "Finished parsing entity...", LOG_LEVEL, 2, "tcp_listener");
     }
 
     // BotState temp = STATE.read();
-    // logging::log(true, "Coords - x=" + std::to_string(temp.current_pos.x()) + " z=" + std::to_string(temp.current_pos.x()));
+    // logging::log(LOG_ENABLED, "Coords - x=" + std::to_string(temp.current_pos.x()) + " z=" + std::to_string(temp.current_pos.x()));
 
   } else {
-    logging::log(LOG_ENABLED, "Zero Bytes Read", LOG_LEVEL, 2);
+    logging::log(LOG_ENABLED, "Zero Bytes Read", LOG_LEVEL, 2, "tcp_listener");
   }
 }
 
 // TCP listener that gets spawned
 extern void tcp_listener() {
 
-  logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1);
+  logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1, "tcp_listener");
 
   //! If any of these are blank, code may crash, needs to be fixed
   string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
   string dc_port = dotenv::DotEnv::get("DC_PORT");
 
-  logging::log(true, "Read EnVars");
+  logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 1, "tcp_listener");
 
   netcode::Socket sock = netcode::Socket(dc_address.data(), std::stoi(dc_port));
 
-  logging::log(true, "socket created");
+  logging::log(LOG_ENABLED, "socket created", LOG_LEVEL, 1, "tcp_listener");
 
   tcp_setup(sock);
 
-  logging::log(LOG_ENABLED, "Connection established");
+  logging::log(LOG_ENABLED, "Connection established", LOG_LEVEL, 1, "tcp_listener");
 
   utils::tick(tcp_tick, 1, true, sock);
 
-  logging::log(true, "listener closed");
+  logging::log(LOG_ENABLED, "listener closed", LOG_LEVEL, 1, "tcp_listener");
 }

@@ -12,13 +12,16 @@ void tick_bot() {
   auto s = STATE.read();
 
   if (!s.sleep) {
+    logging::log(LOG_ENABLED, "Bot is Not Sleeped", LOG_LEVEL, 3, "bot_logic");
 
     // if the bot is not asleep
     if (s.aligned) {
+      logging::log(LOG_ENABLED, "Bot is Aligned", LOG_LEVEL, 2, "bot_logic");
 
       // realign if bot on axis of target
       if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
         logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+        logging::log(LOG_ENABLED, "Bot: missaligned", LOG_LEVEL, 1, "bot_logic");
 
         std::lock_guard<std::mutex> lock(STATE.mtx);
         STATE.inner.aligned = false;
@@ -27,14 +30,16 @@ void tick_bot() {
       // stop if bot on target
       else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
         logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+        logging::log(LOG_ENABLED, "Bot: on Target", LOG_LEVEL, 1, "bot_logic");
       }
 
       // keep going forward. bot not on target, but still aligned
       else {
         logging::catch_debug(LOG_ENABLED, "ZUMO: FORWARD", zumo_movement::forward);
+        logging::log(LOG_ENABLED, "Bot: Forward", LOG_LEVEL, 2, "bot_logic");
       }
     } else {
-      // TODO: document this...
+      logging::log(LOG_ENABLED, "Bot: Realigning", LOG_LEVEL, 2, "bot_logic");
 
       // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
 
@@ -77,13 +82,16 @@ void tick_bot() {
 
         if (clockwise) {
           logging::catch_debug(LOG_ENABLED, "ZUMO: RIGHT", zumo_movement::turn_right);
+          logging::log(LOG_ENABLED, "Bot: Turning Right", LOG_LEVEL, 2, "bot_logic");
         } else {
           logging::catch_debug(LOG_ENABLED, "ZUMO: LEFT", zumo_movement::turn_left);
+          logging::log(LOG_ENABLED, "Bot: Turning Left", LOG_LEVEL, 2, "bot_logic");
         }
       }
     }
   } else {
     logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+    logging::log(LOG_ENABLED, "Bot: Sleeping", LOG_LEVEL, 2, "bot_logic");
 
     // sleep for zero if duration is greater, if less, its permanent
     if (s.sleep > 0) {
@@ -102,11 +110,9 @@ void tick_bot() {
 }
 
 extern void bot_logic() {
+  logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
 
-  logging::log(LOG_ENABLED, "Starting Ticking Bot");
-
-  // while (true) {
-  //   tick_bot();
-  // }
   utils::tick(tick_bot, 1000000, true);
+
+  logging::log(LOG_ENABLED, "Killing Bot Logic...", LOG_LEVEL, 1, "bot_logic");
 }

@@ -11,15 +11,14 @@ utils::Lock<BotState> STATE;
 void setup() {
   string name = dotenv::DotEnv::get("BOT_NAME");
   string id_str = dotenv::DotEnv::get("ID_OVERRIDE");
+  logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 1);
 
-  logging::log(true, "Name Aquired: `" + name + "`");
-
-  logging::log(true, "Read EnVars");
-  logging::log(true, "ID STR: `" + id_str + "`");
+  logging::log(LOG_ENABLED, "Name Aquired: `" + name + "`", LOG_LEVEL, 1);
+  logging::log(LOG_ENABLED, "ID STR: `" + id_str + "`", LOG_LEVEL, 1);
 
   uint64_t id = std::stoll(id_str); // TODO: this borked when using hex
 
-  logging::log(true, "Saving ID");
+  logging::log(LOG_ENABLED, "Saving ID...", LOG_LEVEL, 1);
   std::lock_guard<std::mutex> lock(STATE.mtx);
   STATE.inner.id = id;
   STATE.inner.name = name;
@@ -27,29 +26,31 @@ void setup() {
 
 int main(void) {
 
-  logging::log(LOG_ENABLED, "Startup");
+  logging::log(LOG_ENABLED, "Startup", LOG_LEVEL, 0);
 
   // load envfile
   // TODO: change this path later...
   dotenv::DotEnv::load("../.env");
-  logging::log(LOG_ENABLED, "Loaded EnvFile");
+  logging::log(LOG_ENABLED, "Loaded Envfile", LOG_LEVEL, 0);
 
   setup();
 
-  logging::log(true, "Setup Complete");
+  logging::log(LOG_ENABLED, "Setup Complete", LOG_LEVEL, 0);
 
   // connect to server
 
   // spawn threads
   std::thread p_listener(tcp_listener);
-  logging::log(LOG_ENABLED, "Spawned Listener");
+  logging::log(LOG_ENABLED, "Spawned Listener", LOG_LEVEL, 0);
 
   std::thread p_bot(bot_logic);
-  logging::log(LOG_ENABLED, "Spawned Bot Logic");
+  logging::log(LOG_ENABLED, "Spawned Bot Logic", LOG_LEVEL, 0);
 
   // joins threads
   p_bot.join();
   p_listener.join();
+
+  logging::log(LOG_ENABLED, "Shutdown...", LOG_LEVEL, 0);
 
   return 0;
 }
