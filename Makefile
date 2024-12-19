@@ -5,7 +5,7 @@ STD = c++23
 #ARCH = arm64
 #ARCH = x86_64
 
-CFLAGS_TEST = -std=$(STD) -Wall -Wextra -l wiringPi # -Werror -Wpedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-private-field -l wiringPi
+CFLAGS_TEST = -std=$(STD) -Wall -Wextra -Wpedantic -l wiringPi # -Werror -Wpedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-private-field -l wiringPi
 CFLAGS_PROD = -std=$(STD) -flto -Wall -Wextra -O3 -l wiringPi
 # CFLAGS_PROD = -arch $(ARCH) -std=$(STD) -Wall -Wextra -O3
 
@@ -37,7 +37,7 @@ build:
 	@$(MAKE) -f $(THIS_FILE) setup
 	@echo "Building..."
 	@echo "$(CC) $(CFLAGS_PROD) $(SRC) -o $(DIR_TARGET)$(TARGET)"
-	@$(CC) $(CFLAGS_TEST) $(SRC) -o $(DIR_TARGET)$(TARGET)
+	@$(CC) $(SRC) -o $(DIR_TARGET)$(TARGET) $(CFLAGS_TEST)
 	@echo "Build complete."
 	@echo "Copying scripts..."
 	@cp $(DIR_SCRIPTS)/* $(DIR_TARGET)
