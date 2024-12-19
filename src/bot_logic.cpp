@@ -117,7 +117,7 @@ void tick_bot() {
 extern void bot_logic() {
   logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
 
-  utils::tick(tick_bot, 1000000, true);
+  utils::tick(tick_bot, MSPT, TICK);
 
   logging::log(LOG_ENABLED, "Killing Bot Logic...", LOG_LEVEL, 1, "bot_logic");
 }

@@ -158,7 +158,7 @@ extern void tcp_listener() {
 
   logging::log(LOG_ENABLED, "Connection established", LOG_LEVEL, 1, "tcp_listener");
 
-  utils::tick(tcp_tick, 1, true, sock);
+  utils::tick(tcp_tick, 1, TICK, sock);
 
   logging::log(LOG_ENABLED, "listener closed", LOG_LEVEL, 1, "tcp_listener");
 }

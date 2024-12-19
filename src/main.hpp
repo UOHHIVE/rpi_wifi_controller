@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <sys/time.h>
 
-#define TPS 120            // ticks per second
+#define TPS 20             // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK true          //
 #define EB_XYZ 0.05        //
