@@ -16,6 +16,10 @@
 #define EB_ROT 0.05        //
 #define LOG_ENABLED true   // disables the movement if loggings enabled, for use when testing
 #define LOG_LEVEL 1        // log level
+#define TRACK_L 17         // Left Track pin
+#define TRACK_R 27         // Right Track Pin
+#define SAFETY 16          // Safety Pin
+#define HBREAK 26          // Break Pin
 
 // Struct representing the bots state
 struct BotState {
