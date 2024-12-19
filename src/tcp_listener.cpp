@@ -130,6 +130,106 @@
 //   }
 // }
 
+void tcp_tick(netcode::Socket sock) {
+  string message;
+  sock.read_data(message); // ~~TODO: look into fixing this~~ fixed
+
+  if (message.size() > 0) {
+
+    // logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
+
+    const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+
+    if (!s) {
+      logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
+      return; // TODO: could cause issues in future
+    }
+
+    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+
+    if (!p) {
+      logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
+      return; // TODO: could cause issues in future
+    }
+
+    for (const auto &e : *p) {
+      const HiveCommon::Entity *entity = e->data_nested_root();
+
+      logging::log(true, "Extracted entity");
+
+      switch (entity->entity_type()) {
+      case HiveCommon::EntityUnion_Node: {
+        logging::log(true, "Decoding Node");
+
+        const auto node = entity->entity_as_Node();
+
+        if (node->id() != STATE.read().id) {
+          logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO);
+          break;
+        }
+
+        const auto pos = node->position();
+        const auto rot = node->rotation();
+
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+
+        STATE.inner.current_pos = *pos;
+        STATE.inner.current_rot = *rot;
+
+        break;
+      }
+      case HiveCommon::EntityUnion_Command: {
+        logging::log(true, "Decoding Command");
+        const HiveCommon::Command *command = entity->entity_as_Command();
+
+        // TODO: add logging here
+
+        switch (command->command_type()) {
+        case HiveCommon::CommandUnion_MoveTo: {
+          const auto moveto = command->command_as_MoveTo();
+
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+
+          STATE.inner.target_pos = *moveto->destination();
+          break;
+        }
+        case HiveCommon::CommandUnion_Sleep: {
+          const auto sleep = command->command_as_Sleep();
+
+          std::lock_guard<std::mutex> lock(STATE.mtx);
+
+          STATE.inner.sleep = sleep->sleep();
+          STATE.inner.sleep = (long)(sleep->duration() * 1000);
+          break;
+        }
+        case HiveCommon::CommandUnion_Owner:
+        case HiveCommon::CommandUnion_NONE:
+          break;
+        }
+
+        break;
+      }
+      case HiveCommon::EntityUnion_Robot:
+      case HiveCommon::EntityUnion_Generic:
+      case HiveCommon::EntityUnion_Geometry:
+      case HiveCommon::EntityUnion_Headset:
+      case HiveCommon::EntityUnion_Observer:
+      case HiveCommon::EntityUnion_Presenter:
+      case HiveCommon::EntityUnion_NONE:
+        break;
+      }
+
+      logging::log(true, "Finished parsing entity...");
+    }
+
+    // BotState temp = STATE.read();
+    // logging::log(true, "Coords - x=" + std::to_string(temp.current_pos.x()) + " z=" + std::to_string(temp.current_pos.x()));
+
+  } else {
+    logging::log(LOG_ENABLED, "Zero Bytes Read", LOG_LEVEL, 2);
+  }
+}
+
 // TCP listener that gets spawned
 extern void tcp_listener() {
 
@@ -175,127 +275,129 @@ extern void tcp_listener() {
 
   logging::log(LOG_ENABLED, "Connection established");
 
-  // define timing stuff
-  std::chrono::_V2::system_clock::duration p1;
-  std::chrono::_V2::system_clock::duration p2;
+  utils::tick(tcp_tick, 1, true, sock);
 
-  int64_t t1;
-  int64_t t2;
+  // // define timing stuff
+  // std::chrono::_V2::system_clock::duration p1;
+  // std::chrono::_V2::system_clock::duration p2;
 
-  int t_delay;
+  // int64_t t1;
+  // int64_t t2;
 
-  while (TICK) {
+  // int t_delay;
 
-    // get first time
-    p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
-    t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
+  // while (TICK) {
 
-    string message;
-    sock.read_data(message); // TODO: look into fixing this
+  //   // get first time
+  //   p1 = std::chrono::high_resolution_clock::now().time_since_epoch();
+  //   t1 = std::chrono::duration_cast<std::chrono::microseconds>(p1).count();
 
-    if (message.size() > 0) {
+  //   string message;
+  //   sock.read_data(message); // ~~TODO: look into fixing this~~ fixed
 
-      // logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
+  //   if (message.size() > 0) {
 
-      const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+  //     // logging::log(LOG_ENABLED, "Message: " + message, LOG_LEVEL, 2, LogType::INFO, "dc_response");
 
-      if (!s) {
-        logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
-        continue;
-      }
+  //     const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
 
-      const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+  //     if (!s) {
+  //       logging::log(LOG_ENABLED, "No State in message", LOG_LEVEL, 1, LogType::WARN);
+  //       continue; // TODO: could cause issues in future
+  //     }
 
-      if (!p) {
-        logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
-        continue;
-      }
+  //     const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
 
-      for (const auto &e : *p) {
-        const HiveCommon::Entity *entity = e->data_nested_root();
+  //     if (!p) {
+  //       logging::log(LOG_ENABLED, "No Payload in state", LOG_LEVEL, 1, LogType::WARN);
+  //       continue; // TODO: could cause issues in future
+  //     }
 
-        logging::log(true, "Extracted entity");
+  //     for (const auto &e : *p) {
+  //       const HiveCommon::Entity *entity = e->data_nested_root();
 
-        switch (entity->entity_type()) {
-        case HiveCommon::EntityUnion_Node: {
-          logging::log(true, "Decoding Node");
+  //       logging::log(true, "Extracted entity");
 
-          const auto node = entity->entity_as_Node();
+  //       switch (entity->entity_type()) {
+  //       case HiveCommon::EntityUnion_Node: {
+  //         logging::log(true, "Decoding Node");
 
-          if (node->id() != STATE.read().id) {
-            logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO);
-            break;
-          }
+  //         const auto node = entity->entity_as_Node();
 
-          const auto pos = node->position();
-          const auto rot = node->rotation();
+  //         if (node->id() != STATE.read().id) {
+  //           logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO);
+  //           break;
+  //         }
 
-          std::lock_guard<std::mutex> lock(STATE.mtx);
+  //         const auto pos = node->position();
+  //         const auto rot = node->rotation();
 
-          STATE.inner.current_pos = *pos;
-          STATE.inner.current_rot = *rot;
+  //         std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          break;
-        }
-        case HiveCommon::EntityUnion_Command: {
-          logging::log(true, "Decoding Command");
-          const HiveCommon::Command *command = entity->entity_as_Command();
+  //         STATE.inner.current_pos = *pos;
+  //         STATE.inner.current_rot = *rot;
 
-          // TODO: add logging here
+  //         break;
+  //       }
+  //       case HiveCommon::EntityUnion_Command: {
+  //         logging::log(true, "Decoding Command");
+  //         const HiveCommon::Command *command = entity->entity_as_Command();
 
-          switch (command->command_type()) {
-          case HiveCommon::CommandUnion_MoveTo: {
-            const auto moveto = command->command_as_MoveTo();
+  //         // TODO: add logging here
 
-            std::lock_guard<std::mutex> lock(STATE.mtx);
+  //         switch (command->command_type()) {
+  //         case HiveCommon::CommandUnion_MoveTo: {
+  //           const auto moveto = command->command_as_MoveTo();
 
-            STATE.inner.target_pos = *moveto->destination();
-            break;
-          }
-          case HiveCommon::CommandUnion_Sleep: {
-            const auto sleep = command->command_as_Sleep();
+  //           std::lock_guard<std::mutex> lock(STATE.mtx);
 
-            std::lock_guard<std::mutex> lock(STATE.mtx);
+  //           STATE.inner.target_pos = *moveto->destination();
+  //           break;
+  //         }
+  //         case HiveCommon::CommandUnion_Sleep: {
+  //           const auto sleep = command->command_as_Sleep();
 
-            STATE.inner.sleep = sleep->sleep();
-            STATE.inner.sleep = (long)(sleep->duration() * 1000);
-            break;
-          }
-          case HiveCommon::CommandUnion_Owner:
-          case HiveCommon::CommandUnion_NONE:
-            break;
-          }
+  //           std::lock_guard<std::mutex> lock(STATE.mtx);
 
-          break;
-        }
-        case HiveCommon::EntityUnion_Robot:
-        case HiveCommon::EntityUnion_Generic:
-        case HiveCommon::EntityUnion_Geometry:
-        case HiveCommon::EntityUnion_Headset:
-        case HiveCommon::EntityUnion_Observer:
-        case HiveCommon::EntityUnion_Presenter:
-        case HiveCommon::EntityUnion_NONE:
-          break;
-        }
+  //           STATE.inner.sleep = sleep->sleep();
+  //           STATE.inner.sleep = (long)(sleep->duration() * 1000);
+  //           break;
+  //         }
+  //         case HiveCommon::CommandUnion_Owner:
+  //         case HiveCommon::CommandUnion_NONE:
+  //           break;
+  //         }
 
-        logging::log(true, "Finished parsing entity...");
-      }
+  //         break;
+  //       }
+  //       case HiveCommon::EntityUnion_Robot:
+  //       case HiveCommon::EntityUnion_Generic:
+  //       case HiveCommon::EntityUnion_Geometry:
+  //       case HiveCommon::EntityUnion_Headset:
+  //       case HiveCommon::EntityUnion_Observer:
+  //       case HiveCommon::EntityUnion_Presenter:
+  //       case HiveCommon::EntityUnion_NONE:
+  //         break;
+  //       }
 
-      // BotState temp = STATE.read();
-      // logging::log(true, "Coords - x=" + std::to_string(temp.current_pos.x()) + " z=" + std::to_string(temp.current_pos.x()));
+  //       logging::log(true, "Finished parsing entity...");
+  //     }
 
-    } else {
-      logging::log(LOG_ENABLED, "Zero Bytes Read", LOG_LEVEL, 2);
-    }
+  //     // BotState temp = STATE.read();
+  //     // logging::log(true, "Coords - x=" + std::to_string(temp.current_pos.x()) + " z=" + std::to_string(temp.current_pos.x()));
 
-    // get second timepoint
-    p2 = std::chrono::high_resolution_clock::now().time_since_epoch();
-    t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
+  //   } else {
+  //     logging::log(LOG_ENABLED, "Zero Bytes Read", LOG_LEVEL, 2);
+  //   }
 
-    // delay if less than mspt
-    t_delay = MSPT - (t2 - t1);
-    std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
-  }
+  //   // get second timepoint
+  //   p2 = std::chrono::high_resolution_clock::now().time_since_epoch();
+  //   t2 = std::chrono::duration_cast<std::chrono::microseconds>(p2).count();
+
+  //   // delay if less than mspt
+  //   t_delay = MSPT - (t2 - t1);
+  //   std::this_thread::sleep_for(std::chrono::microseconds(t_delay));
+  // }
 
   logging::log(true, "listener closed");
 }
