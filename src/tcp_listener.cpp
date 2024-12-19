@@ -235,7 +235,6 @@ extern void tcp_listener() {
           STATE.inner.current_pos = *pos;
           STATE.inner.current_rot = *rot;
 
-          std::cout << std::to_string(pos->x()) << std::endl;
           break;
         }
         case HiveCommon::EntityUnion_Command: {
@@ -251,6 +250,7 @@ extern void tcp_listener() {
             std::lock_guard<std::mutex> lock(STATE.mtx);
 
             STATE.inner.target_pos = *moveto->destination();
+            break;
           }
           case HiveCommon::CommandUnion_Sleep: {
             const auto sleep = command->command_as_Sleep();
@@ -259,11 +259,14 @@ extern void tcp_listener() {
 
             STATE.inner.sleep = sleep->sleep();
             STATE.inner.sleep = (long)(sleep->duration() * 1000);
+            break;
           }
           case HiveCommon::CommandUnion_Owner:
           case HiveCommon::CommandUnion_NONE:
-            continue;
+            break;
           }
+
+          break;
         }
         case HiveCommon::EntityUnion_Robot:
         case HiveCommon::EntityUnion_Generic:
@@ -272,7 +275,7 @@ extern void tcp_listener() {
         case HiveCommon::EntityUnion_Observer:
         case HiveCommon::EntityUnion_Presenter:
         case HiveCommon::EntityUnion_NONE:
-          continue;
+          break;
         }
 
         logging::log(true, "Finished parsing entity...");
