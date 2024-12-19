@@ -214,13 +214,17 @@ extern void tcp_listener() {
       for (const auto &e : *p) {
         const HiveCommon::Entity *entity = e->data_nested_root();
 
+        logging::log(true, "Extracted entity");
+
         switch (entity->entity_type()) {
         case HiveCommon::EntityUnion_Node: {
+          logging::log(true, "Decoding Node");
+
           const auto node = entity->entity_as_Node();
 
           if (node->id() != STATE.read().id) {
             logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO);
-            continue;
+            break;
           }
 
           const auto pos = node->position();
@@ -232,9 +236,10 @@ extern void tcp_listener() {
           STATE.inner.current_rot = *rot;
 
           std::cout << std::to_string(pos->x()) << std::endl;
+          break;
         }
         case HiveCommon::EntityUnion_Command: {
-
+          logging::log(true, "Decoding Command");
           const HiveCommon::Command *command = entity->entity_as_Command();
 
           // TODO: add logging here
@@ -269,6 +274,8 @@ extern void tcp_listener() {
         case HiveCommon::EntityUnion_NONE:
           continue;
         }
+
+        logging::log(true, "Finished parsing entity...");
       }
 
       // BotState temp = STATE.read();
