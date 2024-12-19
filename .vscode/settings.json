@@ -61,7 +61,8 @@
     "streambuf": "cpp",
     "thread": "cpp",
     "typeinfo": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "list": "cpp"
   },
   "C_Cpp.default.cppStandard": "c++23"
 }
