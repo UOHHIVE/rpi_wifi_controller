@@ -30,7 +30,7 @@ int main(void) {
 
   // load envfile
   // TODO: change this path later...
-  dotenv::DotEnv::load("../.env");
+  dotenv::DotEnv::load("config.env");
   logging::log(LOG_ENABLED, "Loaded Envfile", LOG_LEVEL, 0);
 
   setup();
