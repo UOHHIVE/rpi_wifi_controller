@@ -13,6 +13,13 @@ apt install fakeroot gettext-base -y
 # pip install RPi.GPIO
 # pip install gpiod
 
+# echo -n "Enter Pi ID (lowercase): " 
+# read name
+
+# Setting up git
+git config --global credential.helper store
+# git config --global user.name 
+
 # clone wiring pi 
 git clone https://github.com/WiringPi/WiringPi.git --recursive
 cd WiringPi
