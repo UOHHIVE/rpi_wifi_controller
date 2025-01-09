@@ -14,7 +14,7 @@ apt install fakeroot gettext-base -y
 
 # manually install flatbuffers header files bc its not packaged properly
 if [ -d ~/flatbuffers ]; then rm -rf ~/flatbuffers; fi
-curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v24.12.3.tar.gz -o ~/flatbuffers.tar.gz
+curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v24.12.23.tar.gz -o ~/flatbuffers.tar.gz
 tar -xvzf ~/flatbuffers.tar.gz
 mv ~/flatbuffers-* ~/flatbuffers
 
@@ -74,7 +74,9 @@ git clone "$DIR_REM" "$DIR_SRC" --recurse-submodules
 
 # cd to repo and pull
 cd "$DIR_SRC"
+
 git pull
+git submodule update --init --recursive --remote
 
 # setup the folders and build the project
 make setup
