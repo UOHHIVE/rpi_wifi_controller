@@ -85,6 +85,10 @@ make build
 # if target dir isnt linked, then link it
 if [ ! -d "$DIR_LOCAL" ]; then ln -s "$DIR_SRC/target" "$DIR_LOCAL"; fi
 
+# copy config file to root
+cp /root/local/config.env /root/config.env
+
+# move into local dir
 cd "$DIR_LOCAL"
 
 # start and enable rpi_controller.service and rpi_updater.service

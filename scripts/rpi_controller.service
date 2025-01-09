@@ -7,7 +7,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/
-ExecStart=/root/local/main.out
+ExecStart=/root/local/main.out /root/config.env
 Restart=always               
 
 [Install]

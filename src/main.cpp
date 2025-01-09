@@ -2,6 +2,7 @@
 #include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/logging/logging.hpp"
 
+#include <iostream>
 #include <string>
 #include <thread>
 
@@ -24,13 +25,21 @@ void setup() {
   STATE.inner.name = name;
 }
 
-int main(void) {
+int main(int argc, char *argv[]) {
 
   logging::log(LOG_ENABLED, "Startup", LOG_LEVEL, 0);
 
+  string config_path = "./config.env";
+
+  if (argc > 1) {
+    config_path = argv[1];
+  }
+
+  logging::log(LOG_ENABLED, "Loading Config: " + config_path, LOG_LEVEL, 0);
+
   // load envfile
   // TODO: change this path later...
-  dotenv::DotEnv::load("config.env");
+  dotenv::DotEnv::load(config_path);
   logging::log(LOG_ENABLED, "Loaded Envfile", LOG_LEVEL, 0);
 
   setup();

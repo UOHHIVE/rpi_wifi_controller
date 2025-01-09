@@ -47,7 +47,7 @@ run:
 	@$(MAKE) -f $(THIS_FILE) setup
 	@if [ ! -d $(DIR_TARGET)/$(TARGET) ]; then $(MAKE) -f $(THIS_FILE) test ; fi
 	@echo "Running..."
-	@cd $(DIR_TARGET) && ./$(TARGET)
+	@cd $(DIR_TARGET) && ./$(TARGET) ./config.env
 
 debug:
 	@if [ ! -d $(DIR_TARGET)/$(TARGET) ]; then $(MAKE) -f $(THIS_FILE) test ; fi
