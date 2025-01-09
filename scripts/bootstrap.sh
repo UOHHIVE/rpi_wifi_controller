@@ -5,10 +5,32 @@ apt update -y
 apt upgrade -y
 
 # make sure required software is installed
-apt install software-properties-common wget xz-utils gcc build-essential clang -y
+apt install software-properties-common wget xz-utils gcc build-essential clang make cmake -y
 apt install python3 python3-pip -y
 apt install gpiod libgpoid-dev -y
 apt install fakeroot gettext-base -y
+
+# FLATBUFFER_VERISON = 24.3.6
+
+# manually install flatbuffers header files bc its not packaged properly
+if [ -d ~/flatbuffers ]; then rm -rf ~/flatbuffers; fi
+curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v24.12.3.tar.gz -o ~/flatbuffers.tar.gz
+tar -xvzf ~/flatbuffers.tar.gz
+mv ~/flatbuffers-* ~/flatbuffers
+
+# symlink include directory
+if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
+
+# cd flatbuffers
+# cmake -G "Unix Makefiles"
+# make -j
+# ln -s ~/include /usr/include/
+
+
+# sh <(curl -L https://nixos.org/nix/install) --daemon
+# source $HOME/.nix-profile/etc/profile.d/nix.sh
+
+# nix-env --install flatbuffers -Af "<nixpkgs>"
 
 # pip install RPi.GPIO
 # pip install gpiod
