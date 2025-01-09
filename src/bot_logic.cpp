@@ -115,6 +115,12 @@ void tick_bot() {
 }
 
 extern void bot_logic() {
+  logging::log(LOG_ENABLED, "Waiting for Connection...", LOG_LEVEL, 1, "bot_logic");
+
+  while (!STATE.read().connected) {
+    std::this_thread::sleep_for(5s);
+  }
+
   logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
 
   utils::tick(tick_bot, MSPT, TICK);

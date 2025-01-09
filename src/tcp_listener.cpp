@@ -35,6 +35,9 @@ void tcp_setup(netcode::Socket sock) {
   logging::log(LOG_ENABLED, "Sending Magic Num...", LOG_LEVEL, 1, "tcp_listener");
 
   sock.send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
+
+  std::lock_guard<std::mutex> lock(STATE.mtx);
+  STATE.inner.connected = true;
 }
 
 void tcp_tick(netcode::Socket sock) {

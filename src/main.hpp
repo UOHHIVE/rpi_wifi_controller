@@ -32,6 +32,7 @@ struct BotState {
   long duration;
   bool aligned;
   bool clockwise;
+  bool connected;
 };
 
 // Global State
