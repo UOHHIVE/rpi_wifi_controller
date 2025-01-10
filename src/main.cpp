@@ -1,6 +1,7 @@
 #include "main.hpp"
 #include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/logging/logging.hpp"
+#include "commons/src/zumo/zumo.hpp"
 
 #include <iostream>
 #include <string>
@@ -10,6 +11,9 @@ utils::Lock<BotState> STATE;
 // netcode::Socket SOCK;
 
 void setup() {
+
+  zumo_utils::setup();
+
   string name = dotenv::DotEnv::get("BOT_NAME");
   string id_str = dotenv::DotEnv::get("ID_OVERRIDE");
   logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 1);
