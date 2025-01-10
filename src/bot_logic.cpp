@@ -124,6 +124,19 @@ extern void bot_logic() {
     std::this_thread::sleep_for(5s);
   }
 
+  for (;;) {
+    zumo_movement::forward();
+    std::this_thread::sleep_for(1s);
+    zumo_movement::turn_left();
+    std::this_thread::sleep_for(1s);
+    zumo_movement::forward();
+    std::this_thread::sleep_for(1s);
+    zumo_movement::turn_right();
+    std::this_thread::sleep_for(1s);
+    zumo_movement::forward();
+    std::this_thread::sleep_for(1s);
+  }
+
   logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
 
   utils::tick(tick_bot, MSPT, TICK);
