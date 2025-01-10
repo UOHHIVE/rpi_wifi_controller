@@ -100,6 +100,8 @@ void tcp_tick(netcode::Socket sock) {
         case HiveCommon::CommandUnion_MoveTo: {
           const auto moveto = command->command_as_MoveTo();
 
+          logging::log(LOG_ENABLED, "Moving to: x=" + std::to_string(moveto->destination()->x()) + " z=" + std::to_string(moveto->destination()->z()), LOG_LEVEL, 1, "tcp_listener");
+
           std::lock_guard<std::mutex> lock(STATE.mtx);
 
           STATE.inner.target_pos = *moveto->destination();
@@ -152,6 +154,7 @@ extern void tcp_listener() {
   string dc_port = dotenv::DotEnv::get("DC_PORT");
 
   logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 1, "tcp_listener");
+  logging::log(LOG_ENABLED, "Connecting to: " + dc_address + ":" + dc_port, LOG_LEVEL, 0, LogType::INFO, "netcode");
 
   netcode::Socket sock = netcode::Socket(dc_address.data(), std::stoi(dc_port));
 
