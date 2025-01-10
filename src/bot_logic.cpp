@@ -22,6 +22,7 @@ void tick_bot() {
     // if the bot is not asleep
     if (s.aligned) {
       logging::log(LOG_ENABLED, "Bot is Aligned", LOG_LEVEL, 2, "bot_logic");
+      zumo_movement::start();
 
       // realign if bot on axis of target
       if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
@@ -86,13 +87,13 @@ void tick_bot() {
         STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
 
         if (clockwise) {
+          zumo_movement::start();
           logging::catch_debug(LOG_MOVEMENT, "ZUMO: RIGHT", zumo_movement::turn_right);
           logging::log(LOG_ENABLED, "Bot: Turning Right", LOG_LEVEL, 2, "bot_logic");
-          zumo_movement::start();
         } else {
+          zumo_movement::start();
           logging::catch_debug(LOG_MOVEMENT, "ZUMO: LEFT", zumo_movement::turn_left);
           logging::log(LOG_ENABLED, "Bot: Turning Left", LOG_LEVEL, 2, "bot_logic");
-          zumo_movement::start();
         }
       }
     }
