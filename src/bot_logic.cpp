@@ -125,6 +125,7 @@ extern void bot_logic() {
   }
 
   for (;;) {
+    logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
     zumo_movement::forward();
     std::this_thread::sleep_for(1s);
     zumo_movement::turn_left();
