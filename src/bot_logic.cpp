@@ -25,7 +25,7 @@ void tick_bot() {
 
       // realign if bot on axis of target
       if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-        logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+        logging::catch_debug(LOG_MOVEMENT, "ZUMO: STOP", zumo_movement::stop);
         logging::log(LOG_ENABLED, "Bot: missaligned", LOG_LEVEL, 1, "bot_logic");
 
         std::lock_guard<std::mutex> lock(STATE.mtx);
@@ -34,13 +34,13 @@ void tick_bot() {
 
       // stop if bot on target
       else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-        logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+        logging::catch_debug(LOG_MOVEMENT, "ZUMO: STOP", zumo_movement::stop);
         logging::log(LOG_ENABLED, "Bot: on Target", LOG_LEVEL, 1, "bot_logic");
       }
 
       // keep going forward. bot not on target, but still aligned
       else {
-        logging::catch_debug(LOG_ENABLED, "ZUMO: FORWARD", zumo_movement::forward);
+        logging::catch_debug(LOG_MOVEMENT, "ZUMO: FORWARD", zumo_movement::forward);
         logging::log(LOG_ENABLED, "Bot: Forward", LOG_LEVEL, 2, "bot_logic");
       }
     } else {
@@ -86,16 +86,16 @@ void tick_bot() {
         STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
 
         if (clockwise) {
-          logging::catch_debug(LOG_ENABLED, "ZUMO: RIGHT", zumo_movement::turn_right);
+          logging::catch_debug(LOG_MOVEMENT, "ZUMO: RIGHT", zumo_movement::turn_right);
           logging::log(LOG_ENABLED, "Bot: Turning Right", LOG_LEVEL, 2, "bot_logic");
         } else {
-          logging::catch_debug(LOG_ENABLED, "ZUMO: LEFT", zumo_movement::turn_left);
+          logging::catch_debug(LOG_MOVEMENT, "ZUMO: LEFT", zumo_movement::turn_left);
           logging::log(LOG_ENABLED, "Bot: Turning Left", LOG_LEVEL, 2, "bot_logic");
         }
       }
     }
   } else {
-    logging::catch_debug(LOG_ENABLED, "ZUMO: STOP", zumo_movement::stop);
+    logging::catch_debug(LOG_MOVEMENT, "ZUMO: STOP", zumo_movement::stop);
     logging::log(LOG_ENABLED, "Bot: Sleeping", LOG_LEVEL, 2, "bot_logic");
 
     // sleep for zero if duration is greater, if less, its permanent

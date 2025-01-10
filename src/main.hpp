@@ -14,6 +14,7 @@
 #define TICK true          //
 #define EB_XYZ 0.05        //
 #define EB_ROT 0.05        //
+#define LOG_MOVEMENT false // disables track movement
 #define LOG_ENABLED true   // disables the movement if loggings enabled, for use when testing
 #define LOG_LEVEL 1        // log level
 #define TRACK_L 17         // Left Track pin
