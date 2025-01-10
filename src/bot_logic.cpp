@@ -88,9 +88,11 @@ void tick_bot() {
         if (clockwise) {
           logging::catch_debug(LOG_MOVEMENT, "ZUMO: RIGHT", zumo_movement::turn_right);
           logging::log(LOG_ENABLED, "Bot: Turning Right", LOG_LEVEL, 2, "bot_logic");
+          zumo_movement::start();
         } else {
           logging::catch_debug(LOG_MOVEMENT, "ZUMO: LEFT", zumo_movement::turn_left);
           logging::log(LOG_ENABLED, "Bot: Turning Left", LOG_LEVEL, 2, "bot_logic");
+          zumo_movement::start();
         }
       }
     }
