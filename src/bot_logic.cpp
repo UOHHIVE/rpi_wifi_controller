@@ -118,11 +118,6 @@ void tick_bot() {
 }
 
 extern void bot_logic() {
-  logging::log(LOG_ENABLED, "Waiting for Connection...", LOG_LEVEL, 1, "bot_logic");
-
-  while (!STATE.read().connected) {
-    std::this_thread::sleep_for(5s);
-  }
 
   while (true) {
     logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
@@ -136,6 +131,12 @@ extern void bot_logic() {
     std::this_thread::sleep_for(1s);
     zumo_movement::forward();
     std::this_thread::sleep_for(1s);
+  }
+
+  logging::log(LOG_ENABLED, "Waiting for Connection...", LOG_LEVEL, 1, "bot_logic");
+
+  while (!STATE.read().connected) {
+    std::this_thread::sleep_for(5s);
   }
 
   logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");

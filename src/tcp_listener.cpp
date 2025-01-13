@@ -147,6 +147,8 @@ void tcp_tick(netcode::Socket sock) {
 // TCP listener that gets spawned
 extern void tcp_listener() {
 
+  return; // TODO: remove this after testing, this is just to stop excess logging while i figure out why the bot wont fukin turn
+
   logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1, "tcp_listener");
 
   //! If any of these are blank, code may crash, needs to be fixed
