@@ -19,8 +19,8 @@ void precalc(const BotState &s, float &theta_q, float &cq_x, float &cq_z, float 
   cq_z = sin(theta_q);
 
   // figure out where bot is pointing
-  ct_x = -(s.target_pos.x() - s.current_pos.x());
-  ct_z = -(s.target_pos.z() - s.current_pos.z());
+  ct_x = (s.target_pos.x() - s.current_pos.x());
+  ct_z = (s.target_pos.z() - s.current_pos.z());
 
   // find point
   q_x = s.current_pos.x() + cq_x;
@@ -32,18 +32,19 @@ bool is_aligned(BotState &s) {
   float theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z;
   precalc(s, theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z);
 
-  std::cout << std::to_string(theta_q) << std::endl;
-  std::cout << std::to_string(cq_x) << std::endl;
-  std::cout << std::to_string(cq_z) << std::endl;
-  std::cout << std::to_string(ct_x) << std::endl;
-  std::cout << std::to_string(ct_z) << std::endl;
-  std::cout << std::to_string(q_x) << std::endl;
-  std::cout << std::to_string(q_z) << std::endl;
+  // std::cout << std::to_string(theta_q) << std::endl;
+  // std::cout << std::to_string(cq_x) << std::endl;
+  // std::cout << std::to_string(cq_z) << std::endl;
+  // std::cout << std::to_string(ct_x) << std::endl;
+  // std::cout << std::to_string(ct_z) << std::endl;
+  // std::cout << std::to_string(q_x) << std::endl;
+  // std::cout << std::to_string(q_z) << std::endl;
 
   float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
   float rhs = ct_x * cq_x + ct_z * cq_z;
 
   float dot_ct_cq = rhs / lhs;
+  std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAA DOT PRODUCT HERE: " + std::to_string(dot_ct_cq) << std::endl;
 
   return misc::in_bound(dot_ct_cq, EB_ROT);
 }
