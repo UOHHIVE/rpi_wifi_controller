@@ -27,8 +27,10 @@ struct BotState {
   uint64_t id;
   string name;
   HiveCommon::Vec3 current_pos;
-  HiveCommon::Vec4 current_rot;
   HiveCommon::Vec3 target_pos;
+  HiveCommon::Vec3 half_pos;
+  HiveCommon::Vec4 current_rot;
+  bool target_completed;
   bool sleep;
   long duration;
   bool aligned;

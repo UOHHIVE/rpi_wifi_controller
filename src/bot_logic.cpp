@@ -8,98 +8,87 @@
 #include <string>
 #include <thread>
 
+void precalc(BotState &s, float &theta_q, float &cq_x, float &cq_z, float &ct_x, float &ct_z, float &q_x, float &q_z) {
+
+  // get angle from north
+  theta_q = 2 * asinf(s.current_rot.w());
+
+  // get vec
+  cq_x = cos(theta_q);
+  cq_z = sin(theta_q);
+
+  // figure out where bot is pointing
+  ct_x = s.target_pos.x() - s.current_pos.x();
+  ct_z = s.target_pos.z() - s.current_pos.z();
+
+  // find point
+  q_x = s.current_pos.x() + cq_x;
+  q_z = s.current_pos.z() + cq_z;
+}
+
+bool is_aligned(BotState &s) {
+  // get angle from north
+  float theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z;
+  precalc(s, theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z);
+
+  float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
+  float rhs = ct_x * cq_x + ct_z * cq_z;
+
+  float dot_ct_cq = rhs / lhs;
+
+  return misc::in_bound(dot_ct_cq, EB_ROT);
+}
+
+bool clockwise(BotState &s) {
+  float theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z;
+  precalc(s, theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z);
+
+  float qt_x = s.target_pos.x() - q_x;
+  float qt_z = s.target_pos.z() - q_z;
+
+  float m = qt_z / qt_x;
+  float x = s.current_pos.x() - q_x;
+  float z = m * x + q_z;
+
+  return z > s.current_pos.z();
+}
+
 void tick_bot() {
+
+  /*
+    Bot Loop Logic:
+      - if target is completed (or no target is set),
+        - dont move
+      - else check if bot is aligned
+        - if not, align
+      - else check if half way between current and target pos
+        - if in bounds of half pos, realign
+        - else
+          - move forward
+
+  */
+
   // read state
   auto s = STATE.read();
 
   std::string temp_x = std::to_string(s.current_pos.x());
   std::string temp_z = std::to_string(s.current_pos.z());
-  logging::log(LOG_ENABLED, "x=" + temp_x + ", z=" + temp_z, LOG_LEVEL, 1, "bot_logic");
 
-  if (!s.sleep) {
-    logging::log(LOG_ENABLED, "Bot is Not Sleeped", LOG_LEVEL, 3, "bot_logic");
+  logging::log(LOG_ENABLED, "pos: x=" + temp_x + ", z=" + temp_z, LOG_LEVEL, 1, "bot_logic");
 
-    // if the bot is not asleep
-    if (s.aligned) {
-      logging::log(LOG_ENABLED, "Bot is Aligned", LOG_LEVEL, 2, "bot_logic");
-      zumo_movement::start();
+  temp_x = std::to_string(s.target_pos.x());
+  temp_z = std::to_string(s.target_pos.z());
 
-      // realign if bot on axis of target
-      if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) xor misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-        logging::catch_debug(LOG_MOVEMENT, "ZUMO: STOP", zumo_movement::stop);
-        logging::log(LOG_ENABLED, "Bot: missaligned", LOG_LEVEL, 1, "bot_logic");
+  logging::log(LOG_ENABLED, "target: x=" + temp_x + ", z=" + temp_z, LOG_LEVEL, 1, "bot_logic");
 
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.aligned = false;
-      }
+  if (s.target_completed) {
+    logging::log(LOG_ENABLED, "Target Completed", LOG_LEVEL, 1, "bot_logic");
+    zumo_movement::stop();
+  }
 
-      // stop if bot on target
-      else if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ)) {
-        logging::catch_debug(LOG_MOVEMENT, "ZUMO: STOP", zumo_movement::stop);
-        logging::log(LOG_ENABLED, "Bot: on Target", LOG_LEVEL, 1, "bot_logic");
-      }
-
-      // keep going forward. bot not on target, but still aligned
-      else {
-        logging::catch_debug(LOG_MOVEMENT, "ZUMO: FORWARD", zumo_movement::forward);
-        logging::log(LOG_ENABLED, "Bot: Forward", LOG_LEVEL, 2, "bot_logic");
-      }
-    } else {
-      logging::log(LOG_ENABLED, "Bot: Realigning", LOG_LEVEL, 2, "bot_logic");
-
-      // T = target point, C = current point, Q = vec of mag 1 infront of where th ebot is facing
-
-      // get angle from north
-      float theta_q = 2 * asinf(s.current_rot.w());
-
-      // get vec
-      float cq_x = cos(theta_q);
-      float cq_z = sin(theta_q);
-
-      // figure out where bot is pointing
-      float ct_x = s.target_pos.x() - s.current_pos.x();
-      float ct_z = s.target_pos.z() - s.current_pos.z();
-
-      // find point
-      float q_x = s.current_pos.x() + cq_x;
-      float q_z = s.current_pos.z() + cq_z;
-
-      float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
-      float rhs = ct_x * cq_x + ct_z * cq_z;
-
-      float dot_ct_cq = rhs / lhs;
-
-      if (misc::in_bound(dot_ct_cq, EB_ROT)) {
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.aligned = true;
-      } else {
-
-        float qt_x = s.target_pos.x() - q_x;
-        float qt_z = s.target_pos.z() - q_z;
-
-        float m = qt_z / qt_x;
-        float x = s.current_pos.x() - q_x;
-        float z = m * x + q_z;
-
-        bool clockwise = z > s.current_pos.z();
-
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.clockwise = s.current_pos.x() > s.target_pos.x() ? !clockwise : clockwise;
-
-        if (clockwise) {
-          zumo_movement::start();
-          logging::catch_debug(LOG_MOVEMENT, "ZUMO: RIGHT", zumo_movement::turn_right);
-          logging::log(LOG_ENABLED, "Bot: Turning Right", LOG_LEVEL, 2, "bot_logic");
-        } else {
-          zumo_movement::start();
-          logging::catch_debug(LOG_MOVEMENT, "ZUMO: LEFT", zumo_movement::turn_left);
-          logging::log(LOG_ENABLED, "Bot: Turning Left", LOG_LEVEL, 2, "bot_logic");
-        }
-      }
-    }
-  } else {
-    logging::catch_debug(LOG_MOVEMENT, "ZUMO: STOP", zumo_movement::stop);
-    logging::log(LOG_ENABLED, "Bot: Sleeping", LOG_LEVEL, 2, "bot_logic");
+  if (s.sleep) {
+    logging::log(LOG_ENABLED, "Bot: Sleeping", LOG_LEVEL, 1, "bot_logic");
+    zumo_movement::stop();
 
     // sleep for zero if duration is greater, if less, its permanent
     if (s.sleep > 0) {
@@ -114,6 +103,49 @@ void tick_bot() {
       std::lock_guard<std::mutex> lock(STATE.mtx);
       STATE.inner.aligned = false;
     }
+  }
+
+  zumo_movement::start(); // make sure handbreak is off
+
+  bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
+
+  if (s.aligned and !at_half_pos) {
+    if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.target_pos.z(), EB_XYZ)) {
+      logging::log(LOG_ENABLED, "BOT: Target Reached", LOG_LEVEL, 1, "bot_logic");
+      zumo_movement::stop();
+
+      std::lock_guard<std::mutex> lock(STATE.mtx);
+      STATE.inner.target_completed = true;
+    } else {
+      logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 1, "bot_logic");
+      zumo_movement::forward();
+    }
+  } else {
+    if (is_aligned(s)) {
+      logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
+
+      if (!s.aligned) {
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+        STATE.inner.aligned = true;
+      }
+    } else {
+      if (clockwise(s)) {
+        logging::log(LOG_ENABLED, "BOT: clockwise", LOG_LEVEL, 1, "bot_logic");
+        zumo_movement::turn_right();
+      } else {
+        logging::log(LOG_ENABLED, "BOT: anticlockwise", LOG_LEVEL, 1, "bot_logic");
+        zumo_movement::turn_left();
+      }
+
+      if (s.aligned) {
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+        STATE.inner.aligned = false;
+      }
+    }
+
+    // afer align, set half pos to between target and current pos
+    std::lock_guard<std::mutex> lock(STATE.mtx);
+    STATE.inner.half_pos = HiveCommon::Vec3((s.target_pos.x() + s.current_pos.x()) / 2, (s.target_pos.z() + s.current_pos.z()) / 2, 0);
   }
 }
 
