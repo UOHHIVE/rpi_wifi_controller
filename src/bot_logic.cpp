@@ -114,6 +114,12 @@ void tick_bot() {
     }
   }
 
+  if (!is_aligned(s)) {
+    std::lock_guard<std::mutex> lock(STATE.mtx);
+    STATE.inner.aligned = false;
+    return;
+  }
+
   zumo_movement::start(); // make sure handbreak is off
 
   bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
