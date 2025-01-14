@@ -80,6 +80,7 @@ void tick_bot() {
 
   // read state
   auto s = STATE.read();
+  bool aligned = is_aligned(s);
 
   std::string temp_x = std::to_string(s.current_pos.x());
   std::string temp_z = std::to_string(s.current_pos.z());
@@ -117,15 +118,17 @@ void tick_bot() {
     return;
   }
 
-  if (!is_aligned(s)) {
+  if (is_aligned(s)) {
+    logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
+    if (!s.aligned) {
+      std::lock_guard<std::mutex> lock(STATE.mtx);
+      STATE.inner.aligned = true;
+    }
+  } else {
     logging::log(LOG_ENABLED, "BOT: misaligned", LOG_LEVEL, 1, "bot_logic");
     std::lock_guard<std::mutex> lock(STATE.mtx);
     STATE.inner.aligned = false;
     return;
-  } else {
-    logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
-    std::lock_guard<std::mutex> lock(STATE.mtx);
-    STATE.inner.aligned = true;
   }
 
   s = STATE.read();       // re-read state
