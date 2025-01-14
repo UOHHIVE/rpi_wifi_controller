@@ -5,10 +5,11 @@
 #include "commons/src/utils/tick.hpp"
 #include "commons/src/zumo/zumo.hpp"
 
+#include <iostream>
 #include <string>
 #include <thread>
 
-void precalc(BotState &s, float &theta_q, float &cq_x, float &cq_z, float &ct_x, float &ct_z, float &q_x, float &q_z) {
+void precalc(const BotState &s, float &theta_q, float &cq_x, float &cq_z, float &ct_x, float &ct_z, float &q_x, float &q_z) {
 
   // get angle from north
   theta_q = 2 * asinf(s.current_rot.w());
@@ -30,6 +31,14 @@ bool is_aligned(BotState &s) {
   // get angle from north
   float theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z;
   precalc(s, theta_q, cq_x, cq_z, ct_x, ct_z, q_x, q_z);
+
+  std::cout << std::to_string(theta_q) << std::endl;
+  std::cout << std::to_string(cq_x) << std::endl;
+  std::cout << std::to_string(cq_z) << std::endl;
+  std::cout << std::to_string(ct_x) << std::endl;
+  std::cout << std::to_string(ct_z) << std::endl;
+  std::cout << std::to_string(q_x) << std::endl;
+  std::cout << std::to_string(q_z) << std::endl;
 
   float lhs = sqrtf(ct_x * ct_x + ct_z * ct_z) * sqrtf(cq_x * cq_x + cq_z * cq_z);
   float rhs = ct_x * cq_x + ct_z * cq_z;
@@ -110,16 +119,17 @@ void tick_bot() {
   bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
 
   if (s.aligned and !at_half_pos) {
+
     if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.target_pos.z(), EB_XYZ)) {
       logging::log(LOG_ENABLED, "BOT: Target Reached", LOG_LEVEL, 1, "bot_logic");
       zumo_movement::stop();
-
       std::lock_guard<std::mutex> lock(STATE.mtx);
       STATE.inner.target_completed = true;
     } else {
       logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 1, "bot_logic");
       zumo_movement::forward();
     }
+
   } else {
     if (is_aligned(s)) {
       logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
