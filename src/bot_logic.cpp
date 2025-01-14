@@ -128,6 +128,11 @@ void tick_bot() {
     } else {
       logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 1, "bot_logic");
       zumo_movement::forward();
+
+      if (is_aligned(s)) {
+        std::lock_guard<std::mutex> lock(STATE.mtx);
+        STATE.inner.aligned = true;
+      }
     }
 
   } else {
