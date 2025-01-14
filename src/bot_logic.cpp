@@ -144,26 +144,17 @@ void tick_bot() {
     }
 
   } else {
-    if (is_aligned(s)) {
-      logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
-
-      if (!s.aligned) {
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.aligned = true;
-      }
+    if (clockwise(s)) {
+      logging::log(LOG_ENABLED, "BOT: clockwise", LOG_LEVEL, 1, "bot_logic");
+      zumo_movement::turn_right();
     } else {
-      if (clockwise(s)) {
-        logging::log(LOG_ENABLED, "BOT: clockwise", LOG_LEVEL, 1, "bot_logic");
-        zumo_movement::turn_right();
-      } else {
-        logging::log(LOG_ENABLED, "BOT: anticlockwise", LOG_LEVEL, 1, "bot_logic");
-        zumo_movement::turn_left();
-      }
+      logging::log(LOG_ENABLED, "BOT: anticlockwise", LOG_LEVEL, 1, "bot_logic");
+      zumo_movement::turn_left();
+    }
 
-      if (s.aligned) {
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.aligned = false;
-      }
+    if (s.aligned) {
+      std::lock_guard<std::mutex> lock(STATE.mtx);
+      STATE.inner.aligned = false;
     }
 
     // afer align, set half pos to between target and current pos
