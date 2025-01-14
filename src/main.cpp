@@ -27,6 +27,8 @@ void setup() {
   std::lock_guard<std::mutex> lock(STATE.mtx);
   STATE.inner.id = id;
   STATE.inner.name = name;
+  STATE.inner.aligned = false;
+  STATE.inner.target_completed = true;
 }
 
 int main(int argc, char *argv[]) {
