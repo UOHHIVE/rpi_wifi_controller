@@ -124,7 +124,11 @@ void tick_bot() {
     return;
   } else {
     logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
+    std::lock_guard<std::mutex> lock(STATE.mtx);
+    STATE.inner.aligned = true;
   }
+
+  s = STATE.read();       // re-read state
   zumo_movement::start(); // make sure handbreak is off
 
   // bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
