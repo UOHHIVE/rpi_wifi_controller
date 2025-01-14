@@ -119,19 +119,19 @@ void tick_bot() {
 
 extern void bot_logic() {
 
-  while (true) {
-    logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
-    zumo_movement::forward();
-    std::this_thread::sleep_for(1s);
-    zumo_movement::turn_left();
-    std::this_thread::sleep_for(1s);
-    zumo_movement::forward();
-    std::this_thread::sleep_for(1s);
-    zumo_movement::turn_right();
-    std::this_thread::sleep_for(1s);
-    zumo_movement::forward();
-    std::this_thread::sleep_for(1s);
-  }
+  // while (true) {
+  //   logging::log(LOG_ENABLED, "Starting Ticking Bot", LOG_LEVEL, 1, "bot_logic");
+  //   zumo_movement::forward();
+  //   std::this_thread::sleep_for(1s);
+  //   zumo_movement::turn_left();
+  //   std::this_thread::sleep_for(1s);
+  //   zumo_movement::forward();
+  //   std::this_thread::sleep_for(1s);
+  //   zumo_movement::turn_right();
+  //   std::this_thread::sleep_for(1s);
+  //   zumo_movement::forward();
+  //   std::this_thread::sleep_for(1s);
+  // }
 
   logging::log(LOG_ENABLED, "Waiting for Connection...", LOG_LEVEL, 1, "bot_logic");
 
