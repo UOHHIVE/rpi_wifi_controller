@@ -93,6 +93,7 @@ void tick_bot() {
   if (s.target_completed) {
     logging::log(LOG_ENABLED, "Target Completed", LOG_LEVEL, 1, "bot_logic");
     zumo_movement::stop();
+    return;
   }
 
   if (s.sleep) {
@@ -112,6 +113,7 @@ void tick_bot() {
       std::lock_guard<std::mutex> lock(STATE.mtx);
       STATE.inner.aligned = false;
     }
+    return;
   }
 
   if (!is_aligned(s)) {
