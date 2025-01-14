@@ -15,8 +15,8 @@ void precalc(const BotState &s, float &theta_q, float &cq_x, float &cq_z, float 
   theta_q = 2 * asinf(s.current_rot.w());
 
   // get vec
-  cq_x = cos(theta_q);
-  cq_z = sin(theta_q);
+  cq_x = -cos(theta_q);
+  cq_z = -sin(theta_q);
 
   // figure out where bot is pointing
   ct_x = s.target_pos.x() - s.current_pos.x();
