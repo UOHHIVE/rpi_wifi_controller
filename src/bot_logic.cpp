@@ -127,9 +127,9 @@ void tick_bot() {
   }
   zumo_movement::start(); // make sure handbreak is off
 
-  bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
+  // bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
 
-  if (s.aligned and !at_half_pos) {
+  if (s.aligned) { // } and !at_half_pos) {
 
     if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.target_pos.z(), EB_XYZ)) {
       logging::log(LOG_ENABLED, "BOT: Target Reached", LOG_LEVEL, 1, "bot_logic");
