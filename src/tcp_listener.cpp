@@ -103,7 +103,8 @@ void tcp_tick(netcode::Socket sock) {
           logging::log(LOG_ENABLED, "Moving to: x=" + std::to_string(moveto->destination()->x()) + " z=" + std::to_string(moveto->destination()->z()), LOG_LEVEL, 1, "tcp_listener");
 
           std::lock_guard<std::mutex> lock(STATE.mtx);
-
+          STATE.inner.aligned = false;
+          STATE.inner.target_completed = false;
           STATE.inner.target_pos = *moveto->destination();
           break;
         }
