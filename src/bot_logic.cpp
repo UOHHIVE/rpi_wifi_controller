@@ -46,7 +46,7 @@ bool is_aligned(BotState &s) {
   float dot_ct_cq = rhs / lhs;
   std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAA DOT PRODUCT HERE: " + std::to_string(dot_ct_cq) << std::endl;
 
-  return misc::in_bound(dot_ct_cq, EB_ROT);
+  return EB_ROT > dot_ct_cq || dot_ct_cq > (0 - EB_ROT);
 }
 
 bool clockwise(BotState &s) {
