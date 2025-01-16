@@ -44,11 +44,11 @@ bool is_aligned(BotState &s) {
   float rhs = ct_x * cq_x + ct_z * cq_z;
 
   float dot_ct_cq = rhs / lhs;
-  std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAA DOT PRODUCT HERE: " + std::to_string(dot_ct_cq) << std::endl;
+  // std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAA DOT PRODUCT HERE: " + std::to_string(dot_ct_cq) << std::endl;
 
-  return misc::in_bound(dot_ct_cq, EB_ROT);
+  // return misc::in_bound(dot_ct_cq, EB_ROT);
 
-  // return EB_ROT > dot_ct_cq && dot_ct_cq > (0 - EB_ROT);
+  return EB_ROT > dot_ct_cq && dot_ct_cq > (0 - EB_ROT);
 }
 
 bool clockwise(BotState &s) {
@@ -121,12 +121,14 @@ void tick_bot() {
   }
 
   if (is_aligned(s)) {
+    std::cout << "aligned" << std::endl;
     logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
     if (!s.aligned) {
       std::lock_guard<std::mutex> lock(STATE.mtx);
       STATE.inner.aligned = true;
     }
   } else {
+    std::cout << "misaligned" << std::endl;
     logging::log(LOG_ENABLED, "BOT: misaligned", LOG_LEVEL, 1, "bot_logic");
     std::lock_guard<std::mutex> lock(STATE.mtx);
     STATE.inner.aligned = false;
