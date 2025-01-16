@@ -13,7 +13,7 @@
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK true          //
 #define EB_XYZ 0.25        //
-#define EB_ROT 0.05        //
+#define EB_ROT 0.1         //
 #define LOG_MOVEMENT true  // disables track movement
 #define LOG_ENABLED false  // disables the movement if loggings enabled, for use when testing
 #define LOG_LEVEL 1        // log level
