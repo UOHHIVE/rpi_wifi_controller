@@ -143,11 +143,13 @@ void tick_bot() {
   if (s.aligned) { // } and !at_half_pos) {
 
     if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.target_pos.z(), EB_XYZ)) {
+      std::cout << "target reached" << std::endl;
       logging::log(LOG_ENABLED, "BOT: Target Reached", LOG_LEVEL, 1, "bot_logic");
       zumo_movement::stop();
       std::lock_guard<std::mutex> lock(STATE.mtx);
       STATE.inner.target_completed = true;
     } else {
+      std::cout << "forward" << std::endl;
       logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 1, "bot_logic");
       zumo_movement::forward();
 
@@ -159,9 +161,11 @@ void tick_bot() {
 
   } else {
     if (clockwise(s)) {
+      std::cout << "clockwise" << std::endl;
       logging::log(LOG_ENABLED, "BOT: clockwise", LOG_LEVEL, 1, "bot_logic");
       zumo_movement::turn_right();
     } else {
+      std::cout << "anticlockwise" << std::endl;
       logging::log(LOG_ENABLED, "BOT: anticlockwise", LOG_LEVEL, 1, "bot_logic");
       zumo_movement::turn_left();
     }
