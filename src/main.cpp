@@ -22,18 +22,7 @@ void setup() {
   logging::log(LOG_ENABLED, "Name Aquired: `" + name + "`", LOG_LEVEL, 1);
   logging::log(LOG_ENABLED, "ID STR: `" + id_str + "`", LOG_LEVEL, 1);
 
-  uint64_t id_test;
-  std::istringstream ss(id_str);
-  ss >> id_test;
-
-  uint64_t id = std::stoull(id_str); // TODO: this borked when using hex
-
-  if (id != id_test) {
-    logging::log(LOG_ENABLED, "ID Conversion Failed", LOG_LEVEL, 1);
-    id = 0;
-
-    exit(1);
-  }
+  uint64_t id = std::stoull(id_str, nullptr, 16); // Convert hex string to decimal
 
   logging::log(LOG_ENABLED, "Saving ID...", LOG_LEVEL, 1);
   std::lock_guard<std::mutex> lock(STATE.mtx);
