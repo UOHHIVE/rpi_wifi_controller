@@ -65,6 +65,61 @@ bool clockwise(BotState &s) {
   return z > s.current_pos.z();
 }
 
+// TODO: move this to commons
+struct Vec2 {
+  float x;
+  float z;
+};
+
+enum EBotActions { FORWARD, TURN_LEFT, TURN_RIGHT, STOP };
+
+EBotActions do_action(BotState &s) {
+  if (s.target_completed || s.sleep) {
+    return STOP;
+  }
+
+  Vec2 P = {s.current_pos.x(), s.current_pos.z()};
+  Vec2 N = {0, 1};
+  Vec2 T = {s.target_pos.x(), s.target_pos.z()};
+
+  HiveCommon::Vec4 Q = s.current_rot;
+
+  float th_q = 2 * acosf(s.current_rot.w());
+  float y_q = Q.y() / sin(2 / th_q);
+  float x_q = Q.x() / sin(2 / th_q);
+  float z_q = Q.z() / sin(2 / th_q);
+  float Q_abs = sqrtf(Q.x() * Q.x() + Q.y() * Q.y() + Q.z() * Q.z() + Q.w() * Q.w());
+
+  Vec2 Q_O = {x_q / Q_abs, z_q / Q_abs};
+  Vec2 T_O = {T.x - P.x, T.z - P.z};
+
+  float T_O_abs = sqrtf(T_O.x * T_O.x + T_O.z * T_O.z);
+
+  Vec2 T_t = {0, T_O_abs};
+
+  float t_sin = T_O.x / T_O_abs;
+  float t_cos = T_O.z / T_O_abs;
+
+  Vec2 Q_t = {
+      Q_O.x * t_cos - Q_O.z * t_sin,
+      Q_O.x * t_sin + Q_O.z * t_cos,
+  };
+
+  float Q_t_abs = sqrtf(Q_t.x * Q_t.x + Q_t.z * Q_t.z);
+  float Q_t_dot_T_t = Q_t.x * T_t.x + Q_t.z * T_t.z;
+  float a = acosf(Q_t_dot_T_t / (Q_t_abs * T_O_abs));
+
+  if (a < EB_ROT) {
+    return FORWARD;
+  } else {
+    if (Q_t.x > 0) {
+      return TURN_RIGHT;
+    } else {
+      return TURN_LEFT;
+    }
+  }
+}
+
 void tick_bot() {
 
   /*
@@ -112,73 +167,90 @@ void tick_bot() {
       STATE.inner.sleep = false;
     }
 
-    // Always re-align after a halt
-    if (s.aligned) {
-      std::lock_guard<std::mutex> lock(STATE.mtx);
-      STATE.inner.aligned = false;
-    }
-    return;
-  }
-
-  if (is_aligned(s)) {
-    std::cout << "aligned" << std::endl;
-    logging::log(LOG_ENABLED, "BOT: aligned", LOG_LEVEL, 1, "bot_logic");
-    if (!s.aligned) {
-      std::lock_guard<std::mutex> lock(STATE.mtx);
-      STATE.inner.aligned = true;
-    }
-  } else {
-    std::cout << "misaligned" << std::endl;
-    logging::log(LOG_ENABLED, "BOT: misaligned", LOG_LEVEL, 1, "bot_logic");
-    std::lock_guard<std::mutex> lock(STATE.mtx);
-    STATE.inner.aligned = false;
+    // // Always re-align after a halt
+    // if (s.aligned) {
+    //   std::lock_guard<std::mutex> lock(STATE.mtx);
+    //   STATE.inner.aligned = false;
+    // }
     // return;
   }
 
-  s = STATE.read();       // re-read state
-  zumo_movement::start(); // make sure handbreak is off
+  // always remove handbreak
+  zumo_movement::start();
 
-  // bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
-
-  if (s.aligned) { // } and !at_half_pos) {
-
-    if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.target_pos.z(), EB_XYZ)) {
-      std::cout << "target reached" << std::endl;
-      logging::log(LOG_ENABLED, "BOT: Target Reached", LOG_LEVEL, 1, "bot_logic");
-      zumo_movement::stop();
-      std::lock_guard<std::mutex> lock(STATE.mtx);
-      STATE.inner.target_completed = true;
-    } else {
-      std::cout << "forward" << std::endl;
-      logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 1, "bot_logic");
-      zumo_movement::forward();
-
-      if (is_aligned(s)) {
-        std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.aligned = true;
-      }
-    }
-
-  } else {
-    if (clockwise(s)) {
-      std::cout << "clockwise" << std::endl;
-      logging::log(LOG_ENABLED, "BOT: clockwise", LOG_LEVEL, 1, "bot_logic");
-      zumo_movement::turn_right();
-    } else {
-      std::cout << "anticlockwise" << std::endl;
-      logging::log(LOG_ENABLED, "BOT: anticlockwise", LOG_LEVEL, 1, "bot_logic");
-      zumo_movement::turn_left();
-    }
-
-    if (s.aligned) {
-      std::lock_guard<std::mutex> lock(STATE.mtx);
-      STATE.inner.aligned = false;
-    }
-
-    // afer align, set half pos to between target and current pos
-    std::lock_guard<std::mutex> lock(STATE.mtx);
-    STATE.inner.half_pos = HiveCommon::Vec3((s.target_pos.x() + s.current_pos.x()) / 2, (s.target_pos.z() + s.current_pos.z()) / 2, 0);
+  switch (do_action(s)) {
+  case FORWARD:
+    logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 1, "bot_logic");
+    zumo_movement::forward();
+    break;
+  case TURN_LEFT:
+    logging::log(LOG_ENABLED, "BOT: turn left", LOG_LEVEL, 1, "bot_logic");
+    zumo_movement::turn_left();
+    break;
+  case TURN_RIGHT:
+    logging::log(LOG_ENABLED, "BOT: turn right", LOG_LEVEL, 1, "bot_logic");
+    zumo_movement::turn_right();
+    break;
+  case STOP:
+    logging::log(LOG_ENABLED, "BOT: stop", LOG_LEVEL, 1, "bot_logic");
+    zumo_movement::stop();
+    break;
   }
+
+  // if (is_aligned(s)) {
+  //   std::cout << "aligned" << std::endl;
+  // } else {
+  //   std::cout << "misaligned" << std::endl;
+  //   logging::log(LOG_ENABLED, "BOT: misaligned", LOG_LEVEL, 1, "bot_logic");
+  //   std::lock_guard<std::mutex> lock(STATE.mtx);
+  //   STATE.inner.aligned = false;
+  //   // return;
+  // }
+
+  // s = STATE.read();       // re-read state
+  // zumo_movement::start(); // make sure handbreak is off
+
+  // // bool at_half_pos = misc::in_bound(s.current_pos.x(), s.half_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.half_pos.z(), EB_XYZ);
+
+  // if (s.aligned) { // } and !at_half_pos) {
+
+  //   if (misc::in_bound(s.current_pos.x(), s.target_pos.x(), EB_XYZ) && misc::in_bound(s.current_pos.z(), s.target_pos.z(), EB_XYZ)) {
+  //     std::cout << "target reached" << std::endl;
+  //     logging::log(LOG_ENABLED, "BOT: Target Reached", LOG_LEVEL, 1, "bot_logic");
+  //     zumo_movement::stop();
+  //     std::lock_guard<std::mutex> lock(STATE.mtx);
+  //     STATE.inner.target_completed = true;
+  //   } else {
+  //     std::cout << "forward" << std::endl;
+  //     logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 1, "bot_logic");
+  //     zumo_movement::forward();
+
+  //     if (is_aligned(s)) {
+  //       std::lock_guard<std::mutex> lock(STATE.mtx);
+  //       STATE.inner.aligned = true;
+  //     }
+  //   }
+
+  // } else {
+  //   if (clockwise(s)) {
+  //     std::cout << "clockwise" << std::endl;
+  //     logging::log(LOG_ENABLED, "BOT: clockwise", LOG_LEVEL, 1, "bot_logic");
+  //     zumo_movement::turn_right();
+  //   } else {
+  //     std::cout << "anticlockwise" << std::endl;
+  //     logging::log(LOG_ENABLED, "BOT: anticlockwise", LOG_LEVEL, 1, "bot_logic");
+  //     zumo_movement::turn_left();
+  //   }
+
+  //   if (s.aligned) {
+  //     std::lock_guard<std::mutex> lock(STATE.mtx);
+  //     STATE.inner.aligned = false;
+  //   }
+
+  //   // afer align, set half pos to between target and current pos
+  //   std::lock_guard<std::mutex> lock(STATE.mtx);
+  //   STATE.inner.half_pos = HiveCommon::Vec3((s.target_pos.x() + s.current_pos.x()) / 2, (s.target_pos.z() + s.current_pos.z()) / 2, 0);
+  // }
 }
 
 extern void bot_logic() {
