@@ -21,7 +21,7 @@
 #define TRACK_R 27         // Right Track Pin
 #define SAFETY 16          // Safety Pin
 #define HBREAK 26          // Break Pin
-#define DRY_RUN            // use dry run for testing
+// #define DRY_RUN            // use dry run for testing
 
 // Struct representing the bots state
 struct BotState {
