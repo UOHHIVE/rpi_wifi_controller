@@ -90,7 +90,7 @@ EBotActions do_action(BotState &s) {
   float z_q = Q.z() / sin(2 / th_q);
   float Q_abs = sqrtf(Q.x() * Q.x() + Q.y() * Q.y() + Q.z() * Q.z() + Q.w() * Q.w());
 
-  Vec2 Q_O = {x_q / Q_abs, z_q / Q_abs};
+  Vec2 Q_O = {x_q / Q_abs, y_q / Q_abs};
   Vec2 T_O = {T.x - P.x, T.z - P.z};
 
   float T_O_abs = sqrtf(T_O.x * T_O.x + T_O.z * T_O.z);
