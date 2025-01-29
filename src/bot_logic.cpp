@@ -73,6 +73,31 @@ struct Vec2 {
 
 enum EBotActions { FORWARD, TURN_LEFT, TURN_RIGHT, STOP };
 
+// Function to multiply two quaternions
+HiveCommon::Vec4 multiplyQuaternions(const HiveCommon::Vec4 &q1, const HiveCommon::Vec4 &q2) {
+  const auto &r_x = q1.w() * q2.x() + q1.x() * q2.w() + q1.y() * q2.z() - q1.z() * q2.y();
+  const auto &r_y = q1.w() * q2.y() - q1.x() * q2.z() + q1.y() * q2.w() + q1.z() * q2.x();
+  const auto &r_z = q1.w() * q2.z() + q1.x() * q2.y() - q1.y() * q2.x() + q1.z() * q2.w();
+  const auto &r_w = q1.w() * q2.w() - q1.x() * q2.x() - q1.y() * q2.y() - q1.z() * q2.z();
+  return HiveCommon::Vec4(r_w, r_x, r_y, r_z);
+}
+
+// Function to rotate a point using a quaternion
+HiveCommon::Vec3 rotatePoint(const HiveCommon::Vec4 &quat, const HiveCommon::Vec4 &point) {
+  // Convert the point to a quaternion (with w = 0)
+  // Vec4 p{point.x, point.y, point.z, 0.0f};
+  HiveCommon::Vec4 p(0.0f, point.x(), point.y(), point.z());
+
+  // Get the conjugate of the quaternion
+  HiveCommon::Vec4 conj(quat.w(), -quat.x(), -quat.y(), -quat.z());
+
+  // Rotate the point using the quaternion: p' = q * p * q_conj
+  HiveCommon::Vec4 rotated = multiplyQuaternions(multiplyQuaternions(quat, p), conj);
+
+  // Return the rotated point as a Float3
+  return HiveCommon::Vec3(rotated.x(), rotated.y(), rotated.z());
+}
+
 EBotActions do_action(BotState &s) {
   if (s.target_completed || s.sleep) {
     return STOP;
@@ -82,19 +107,22 @@ EBotActions do_action(BotState &s) {
   Vec2 N = {0, 1};
   Vec2 T = {s.target_pos.x(), s.target_pos.z()};
 
-  HiveCommon::Vec4 Q = s.current_rot;
+  // HiveCommon::Vec4 Q = s.current_rot;
 
-  float th_q = 2 * acosf(s.current_rot.w());
-  float y_q = Q.y() / sin(2 / th_q);
-  float x_q = Q.x() / sin(2 / th_q);
-  float z_q = Q.z() / sin(2 / th_q);
-  float Q_abs = sqrtf(Q.x() * Q.x() + Q.y() * Q.y() + Q.z() * Q.z() + Q.w() * Q.w());
+  // float th_q = 2 * acosf(s.current_rot.w());
+  // float y_q = Q.y() / sin(2 / th_q);
+  // float x_q = Q.x() / sin(2 / th_q);
+  // float z_q = Q.z() / sin(2 / th_q);
+  // float Q_abs = sqrtf(Q.x() * Q.x() + Q.y() * Q.y() + Q.z() * Q.z() + Q.w() * Q.w());
 
-  float x_q_norm = x_q / Q_abs;
-  float z_q_norm = y_q / Q_abs;
-  float zx_abs = sqrtf(x_q_norm * x_q_norm + z_q_norm * z_q_norm);
+  // float x_q_norm = x_q / Q_abs;
+  // float z_q_norm = y_q / Q_abs;
+  // float zx_abs = sqrtf(x_q_norm * x_q_norm + z_q_norm * z_q_norm);
 
-  Vec2 Q_O = {x_q_norm / zx_abs, z_q_norm / zx_abs};
+  // Vec2 Q_O = {x_q_norm / zx_abs, z_q_norm / zx_abs};
+
+  HiveCommon::Vec3 rotated_point = rotatePoint(s.current_rot, HiveCommon::Vec4(P.x, 0, P.z, 0));
+  Vec2 Q_O = {rotated_point.x(), rotated_point.z()};
 
   // Vec2 Q_O = {x_q / Q_abs, y_q / Q_abs};
   Vec2 T_O = {T.x - P.x, T.z - P.z};
