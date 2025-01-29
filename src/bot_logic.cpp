@@ -156,7 +156,7 @@ enum EBotActions { FORWARD, TURN_LEFT, TURN_RIGHT, STOP };
 //   }
 // }
 
-EBotActions do_acton(BotState &s) {
+EBotActions do_action(BotState &s) {
   if (s.target_completed || s.sleep) {
     return STOP;
   }
