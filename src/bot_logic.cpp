@@ -36,6 +36,8 @@ EBotActions do_action(BotState &s) {
   float error = 1.0f - Math::Vec3::dot(robot_dir, required_dir);
   bool turn_right = Math::Vec3::cross(robot_dir, required_dir).y() > 0;
 
+  logging::log(LOG_ENABLED, "Error: " + std::to_string(error), LOG_LEVEL, 1, "bot_logic");
+
   if (error < EB_ROT) {
     return FORWARD;
   } else {
