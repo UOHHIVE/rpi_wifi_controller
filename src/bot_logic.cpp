@@ -28,6 +28,13 @@ EBotActions do_action(BotState &s) {
   Math::Vec3 P = Math::Vec3(s.current_pos);
   Math::Vec3 T = Math::Vec3(s.target_pos);
 
+  // check if bot is within eb of target
+  if (Math::Vec3::distance(P, T) < EB_XYZ) {
+    std::lock_guard<std::mutex> lock(STATE.mtx);
+    STATE.inner.target_completed = true;
+    return STOP;
+  }
+
   Math::Vec3 axis = Math::Vec3(-1, 0, 0);
   Math::Vec3 robot_dir = Math::Vec3::rotate(axis, Q);
 
@@ -101,7 +108,7 @@ void tick_bot() {
     //   std::lock_guard<std::mutex> lock(STATE.mtx);
     //   STATE.inner.aligned = false;
     // }
-    // return;
+    return;
   }
 
   // always remove handbreak
