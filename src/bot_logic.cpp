@@ -136,6 +136,8 @@ void tick_bot() {
 
 extern void bot_logic() {
 
+  zumo_utils::safe();
+
   logging::log(LOG_ENABLED, "Waiting for Connection...", LOG_LEVEL, 1, "bot_logic");
 
   while (!STATE.read().connected) {
