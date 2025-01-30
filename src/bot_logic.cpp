@@ -24,9 +24,9 @@ EBotActions do_action(BotState &s) {
     return STOP;
   }
 
-  Math::Vec4 Q = Math::Vec4(0, s.target_pos.x(), 0, s.target_pos.z());
-  Math::Vec3 P = Math::Vec3(s.current_pos.x(), 0, s.current_pos.z());
-  Math::Vec3 T = Math::Vec3(s.target_pos.x(), 0, s.target_pos.z());
+  Math::Vec4 Q = Math::Vec4(s.current_rot);
+  Math::Vec3 P = Math::Vec3(s.current_pos);
+  Math::Vec3 T = Math::Vec3(s.target_pos);
 
   Math::Vec3 axis = Math::Vec3(0, 0, 1);
   Math::Vec3 robot_dir = Math::Vec3::rotate(axis, Q);
