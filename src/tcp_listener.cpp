@@ -78,6 +78,8 @@ void tcp_tick(netcode::Socket sock) {
         if (node->id() != STATE.read().id) {
           logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO, "tcp_listener");
           break;
+        } else {
+          logging::log(LOG_ENABLED, "ID Matched: " + std::to_string(node->id()), LOG_LEVEL, 2, LogType::INFO, "tcp_listener");
         }
 
         const auto pos = node->position();
