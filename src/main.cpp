@@ -32,7 +32,19 @@ void setup() {
   STATE.inner.target_completed = true;
 }
 
+void test_logging() {
+  logging::log(LOG_ENABLED, "Test Log", LOG_LEVEL, 0);
+  logging::log(LOG_ENABLED, "Test Log", LOG_LEVEL, 1);
+  logging::log(LOG_ENABLED, "Test Log", LOG_LEVEL, 2);
+  logging::log(LOG_ENABLED, "Test Log", LOG_LEVEL, 3);
+  logging::log(LOG_ENABLED, "Test Log", LOG_LEVEL, 4);
+  logging::log(LOG_ENABLED, "Test Log", LOG_LEVEL, 5);
+  logging::log(LOG_ENABLED, "Test Log", LOG_LEVEL, 6);
+}
+
 int main(int argc, char *argv[]) {
+
+  test_logging();
 
   logging::log(LOG_ENABLED, "Startup", LOG_LEVEL, 0);
 
