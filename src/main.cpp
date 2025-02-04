@@ -9,7 +9,7 @@
 utils::Lock<BotState> STATE;
 // netcode::Socket SOCK;
 
-void setup() {
+inline void setup() {
   const std::string log_name = "main.cpp::setup";
 
   // setup zumo config
@@ -18,13 +18,13 @@ void setup() {
   // pull bot name and id from env
   std::string name = dotenv::DotEnv::get("BOT_NAME");
   std::string id_str = dotenv::DotEnv::get("ID_OVERRIDE");
-  logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 1, log_name);
-  logging::log(LOG_ENABLED, "Name Aquired: `" + name + "`", LOG_LEVEL, 2, log_name);
-  logging::log(LOG_ENABLED, "ID STR: `" + id_str + "`", LOG_LEVEL, 2, log_name);
+  logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 2, log_name);
+  logging::log(LOG_ENABLED, "Name Aquired: `" + name + "`", LOG_LEVEL, 3, log_name);
+  logging::log(LOG_ENABLED, "ID STR: `" + id_str + "`", LOG_LEVEL, 3, log_name);
 
   // convert id hex string to decimal
   uint64_t id = std::stoull(id_str, nullptr, 16); // Convert hex string to decimal
-  logging::log(LOG_ENABLED, "Saving ID...", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "Saving ID...", LOG_LEVEL, 3, log_name);
 
   // save id and name to state
   std::lock_guard<std::mutex> lock(STATE.mtx);
@@ -46,23 +46,23 @@ int main(int argc, char *argv[]) {
     config_path = argv[1];
   }
 
-  logging::log(LOG_ENABLED, "Loading Config: " + config_path, LOG_LEVEL, 0, log_name);
+  logging::log(LOG_ENABLED, "Loading Config: " + config_path, LOG_LEVEL, 2, log_name);
 
   // load envfile into dotenv
   dotenv::DotEnv::load(config_path);
-  logging::log(LOG_ENABLED, "Loaded Envfile", LOG_LEVEL, 0, log_name);
+  logging::log(LOG_ENABLED, "Loaded Envfile", LOG_LEVEL, 2, log_name);
 
   // setup bot
   setup();
-  logging::log(LOG_ENABLED, "Setup Complete", LOG_LEVEL, 0, log_name);
+  logging::log(LOG_ENABLED, "Setup Complete", LOG_LEVEL, 2, log_name);
 
   // spawn tcp listener
   std::thread p_listener(tcp_listener);
-  logging::log(LOG_ENABLED, "Spawned Listener", LOG_LEVEL, 0, log_name);
+  logging::log(LOG_ENABLED, "Spawned Listener", LOG_LEVEL, 2, log_name);
 
   // spawn bot logic
   std::thread p_bot(bot_logic);
-  logging::log(LOG_ENABLED, "Spawned Bot Logic", LOG_LEVEL, 0, log_name);
+  logging::log(LOG_ENABLED, "Spawned Bot Logic", LOG_LEVEL, 2, log_name);
 
   // joins threads
   p_bot.join();

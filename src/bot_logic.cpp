@@ -117,7 +117,7 @@ void tick_bot() {
 extern void bot_logic() {
   const std::string log_name = "bot_logic.cpp::bot_logic";
 
-  logging::log(LOG_ENABLED, "Waiting for Connection...", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "Waiting for Connection...", LOG_LEVEL, 0, log_name);
 
   // while not connected, sleep
   while (!STATE.read().connected) {
@@ -126,8 +126,8 @@ extern void bot_logic() {
 
   // make zumo safe
   zumo_utils::safe();
-  logging::log(LOG_ENABLED, "Connected to Server, starting ticking", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "Connected to Server, starting ticking", LOG_LEVEL, 0, log_name);
 
   utils::tick(tick_bot, MSPT, TICK);
-  logging::log(LOG_ENABLED, "Killing Bot Logic...", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "Killing Bot Logic...", LOG_LEVEL, 0, log_name);
 }

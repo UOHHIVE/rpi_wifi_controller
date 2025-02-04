@@ -182,23 +182,23 @@ inline void tcp_setup(netcode::Socket sock) {
 // TCP listener that gets spawned
 extern void tcp_listener() {
   const std::string log_name = "tcp_listener.cpp::tcp_listener";
-  logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "Starting Listener...", LOG_LEVEL, 0, log_name);
 
   //! If any of these are blank, code may crash, needs to be fixed
   string dc_address = dotenv::DotEnv::get("DC_ADDRESS");
   string dc_port = dotenv::DotEnv::get("DC_PORT");
-  logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 1, log_name);
-  logging::log(LOG_ENABLED, "Connecting to: " + dc_address + ":" + dc_port, LOG_LEVEL, 0, LogType::INFO, log_name);
+  logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 2, log_name);
+  logging::log(LOG_ENABLED, "Connecting to: " + dc_address + ":" + dc_port, LOG_LEVEL, 2, LogType::INFO, log_name);
 
   // Create the socket
   netcode::Socket sock = netcode::Socket(dc_address.data(), std::stoi(dc_port));
-  logging::log(LOG_ENABLED, "socket created", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "socket created", LOG_LEVEL, 2, log_name);
 
   // Set up the TCP connection
   tcp_setup(sock);
-  logging::log(LOG_ENABLED, "Connection established", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "Connection established", LOG_LEVEL, 2, log_name);
 
   // Start ticking the TCP listener
   utils::tick(tcp_tick, 1000, TICK, sock);
-  logging::log(LOG_ENABLED, "listener closed", LOG_LEVEL, 1, log_name);
+  logging::log(LOG_ENABLED, "listener closed", LOG_LEVEL, 0, log_name);
 }
