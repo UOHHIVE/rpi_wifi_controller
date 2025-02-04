@@ -2,68 +2,46 @@
 #define H_MAIN
 
 #include "commons/src/flatbuf/commons_generated.h"
-#include "commons/src/netcode/netcode.hpp"
 #include "commons/src/utils/lock.hpp"
 
-#include <cmath>
 #include <cstdint>
-#include <sys/time.h>
+#include <string>
 
 #define TPS 20             // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
-#define TICK true          //
-#define EB_XYZ 0.25        //
-#define EB_ROT 0.15        //
-#define LOG_MOVEMENT true  // disables track movement
-#define LOG_ENABLED true   // disables the movement if loggings enabled, for use when testing
-#define LOG_LEVEL 4        // log level
+#define TICK true          // true: run every tick, false: run once
+#define EB_XYZ 0.25        // error bound for position
+#define EB_ROT 0.15        // error bound for rotation
+#define LOG_MOVEMENT true  // enables/disables track movement
+#define LOG_ENABLED true   // enables/disables logging
+#define LOG_LEVEL 4        // log level to be displayed
 #define TRACK_L 17         // Left Track pin
 #define TRACK_R 27         // Right Track Pin
 #define SAFETY 16          // Safety Pin
 #define HBREAK 26          // Break Pin
-// #define DRY_RUN            // use dry run for testing
+// #define DRY_RUN            // use dry run for testing, pins will send debug messages instead of moving
 
 // Struct representing the bots state
 struct BotState {
-  uint64_t id;
-  string name;
-  HiveCommon::Vec3 current_pos;
-  HiveCommon::Vec3 target_pos;
-  HiveCommon::Vec3 half_pos;
-  HiveCommon::Vec4 current_rot;
-  bool target_completed;
-  bool sleep;
-  long duration;
-  bool aligned;
-  bool clockwise;
-  bool connected;
+  uint64_t id;                  // Bot's ID, pulled from the environment
+  std::string name;             // Bot's name, pulled from the environment
+  HiveCommon::Vec3 current_pos; // Bot's current position (x, y, z)
+  HiveCommon::Vec3 target_pos;  // Bot's target position (x, y, z)
+  HiveCommon::Vec4 current_rot; // Bot's current rotation quaternion (x, y, z, w)
+  bool target_completed;        // Flag to indicate if the target has been reached
+  bool sleep;                   // Flag to indicate if the bot is sleeping
+  long duration;                // Duration of the sleep, if 0, sleep is permanent
+  bool aligned;                 // Flag to indicate if the bot is aligned with the target
+  bool clockwise;               // Flag to indicate if the bot should turn clockwise
+  bool connected;               // Flag to indicate if the bot is connected to the server
 };
 
 // Global State
 extern utils::Lock<BotState> STATE;
 // extern netcode::Socket SOCK; // this could be an issue...
 
-// Function declarations
+// // Function declarations
 extern void bot_logic();
 extern void tcp_listener();
 
 #endif // MAIN
-
-// keeping these jic:
-
-// #include <chrono>
-// #include <cmath>
-// #include <memory>
-// #include <mutex>
-// #include <stdio.h>
-// #include <sys/time.h>
-// #include <thread>
-// #include <type_traits>
-// #include <utility>
-
-// // URL:
-// // https://stackoverflow.com/questions/158585/how-do-you-add-a-timed-delay-to-a-c-program
-// using namespace std::this_thread;     // sleep_for, sleep_until
-// using namespace std::chrono_literals; // ns, us, ms, s, h, etc.
-// using std::chrono::high_resolution_clock;
-// using std::chrono::system_clock;
