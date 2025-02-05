@@ -13,7 +13,7 @@ inline void setup() {
   const std::string log_name = "main.cpp::setup";
 
   // setup zumo config
-  zumo_utils::setup();
+  zumo::utils::setup();
 
   // pull bot name and id from env
   std::string name = dotenv::DotEnv::get("BOT_NAME");

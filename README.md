@@ -23,3 +23,11 @@
 ## Formatting
 
 This repo is formatted using the LLVM style-guide
+
+## Severity Levels:
+
+- 0: key information
+- 1: critical information
+- 2: detailed information
+- 3: debug information
+- 4: verbose information

@@ -6,6 +6,7 @@
 #include "commons/src/utils/tick.hpp"
 #include "commons/src/zumo/zumo.hpp"
 
+#include <iostream>
 #include <string>
 #include <thread>
 
@@ -15,6 +16,8 @@ enum EBotActions { FORWARD, TURN_LEFT, TURN_RIGHT, STOP };
 
 inline EBotActions do_action(BotState &s) {
   const std::string log_name = "bot_logic.cpp::do_action";
+
+  // std::cout << "================= aaaaaaaaaaaaaaaaaaaaaaaaaaaa ================== " << std::endl;
 
   // if bot is sleeping or target is completed, stop
   if (s.target_completed || s.sleep) {
@@ -27,9 +30,9 @@ inline EBotActions do_action(BotState &s) {
   vec::Vec3 T = vec::Vec3(s.target_pos);
 
   // log current position
-  logging::log(LOG_ENABLED, "Q: w=" + std::to_string(Q.getW()) + ", x=" + std::to_string(Q.getX()) + ", y=" + std::to_string(Q.getY()) + ", z=" + std::to_string(Q.getZ()), LOG_LEVEL, 3, log_name);
-  logging::log(LOG_ENABLED, "P: x=" + std::to_string(P.getX()) + ", y=" + std::to_string(P.getY()) + ", z=" + std::to_string(P.getZ()), LOG_LEVEL, 3, log_name);
-  logging::log(LOG_ENABLED, "T: x=" + std::to_string(T.getX()) + ", y=" + std::to_string(T.getY()) + ", z=" + std::to_string(T.getZ()), LOG_LEVEL, 3, log_name);
+  logging::log(LOG_ENABLED, "Q: w=" + std::to_string(Q.getW()) + ", x=" + std::to_string(Q.getX()) + ", y=" + std::to_string(Q.getY()) + ", z=" + std::to_string(Q.getZ()), LOG_LEVEL, 2, log_name);
+  logging::log(LOG_ENABLED, "P: x=" + std::to_string(P.getX()) + ", y=" + std::to_string(P.getY()) + ", z=" + std::to_string(P.getZ()), LOG_LEVEL, 2, log_name);
+  logging::log(LOG_ENABLED, "T: x=" + std::to_string(T.getX()) + ", y=" + std::to_string(T.getY()) + ", z=" + std::to_string(T.getZ()), LOG_LEVEL, 2, log_name);
 
   // check if bot is within eb of target
   // if (Math::Vec3::distance(P, T) < EB_XYZ) {
@@ -56,7 +59,7 @@ inline EBotActions do_action(BotState &s) {
   bool turn_right = robot_dir.cross(required_dir).getY() > 0;
 
   // log error
-  logging::log(LOG_ENABLED, "Error: " + std::to_string(error), LOG_LEVEL, 3, log_name);
+  logging::log(LOG_ENABLED, "Error: " + std::to_string(error), LOG_LEVEL, 2, log_name);
 
   if (error < EB_ROT) {  // if error is within bounds
     return FORWARD;      //   move forward
@@ -78,14 +81,14 @@ void tick_bot() {
   // if target is completed, stop
   if (s.target_completed) {
     logging::log(LOG_ENABLED, "Bot: Target Completed", LOG_LEVEL, 2, log_name);
-    zumo_movement::stop();
+    zumo::movement::stop();
     return;
   }
 
   // if sleeping, sleep
   if (s.sleep) {
     logging::log(LOG_ENABLED, "Bot: Sleeping", LOG_LEVEL, 2, log_name);
-    zumo_movement::stop();
+    zumo::movement::stop();
 
     // sleep for zero if duration is greater, if less, its permanent
     if (s.sleep > 0) {
@@ -99,25 +102,25 @@ void tick_bot() {
   }
 
   // always remove handbreak
-  zumo_movement::start();
+  zumo::movement::start();
 
   // move based on math
   switch (do_action(s)) {
   case FORWARD:
     logging::log(LOG_ENABLED, "BOT: forward", LOG_LEVEL, 2, log_name);
-    zumo_movement::forward();
+    zumo::movement::forward();
     break;
   case TURN_LEFT:
     logging::log(LOG_ENABLED, "BOT: turn left", LOG_LEVEL, 2, log_name);
-    zumo_movement::turn_left();
+    zumo::movement::turn_left();
     break;
   case TURN_RIGHT:
     logging::log(LOG_ENABLED, "BOT: turn right", LOG_LEVEL, 2, log_name);
-    zumo_movement::turn_right();
+    zumo::movement::turn_right();
     break;
   case STOP:
     logging::log(LOG_ENABLED, "BOT: stop", LOG_LEVEL, 2, log_name);
-    zumo_movement::stop();
+    zumo::movement::stop();
     break;
   }
 }
@@ -133,7 +136,7 @@ extern void bot_logic() {
   }
 
   // make zumo safe
-  zumo_utils::safe();
+  zumo::utils::safe();
   logging::log(LOG_ENABLED, "Connected to Server, starting ticking", LOG_LEVEL, 0, log_name);
 
   utils::tick(tick_bot, MSPT, TICK);

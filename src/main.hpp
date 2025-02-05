@@ -14,7 +14,7 @@
 #define EB_ROT 0.15        // error bound for rotation
 #define LOG_MOVEMENT true  // enables/disables track movement
 #define LOG_ENABLED true   // enables/disables logging
-#define LOG_LEVEL 4        // log level to be displayed
+#define LOG_LEVEL 2        // log level to be displayed
 #define TRACK_L 17         // Left Track pin
 #define TRACK_R 27         // Right Track Pin
 #define SAFETY 16          // Safety Pin
