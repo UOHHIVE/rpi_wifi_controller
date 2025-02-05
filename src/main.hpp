@@ -19,7 +19,7 @@
 #define TRACK_R 27         // Right Track Pin
 #define SAFETY 16          // Safety Pin
 #define HBREAK 26          // Break Pin
-// #define DRY_RUN            // use dry run for testing, pins will send debug messages instead of moving
+#define DRY_RUN            // use dry run for testing, pins will send debug messages instead of moving
 
 // Struct representing the bots state
 struct BotState {
@@ -37,7 +37,7 @@ struct BotState {
 };
 
 // Global State
-extern utils::Lock<BotState> STATE;
+extern hive::utils::Lock<BotState> STATE;
 // extern netcode::Socket SOCK; // this could be an issue...
 
 // // Function declarations
