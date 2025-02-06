@@ -1,6 +1,8 @@
 #include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/logging/elogtype.hpp"
 #include "commons/src/logging/logging.hpp"
+#include "commons/src/math/vec/vec3.hpp"
+#include "commons/src/math/vec/vec4.hpp"
 #include "commons/src/netcode/netcode.hpp"
 #include "commons/src/utils/misc.hpp"
 #include "commons/src/utils/tick.hpp"
@@ -73,8 +75,8 @@ void tcp_tick(netcode::Socket sock) {
 
         // update the state
         std::lock_guard<std::mutex> lock(STATE.mtx);
-        STATE.inner.current_pos = *pos;
-        STATE.inner.current_rot = *rot;
+        STATE.inner.current_pos = hive::math::vec::Vec3(pos);
+        STATE.inner.current_rot = hive::math::vec::Vec4(rot);
         break;
       }
       case HiveCommon::EntityUnion_Command: {
@@ -95,7 +97,7 @@ void tcp_tick(netcode::Socket sock) {
           std::lock_guard<std::mutex> lock(STATE.mtx);
           STATE.inner.aligned = false;
           STATE.inner.target_completed = false;
-          STATE.inner.target_pos = *moveto->destination();
+          STATE.inner.target_pos = hive::math::vec::Vec3(moveto->destination());
           break;
         }
         case HiveCommon::CommandUnion_Sleep: {

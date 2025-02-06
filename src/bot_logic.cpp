@@ -25,9 +25,9 @@ inline EBotActions do_action(BotState &s) {
   }
 
   // pull out the current rotation and position
-  vec::Vec4 Q = vec::Vec4(s.current_rot);
-  vec::Vec3 P = vec::Vec3(s.current_pos);
-  vec::Vec3 T = vec::Vec3(s.target_pos);
+  const vec::Vec4 &Q = s.current_rot;
+  const vec::Vec3 &P = s.current_pos;
+  const vec::Vec3 &T = s.target_pos;
 
   // log current position
   logging::log(LOG_ENABLED, "Q: w=" + std::to_string(Q.getW()) + ", x=" + std::to_string(Q.getX()) + ", y=" + std::to_string(Q.getY()) + ", z=" + std::to_string(Q.getZ()), LOG_LEVEL, 2, log_name);
@@ -98,6 +98,15 @@ void tick_bot() {
       STATE.inner.sleep = false;
     }
 
+    return;
+  }
+
+  // if current position is within error bounds, stop
+  if (s.current_pos.distance(s.target_pos) < EB_XYZ) {
+    logging::log(LOG_ENABLED, "Bot: Within Error Bounds", LOG_LEVEL, 2, log_name);
+    zumo::movement::stop();
+    std::lock_guard<std::mutex> lock(STATE.mtx);
+    STATE.inner.target_completed = true;
     return;
   }
 
