@@ -63,10 +63,10 @@ void tcp_tick(netcode::Socket sock) {
 
         // check if the id matches
         if (node->id() != STATE.read().id) {
-          logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 3, LogType::INFO, log_name);
+          logging::log(LOG_ENABLED, "Filtered ID: " + std::to_string(node->id()) + " (" + std::to_string(STATE.read().id) + ")", LOG_LEVEL, 2, LogType::INFO, log_name);
           break;
         } else {
-          logging::log(LOG_ENABLED, "ID Matched: " + std::to_string(node->id()), LOG_LEVEL, 3, LogType::INFO, log_name);
+          logging::log(LOG_ENABLED, "ID Matched: " + std::to_string(node->id()), LOG_LEVEL, 2, LogType::INFO, log_name);
         }
 
         // get the position and rotation
