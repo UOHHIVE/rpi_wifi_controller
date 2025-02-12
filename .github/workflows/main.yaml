@@ -31,7 +31,7 @@ jobs:
 
             ls -al
 
-            mv ~/flatbuffers-* ~/flatbuffers
+            mv ~/flatbuffers-24.12.23 ~/flatbuffers
 
             # symlink include directory
             if [ ! -L /usr/include/flatbuffers/ ]; then sudo ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
