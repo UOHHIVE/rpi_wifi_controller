@@ -72,10 +72,7 @@ jobs:
           make build
           tar -czvf target.tar.gz target/
       - name: Commit report
-        run: |
-          rm flatc.zip
-          rm flatc
-          
+        run: |       
           git config --global user.name 'RPI WiFi Controller Auto-Build'
           git config --global user.email 'action@github.com'
           git add * || exit 0
