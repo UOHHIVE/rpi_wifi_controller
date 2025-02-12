@@ -27,7 +27,7 @@ jobs:
             # manually install flatbuffers header files bc its not packaged properly
             if [ -d ~/flatbuffers ]; then rm -rf ~/flatbuffers; fi
             curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v24.12.23.tar.gz -o ~/flatbuffers.tar.gz
-            tar -xvzf ~/flatbuffers.tar.gz
+            tar -xzf ~/flatbuffers.tar.gz
             mv ~/flatbuffers-* ~/flatbuffers
 
             # symlink include directory
