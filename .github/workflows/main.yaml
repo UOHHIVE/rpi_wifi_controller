@@ -11,6 +11,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'recursive'
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: Install Deps
         run: |
             # update repos, install updates
