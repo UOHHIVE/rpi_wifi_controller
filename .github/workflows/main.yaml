@@ -60,6 +60,9 @@ jobs:
           rm -rf WiringPi/
       - name: Build Files
         run: |
+          git config --global user.name 'RPI WiFi Controller Auto-Build'
+          git config --global user.email 'action@github.com'
+
           git submodule update --init --recursive --remote --force
 
           make build
