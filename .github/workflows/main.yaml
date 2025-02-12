@@ -1,8 +1,8 @@
 name: Push commit
 on: 
   push:
-permissions:
-  contents: write
+    paths-ignore:
+      - '**/*.tar.gz'
 jobs:
   report:
     runs-on: ubuntu-latest
