@@ -23,7 +23,7 @@ if [ "$behind" -gt 0 ]; then
   echo "Updates available for '$current_branch'. Pulling changes..."
   git pull origin "$current_branch"
   git submodule update --init --recursive --remote
-  bash "$DIR_LOCAL/setup.sh"
+  bash "NO_CLONE=1 $DIR_LOCAL/setup.sh"
 else
     echo "Branch '$current_branch' is up to date."
 fi
