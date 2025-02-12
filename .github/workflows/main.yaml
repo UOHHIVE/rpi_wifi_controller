@@ -11,14 +11,14 @@ jobs:
       - name: Install Deps
         run: |
             # update repos, install updates
-            apt update -y
-            apt upgrade -y
+            sudo apt update -y
+            sudo apt upgrade -y
 
             # make sure required software is installed
-            apt install software-properties-common wget xz-utils gcc build-essential clang make cmake -y
-            apt install python3 python3-pip -y
-            apt install gpiod libgpoid-dev -y
-            apt install fakeroot gettext-base -y
+            sudo apt install software-properties-common wget xz-utils gcc build-essential clang make cmake -y
+            sudo apt install python3 python3-pip -y
+            sudo apt install gpiod libgpoid-dev -y
+            sudo apt install fakeroot gettext-base -y
       - name: Clean Files
         run: |
             if [ -f target.tar.gz ]; then git rm target.tar.gz; fi
@@ -31,7 +31,7 @@ jobs:
             mv ~/flatbuffers-* ~/flatbuffers
 
             # symlink include directory
-            if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
+            if [ ! -L /usr/include/flatbuffers/ ]; then sudo ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
 
             rm -f ~/flatbuffers.tar.gz
             rm -rf ~/flatbuffers
@@ -50,7 +50,7 @@ jobs:
 
           # install wiring pi
           mv debian-template/wiringpi*.deb .
-          apt install ./wiringpi*.deb
+          sudo apt install ./wiringpi*.deb
 
           # post install clean
           cd .. 
