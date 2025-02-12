@@ -75,6 +75,8 @@ jobs:
         run: |       
           git config --global user.name 'RPI WiFi Controller Auto-Build'
           git config --global user.email 'action@github.com'
-          git add * || exit 0
+
+          git add target.tar.gz || exit 0
+
           git commit -am "automated: build action" || exit 0
           git push
