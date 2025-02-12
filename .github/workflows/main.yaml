@@ -7,7 +7,10 @@ jobs:
   report:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout 
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
       - name: Install Deps
         run: |
             # update repos, install updates
@@ -60,8 +63,8 @@ jobs:
           rm -rf WiringPi/
       - name: Build Files
         run: |
-          git config --global user.name 'action'
-          git config --global user.email 'action@github.com'
+          # git config --global user.name 'action'
+          # git config --global user.email 'action@github.com'
 
           git submodule update --init --recursive --remote --force
 
