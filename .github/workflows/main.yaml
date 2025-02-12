@@ -1,0 +1,71 @@
+name: Push commit
+on: 
+  push:
+permissions:
+  contents: write
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Deps
+        run: |
+            # update repos, install updates
+            apt update -y
+            apt upgrade -y
+
+            # make sure required software is installed
+            apt install software-properties-common wget xz-utils gcc build-essential clang make cmake -y
+            apt install python3 python3-pip -y
+            apt install gpiod libgpoid-dev -y
+            apt install fakeroot gettext-base -y
+      - name: Clean Files
+        run: |
+            if [ -f target.tar.gz ]; then git rm target.tar.gz; fi
+      - name: Install FlatBuffers
+        run: |
+            # manually install flatbuffers header files bc its not packaged properly
+            if [ -d ~/flatbuffers ]; then rm -rf ~/flatbuffers; fi
+            curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v24.12.23.tar.gz -o ~/flatbuffers.tar.gz
+            tar -xvzf ~/flatbuffers.tar.gz
+            mv ~/flatbuffers-* ~/flatbuffers
+
+            # symlink include directory
+            if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
+
+            rm -f ~/flatbuffers.tar.gz
+            rm -rf ~/flatbuffers
+      - name: Install WiringPI
+        run: |
+          # clone wiring pi 
+          git clone https://github.com/WiringPi/WiringPi.git --recursive
+          cd WiringPi
+
+          # build from source
+          ./build debian
+
+          # give access to apt
+          chown -Rv _apt:root /var/cache/apt/archives/partial/
+          chmod -Rv 700 /var/cache/apt/archives/partial/
+
+          # install wiring pi
+          mv debian-template/wiringpi*.deb .
+          apt install ./wiringpi*.deb
+
+          # post install clean
+          cd .. 
+          rm -rf WiringPi/
+      - name: Build Files
+        run: |
+          make build
+          tar -czvf target.tar.gz target/
+      - name: Commit report
+        run: |
+          rm flatc.zip
+          rm flatc
+          
+          git config --global user.name 'RPI WiFi Controller Auto-Build'
+          git config --global user.email 'action@github.com'
+          git add * || exit 0
+          git commit -am "automated: build action" || exit 0
+          git push
