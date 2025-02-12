@@ -10,7 +10,7 @@ DIR_LOCAL="/root/local"
 if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
 
 # clone repo to src
-git clone "$DIR_REM" "$DIR_SRC" --recurse-submodules
+if [ -z "$NO_CLONE" ]; then git clone "$DIR_REM" "$DIR_SRC" --recurse-submodules; fi
 
 # cd to repo and pull
 cd "$DIR_SRC"
