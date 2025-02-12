@@ -29,9 +29,7 @@ jobs:
             curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v24.12.23.tar.gz -o ~/flatbuffers.tar.gz
             tar -xzf ~/flatbuffers.tar.gz
 
-            ls -al
-
-            if [ -d ~/flatbuffers-24.12.23 ]; then echo "It is here tho..."; fi
+            ls -al ~/flatbuffers-24.12.23
 
             mv ~/flatbuffers-24.12.23 ~/flatbuffers
 
