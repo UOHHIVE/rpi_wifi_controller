@@ -31,6 +31,8 @@ jobs:
 
             ls -al
 
+            if [ -d ~/flatbuffers-24.12.23 ]; then echo "It is here tho..."; fi
+
             mv ~/flatbuffers-24.12.23 ~/flatbuffers
 
             # symlink include directory
