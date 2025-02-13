@@ -26,6 +26,7 @@ git submodule update --init --recursive --remote
 if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
 
 # unzip target tarball into target dir
+rm -rf "$DIR_TARGET"/*
 tar -xvf target.tar.gz -C "$DIR_SRC"
 
 # if target dir isnt linked, then link it
