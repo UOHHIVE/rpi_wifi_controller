@@ -26,10 +26,10 @@ git submodule update --init --recursive --remote
 if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
 
 # unzip target tarball into target dir
-tar -xvf target.tar.gz -C "$DIR_TARGET"
+tar -xvf target.tar.gz -C "$DIR_SRC"
 
 # if target dir isnt linked, then link it
-if [ ! -d "$DIR_LOCAL" ]; then ln -s "$DIR_SRC/target" "$DIR_LOCAL"; fi
+if [ ! -d "$DIR_LOCAL" ]; then ln -s "$DIR_TARGET" "$DIR_LOCAL"; fi
 
 # copy config file to root
 cp /root/local/config.env /root/config.env
