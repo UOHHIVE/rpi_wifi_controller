@@ -15,7 +15,7 @@ if [ -z "$NO_CLONE" ]; then git clone "$DIR_REM" "$DIR_SRC" --recurse-submodules
 # cd to repo and pull
 cd "$DIR_SRC"
 
-git pull
+git pull origin main
 git submodule update --init --recursive --remote
 
 # # setup the folders and build the project
