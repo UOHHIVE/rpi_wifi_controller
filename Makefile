@@ -6,7 +6,7 @@ STD = c++23
 #ARCH = x86_64
 
 CFLAGS_TEST = -std=$(STD) -Wall -Wextra -Wpedantic -l wiringPi # -Werror -Wpedantic -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-private-field -l wiringPi
-CFLAGS_PROD = -std=$(STD) -flto -Wall -Wextra -O3 -l wiringPi -march=armv6 -mfpu=vfp -mfloat-abi=hard
+CFLAGS_PROD = -std=$(STD) -flto -Wall -Wextra -O3 -l wiringPi -mcpu=cortex-a72 -mfloat-abi=hard -mfpu=neon-fp-armv8 -mneon-for-64bits
 # CFLAGS_PROD = -arch $(ARCH) -std=$(STD) -Wall -Wextra -O3
 
 DIR_SRC = ./src/
