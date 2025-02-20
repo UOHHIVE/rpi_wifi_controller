@@ -3,9 +3,14 @@ on:
   push:
     paths-ignore:
       - '**/*.tar.gz'
+    tags:
+    - '*'
 jobs:
   report:
     runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout 
         uses: actions/checkout@v4
@@ -15,8 +20,8 @@ jobs:
       - name: Install Deps
         run: |
             # update repos, install updates
-            sudo apt update -y
-            sudo apt upgrade -y
+            # sudo apt update -y
+            # sudo apt upgrade -y
 
             # make sure required software is installed
             sudo apt install software-properties-common wget xz-utils gcc build-essential clang make cmake -y
@@ -45,24 +50,29 @@ jobs:
             rm -rf flatbuffers
       - name: Install WiringPI
         run: |
-          # clone wiring pi 
-          git clone https://github.com/WiringPi/WiringPi.git --recursive
-          cd WiringPi
+          # # clone wiring pi 
+          # git clone https://github.com/WiringPi/WiringPi.git --recursive
+          # cd WiringPi
 
-          # build from source
-          ./build debian
+          # # build from source
+          # ./build debian
 
-          # give access to apt
-          sudo chown -Rv _apt:root /var/cache/apt/archives/partial/
-          sudo chmod -Rv 700 /var/cache/apt/archives/partial/
+          # # give access to apt
+          # sudo chown -Rv _apt:root /var/cache/apt/archives/partial/
+          # sudo chmod -Rv 700 /var/cache/apt/archives/partial/
 
-          # install wiring pi
-          mv debian-template/wiringpi*.deb .
-          sudo apt install ./wiringpi*.deb
+          # # install wiring pi
+          # mv debian-template/wiringpi*.deb .
+          # sudo apt install ./wiringpi*.deb
 
-          # post install clean
-          cd .. 
-          rm -rf WiringPi/
+          # # post install clean
+          # cd .. 
+          # rm -rf WiringPi/
+
+          curl -sSfL https://github.com/WiringPi/WiringPi/releases/download/3.14/wiringpi_3.14_arm64.deb -o wiringpi.deb
+          sudo apt install ./wiringpi.deb
+
+          rm -f wiringpi.deb
       - name: Build Files
         run: |
           # git config --global user.name 'action'
@@ -72,12 +82,18 @@ jobs:
 
           make build
           tar -czvf target.tar.gz target/
-      - name: Commit report
-        run: |       
-          git config --global user.name 'RPI WiFi Controller Auto-Build'
-          git config --global user.email 'action@github.com'
+      # - name: Commit report
+      #   run: |       
+      #     git config --global user.name 'RPI WiFi Controller Auto-Build'
+      #     git config --global user.email 'action@github.com'
 
-          git add target.tar.gz || exit 0
+      #     git add target.tar.gz || exit 0
 
-          git commit -am "automated: build action" || exit 0
-          git push
+      #     git commit -am "automated: build action" || exit 0
+      #     git push
+      - name: Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "target.tar.gz"
+          bodyFile: "CHANGELOG.md"
+          prerelease: true

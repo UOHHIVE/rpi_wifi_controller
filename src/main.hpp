@@ -1,7 +1,6 @@
 #ifndef H_MAIN
 #define H_MAIN
 
-#include "commons/src/flatbuf/commons_generated.h"
 #include "commons/src/math/vec/vec3.hpp"
 #include "commons/src/utils/lock.hpp"
 

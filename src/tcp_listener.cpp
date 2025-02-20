@@ -149,6 +149,25 @@ inline void tcp_setup(netcode::Socket sock) {
   uint16_t sub = 0;
   sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
 
+  // TODO: remove debug code
+  // std::cout << "Sub: " << sub << std::endl;
+  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Generic, sub);
+  // std::cout << "Sub: " << sub << std::endl;
+  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Robot, sub);
+  // std::cout << "Sub: " << sub << std::endl;
+  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Headset, sub);
+  // std::cout << "Sub: " << sub << std::endl;
+  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Presenter, sub);
+  // std::cout << "Sub: " << sub << std::endl;
+  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Geometry, sub);
+  // std::cout << "Sub: " << sub << std::endl;
+  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Observer, sub);
+  // std::cout << "Sub: " << sub << std::endl;
+  // // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Command, sub);
+  // // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Node, sub);
+  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
+  // std::cout << "Sub: " << sub << std::endl;
+
   // build connection message
   flatbuffers::FlatBufferBuilder fbb1;
   const auto fb_name = fbb1.CreateString(STATE.read().name);
