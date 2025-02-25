@@ -149,36 +149,21 @@ inline void tcp_setup(netcode::Socket sock) {
   uint16_t sub = 0;
   sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
 
-  // TODO: remove debug code
-  // std::cout << "Sub: " << sub << std::endl;
-  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Generic, sub);
-  // std::cout << "Sub: " << sub << std::endl;
-  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Robot, sub);
-  // std::cout << "Sub: " << sub << std::endl;
-  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Headset, sub);
-  // std::cout << "Sub: " << sub << std::endl;
-  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Presenter, sub);
-  // std::cout << "Sub: " << sub << std::endl;
-  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Geometry, sub);
-  // std::cout << "Sub: " << sub << std::endl;
-  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Observer, sub);
-  // std::cout << "Sub: " << sub << std::endl;
-  // // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Command, sub);
-  // // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Node, sub);
-  // sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
-  // std::cout << "Sub: " << sub << std::endl;
-
-  // build connection message
+  // initise flatbuf builders
   flatbuffers::FlatBufferBuilder fbb1;
+  flatbuffers::FlatBufferBuilder fbb2;
+
+  // create robot
   const auto fb_name = fbb1.CreateString(STATE.read().name);
   const auto robot = HiveCommon::CreateRobot(fbb1, STATE.read().id, fb_name, sub, HiveCommon::SubscriptionRate_Half);
   const auto entity = HiveCommon::CreateEntity(fbb1, HiveCommon::EntityUnion_Robot, robot.Union());
+
+  // finish entity
   fbb1.Finish(entity);
   fbb1.ForceVectorAlignment(fbb1.GetSize(), sizeof(uint8_t), fbb1.GetBufferMinAlignment());
   logging::log(LOG_ENABLED, "Entity Built", LOG_LEVEL, 4, log_name);
 
   // Build the Payload which is to be used in the State as a payload vector
-  flatbuffers::FlatBufferBuilder fbb2;
   const auto entityVec = fbb2.CreateVector(fbb1.GetBufferPointer(), fbb1.GetSize());
   const auto payload = HiveCommon::CreatePayload(fbb2, entityVec);
   logging::log(LOG_ENABLED, "Payload Built", LOG_LEVEL, 4, log_name);

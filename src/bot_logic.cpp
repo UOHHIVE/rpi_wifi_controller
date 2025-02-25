@@ -6,7 +6,6 @@
 #include "commons/src/utils/tick.hpp"
 #include "commons/src/zumo/zumo.hpp"
 
-#include <iostream>
 #include <string>
 #include <thread>
 
@@ -16,8 +15,6 @@ enum EBotActions { FORWARD, TURN_LEFT, TURN_RIGHT, STOP };
 
 inline EBotActions do_action(BotState &s) {
   const std::string log_name = "bot_logic.cpp::do_action";
-
-  // std::cout << "================= aaaaaaaaaaaaaaaaaaaaaaaaaaaa ================== " << std::endl;
 
   // if bot is sleeping or target is completed, stop
   if (s.target_completed || s.sleep) {
