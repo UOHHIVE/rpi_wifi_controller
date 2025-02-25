@@ -65,18 +65,18 @@ jobs:
 
           make build
           tar -czvf target.tar.gz target/
-      # - name: Commit report
-      #   run: |       
-      #     git config --global user.name 'RPI WiFi Controller Auto-Build'
-      #     git config --global user.email 'action@github.com'
+      - name: Commit report
+        run: |       
+          git config --global user.name 'RPI WiFi Controller Auto-Build'
+          git config --global user.email 'action@github.com'
 
-      #     git add target.tar.gz || exit 0
+          git add target.tar.gz || exit 0
 
-      #     git commit -am "automated: build action" || exit 0
-      #     git push
-      - name: Release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "target.tar.gz"
-          bodyFile: "CHANGELOG.md"
-          prerelease: true
+          git commit -am "automated: build action" || exit 0
+          git push
+      # - name: Release
+      #   uses: ncipollo/release-action@v1
+      #   with:
+      #     artifacts: "target.tar.gz"
+      #     bodyFile: "CHANGELOG.md"
+      #     prerelease: true
