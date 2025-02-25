@@ -1,11 +1,10 @@
 name: Push commit
 on: 
   push:
-    paths-ignore:
-      - '**/*.tar.gz'
-      - 'VERSION'
-    branches:
-      - main
+    paths:
+      - 'src/**'
+      - 'scripts/**'
+      - 'Makefile'
 jobs:
   report:
     runs-on: ubuntu-22.04-arm
