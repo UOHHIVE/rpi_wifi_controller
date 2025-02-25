@@ -13,6 +13,7 @@ DIR_SRC = ./src/
 DIR_TARGET = ./target/
 DIR_SCRIPTS = ./scripts/
 
+VERSION_FILE = VERSION
 MAIN = main.cpp
 TARGET = main.out
 
@@ -58,3 +59,31 @@ clean:
 	@echo "Cleaning..."
 	@rm -rf $(DIR_TARGET)
 	@$(MAKE) -f $(THIS_FILE) setup
+
+
+bump_major:
+	@echo "Bumping major version..."
+	@$(eval VERSION=$(shell cat $(VERSION_FILE)))
+	@$(eval MAJOR=$(shell echo $(VERSION) | cut -d. -f1))
+	@$(eval MINOR=$(shell echo $(VERSION) | cut -d. -f2))
+	@$(eval NEW_MAJOR=$(shell echo $$(($(MAJOR) + 1))))
+	@echo "$(NEW_MAJOR).0" > $(VERSION_FILE)
+	@echo "Version bumped to $(NEW_MAJOR).0"
+
+bump_minor:
+	@echo "Bumping minor version..."
+	@$(eval VERSION=$(shell cat $(VERSION_FILE)))
+	@$(eval MAJOR=$(shell echo $(VERSION) | cut -d. -f1))
+	@$(eval MINOR=$(shell echo $(VERSION) | cut -d. -f2))
+	@$(eval NEW_MINOR=$(shell echo $$(($(MINOR) + 1))))
+	@echo "$(MAJOR).$(NEW_MINOR)" > $(VERSION_FILE)
+	@echo "Version bumped to $(MAJOR).$(NEW_MINOR)"
+
+bump_patch:
+	@echo "Bumping patch version..."
+	@$(eval VERSION=$(shell cat $(VERSION_FILE)))
+	@$(eval MAJOR=$(shell echo $(VERSION) | cut -d. -f1))
+	@$(eval MINOR=$(shell echo $(VERSION) | cut -d. -f2))
+	@$(eval PATCH=$(shell git rev-list --count HEAD --perl-regexp --author='^((?!RPI WiFi Controller Auto-Build).*)$''))
+	@echo "$(MAJOR).$(MINOR).$(PATCH)" > $(VERSION_FILE)
+	@echo "Version bumped to $(MAJOR).$(MINOR).$(PATCH)"
