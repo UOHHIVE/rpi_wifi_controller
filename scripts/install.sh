@@ -1,10 +1,15 @@
 #! /usr/bin/env bash
 
+# inputs
+RPI_SLEEP="$RPI_SLEEP"
+RPI_NO_CLONE="$NO_CLONE"
+
 # set vars
 DIR_REM="https://github.com/UoH-HIVE/raspberry_pi_wifi_controller.git"
 DIR_SRC="/root/src"
 DIR_TARGET="$DIR_SRC/target"
 DIR_LOCAL="/root/local"
+RPI_SLEEP_TIME=30
 
 # update repos, install updates
 dietpi-update 1
@@ -80,16 +85,16 @@ cd "$DIR_LOCAL"
 
 # start and enable rpi_controller.service and rpi_updater.service
 for service_file in "$DIR_SRC"/scripts/*.service; do
-    if [ -f "$service_file" ]; then
-        service_name=$(basename "$service_file")
+  if [ -f "$service_file" ]; then
+    service_name=$(basename "$service_file")
 
-        ln -sf "$service_file" "/etc/systemd/system/$service_name"
+    ln -sf "$service_file" "/etc/systemd/system/$service_name"
 
-        systemctl stop "$service_name"
-        systemctl enable "$service_name"
-        systemctl start "$service_name"
-    fi
+    systemctl stop "$service_name"
+    systemctl enable "$service_name"
+    systemctl start "$service_name"
+  fi
 done
 
-# if not NO_SLEEP, sleep for 30 seconds
-if [ -z "$NO_SLEEP" ]; then sleep 30; fi
+# if RPI_SLEEP is set, sleep for 30 seconds
+if [ -n "$RPI_SLEEP" ]; then sleep "$RPI_SLEEP_TIME"; fi
