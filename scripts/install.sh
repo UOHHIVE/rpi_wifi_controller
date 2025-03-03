@@ -1,6 +1,13 @@
 #! /usr/bin/env bash
 
+# set vars
+DIR_REM="https://github.com/UoH-HIVE/raspberry_pi_wifi_controller.git"
+DIR_SRC="/root/src"
+DIR_TARGET="$DIR_SRC/target"
+DIR_LOCAL="/root/local"
+
 # update repos, install updates
+dietpi-update 1
 apt update -y
 apt upgrade -y
 
@@ -23,7 +30,7 @@ if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuff
 
 # Setting up git
 git config --global credential.helper store
-# git config --global user.name 
+# git config --global user.name  
 
 # clone wiring pi 
 git clone https://github.com/WiringPi/WiringPi.git --recursive
