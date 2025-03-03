@@ -8,7 +8,7 @@ After=network.target
 Type=simple
 User=root
 WorkingDirectory=/
-ExecStart=RPI_SLEEP=1 NO_CLONE=1/usr/bin/env bash /root/local/update.sh
+ExecStart=RPI_SLEEP=1 NO_CLONE=1 /usr/bin/env bash /root/local/update.sh
 Restart=always  
 
 [Install]
