@@ -1,11 +1,7 @@
 #! /usr/bin/env bash
 
-# inputs
-RPI_SLEEP="$RPI_SLEEP"
-RPI_NO_CLONE="$NO_CLONE"
-
 # set vars
-DIR_REM="https://github.com/UoH-HIVE/rpi_wifi_controller/raw/refs/heads/main/target.tar.gz"
+DIR_REM="https://github.com/UoH-HIVE/rpi_wifi_controller.git"
 DIR_SRC="/root/src"
 DIR_TARGET="$DIR_SRC/target"
 DIR_LOCAL="/root/local"
@@ -33,10 +29,6 @@ mv ~/flatbuffers-* ~/flatbuffers
 # symlink include directory
 if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
 
-# Setting up git
-git config --global credential.helper store
-# git config --global user.name  
-
 # clone wiring pi 
 git clone https://github.com/WiringPi/WiringPi.git --recursive
 cd WiringPi
@@ -56,9 +48,12 @@ apt install ./wiringpi*.deb
 cd .. 
 rm -rf WiringPi/
 
+# Setting up git
+git config --global credential.helper store
 
 # if /usr/src/hive_rpi/ doesnt exist, make it
 if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
+if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
 
 # clone repo to src
 if [ -z "$NO_CLONE" ]; then git clone "$DIR_REM" "$DIR_SRC"; fi
@@ -66,9 +61,6 @@ if [ -z "$NO_CLONE" ]; then git clone "$DIR_REM" "$DIR_SRC"; fi
 # cd to repo and pull
 cd "$DIR_SRC"
 git pull origin main
-
-# check if target dir exists
-if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
 
 # unzip target tarball into target dir
 rm -rf "$DIR_TARGET"/*
