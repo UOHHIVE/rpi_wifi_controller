@@ -7,6 +7,9 @@ DIR_TARGET="$DIR_SRC/target"
 DIR_LOCAL="/root/local"
 RPI_SLEEP_TIME=30
 
+# check if arg1 is present and override DIR_REM
+if [ -n "$1" ]; then DIR_REM="$1"; fi
+
 # update repos, install updates
 dietpi-update 1
 apt update -y
