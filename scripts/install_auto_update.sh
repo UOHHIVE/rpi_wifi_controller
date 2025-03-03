@@ -5,7 +5,7 @@ RPI_SLEEP="$RPI_SLEEP"
 RPI_NO_CLONE="$NO_CLONE"
 
 # set vars
-DIR_REM="https://github.com/UoH-HIVE/raspberry_pi_wifi_controller.git"
+DIR_REM="https://github.com/UoH-HIVE/rpi_wifi_controller/raw/refs/heads/main/target.tar.gz"
 DIR_SRC="/root/src"
 DIR_TARGET="$DIR_SRC/target"
 DIR_LOCAL="/root/local"
