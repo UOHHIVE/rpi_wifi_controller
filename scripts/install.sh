@@ -1,6 +1,18 @@
 #! /usr/bin/env bash
 
+# inputs
+RPI_SLEEP="$RPI_SLEEP"
+RPI_NO_CLONE="$NO_CLONE"
+
+# set vars
+DIR_REM="https://github.com/UoH-HIVE/raspberry_pi_wifi_controller.git"
+DIR_SRC="/root/src"
+DIR_TARGET="$DIR_SRC/target"
+DIR_LOCAL="/root/local"
+RPI_SLEEP_TIME=30
+
 # update repos, install updates
+dietpi-update 1
 apt update -y
 apt upgrade -y
 
@@ -23,7 +35,7 @@ if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuff
 
 # Setting up git
 git config --global credential.helper store
-# git config --global user.name 
+# git config --global user.name  
 
 # clone wiring pi 
 git clone https://github.com/WiringPi/WiringPi.git --recursive
@@ -43,3 +55,46 @@ apt install ./wiringpi*.deb
 # post install clean
 cd .. 
 rm -rf WiringPi/
+
+
+# if /usr/src/hive_rpi/ doesnt exist, make it
+if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
+
+# clone repo to src
+if [ -z "$NO_CLONE" ]; then git clone "$DIR_REM" "$DIR_SRC"; fi
+
+# cd to repo and pull
+cd "$DIR_SRC"
+git pull origin main
+
+# check if target dir exists
+if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
+
+# unzip target tarball into target dir
+rm -rf "$DIR_TARGET"/*
+tar -xvf target.tar.gz -C "$DIR_SRC"
+
+# if target dir isnt linked, then link it
+if [ ! -d "$DIR_LOCAL" ]; then ln -s "$DIR_TARGET" "$DIR_LOCAL"; fi
+
+# copy config file to root if it doesnt exist
+if [ ! -f /root/config.env ]; then cp /root/local/config.env /root/config.env; fi
+
+# move into local dir
+cd "$DIR_LOCAL"
+
+# start and enable rpi_controller.service and rpi_updater.service
+for service_file in "$DIR_SRC"/scripts/*.service; do
+  if [ -f "$service_file" ]; then
+    service_name=$(basename "$service_file")
+
+    ln -sf "$service_file" "/etc/systemd/system/$service_name"
+
+    systemctl stop "$service_name"
+    systemctl enable "$service_name"
+    systemctl start "$service_name"
+  fi
+done
+
+# if RPI_SLEEP is set, sleep for 30 seconds
+if [ -n "$RPI_SLEEP" ]; then sleep "$RPI_SLEEP_TIME"; fi
