@@ -1,9 +1,5 @@
 #! /usr/bin/env bash
 
-# inputs
-RPI_SLEEP="$RPI_SLEEP"
-RPI_NO_CLONE="$NO_CLONE"
-
 # set vars
 DIR_REM="https://github.com/UoH-HIVE/rpi_wifi_controller/raw/refs/heads/main/target.tar.gz"
 DIR_SRC="/root/src"
@@ -33,10 +29,6 @@ mv ~/flatbuffers-* ~/flatbuffers
 # symlink include directory
 if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
 
-# Setting up git
-git config --global credential.helper store
-# git config --global user.name  
-
 # clone wiring pi 
 git clone https://github.com/WiringPi/WiringPi.git --recursive
 cd WiringPi
@@ -56,8 +48,16 @@ apt install ./wiringpi*.deb
 cd .. 
 rm -rf WiringPi/
 
-# check if target dir exists
+
+# make sure target dirs exist
+if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
 if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
+
+# cd into dir
+cd "$DIR_SRC"
+
+# curl DIR_REM
+curl -sSfL "$DIR_REM" -o target.tar.gz
 
 # unzip target tarball into target dir
 rm -rf "$DIR_TARGET"/*
@@ -69,21 +69,9 @@ if [ ! -d "$DIR_LOCAL" ]; then ln -s "$DIR_TARGET" "$DIR_LOCAL"; fi
 # copy config file to root if it doesnt exist
 if [ ! -f /root/config.env ]; then cp /root/local/config.env /root/config.env; fi
 
-# start and enable rpi_controller.service and rpi_updater.service
-for service_file in "$DIR_SRC"/scripts/*.service; do
-  if [ -f "$service_file" ]; then
-    service_name=$(basename "$service_file")
-
-    systemctl stop "$service_name"
-    systemctl disable "$service_name"
-  fi
-done
-
 # start and enable rpi_controller.service
 if [ -f "$DIR_SRC/scripts/rpi_controller.service" ]; then
-  
   ln -sf "$DIR_SRC/scripts/rpi_controller.service" "/etc/systemd/system/rpi_controller.service"
-  
   systemctl stop rpi_controller.service
   systemctl enable rpi_controller.service
   systemctl start rpi_controller.service
