@@ -10,8 +10,8 @@
 #define TPS 20             // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK true          // true: run every tick, false: run once
-#define EB_XYZ 0.05        // error bound for position
-#define EB_ROT 0.05        // error bound for rotation
+#define EB_XYZ 0.10        // error bound for position
+#define EB_ROT 0.10        // error bound for rotation
 #define LOG_MOVEMENT true  // enables/disables track movement
 #define LOG_ENABLED true   // enables/disables logging
 #define LOG_LEVEL 2        // log level to be displayed

@@ -48,7 +48,6 @@ apt install ./wiringpi*.deb
 cd .. 
 rm -rf WiringPi/
 
-
 # make sure target dirs exist
 if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
 if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
