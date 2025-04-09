@@ -26,7 +26,7 @@ void tcp_tick(netcode::Socket sock) {
     logging::log(LOG_ENABLED, "Message Size: " + std::to_string(message.size()), LOG_LEVEL, 4, LogType::INFO, log_name);
 
     // get the state from the message
-    const HiveCommon::State *s = HiveCommon::GetState(message.c_str());
+    const HIVE::Commons::Flatbuffers::Generated::State *s = HIVE::Commons::Flatbuffers::Generated::GetState(message.c_str());
 
     // if state is null, return
     if (!s) {
@@ -35,7 +35,7 @@ void tcp_tick(netcode::Socket sock) {
     }
 
     // get the payload from the state
-    const flatbuffers::Vector<flatbuffers::Offset<HiveCommon::Payload>> *p = s->payload();
+    const flatbuffers::Vector<flatbuffers::Offset<HIVE::Commons::Flatbuffers::Generated::Payload>> *p = s->payload();
 
     // if payload is null, return
     if (!p) {
@@ -49,12 +49,12 @@ void tcp_tick(netcode::Socket sock) {
     for (const auto &e : *p) {
 
       // extract the entity
-      const HiveCommon::Entity *entity = e->data_nested_root();
+      const HIVE::Commons::Flatbuffers::Generated::Entity *entity = e->data_nested_root();
       logging::log(LOG_ENABLED, "Extracted entity", LOG_LEVEL, 3, log_name);
 
       // switch over the entity type
       switch (entity->entity_type()) {
-      case HiveCommon::EntityUnion_Node: {
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Node: {
         logging::log(LOG_ENABLED, "Decoding Node", LOG_LEVEL, 3, log_name);
 
         // extract the node
@@ -79,14 +79,14 @@ void tcp_tick(netcode::Socket sock) {
         STATE.inner.current_rot = hive::math::vec::Vec4(rot);
         break;
       }
-      case HiveCommon::EntityUnion_Command: {
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Command: {
         logging::log(LOG_ENABLED, "Decoding Command", LOG_LEVEL, 3, log_name);
-        const HiveCommon::Command *command = entity->entity_as_Command();
+        const HIVE::Commons::Flatbuffers::Generated::Command *command = entity->entity_as_Command();
 
         // TODO: add logging here
 
         switch (command->command_type()) {
-        case HiveCommon::CommandUnion_MoveTo: {
+        case HIVE::Commons::Flatbuffers::Generated::CommandUnion_MoveTo: {
           logging::log(LOG_ENABLED, "MoveTo Command", LOG_LEVEL, 3, log_name);
 
           // get the destination
@@ -100,7 +100,7 @@ void tcp_tick(netcode::Socket sock) {
           STATE.inner.target_pos = hive::math::vec::Vec3(moveto->destination());
           break;
         }
-        case HiveCommon::CommandUnion_Sleep: {
+        case HIVE::Commons::Flatbuffers::Generated::CommandUnion_Sleep: {
           logging::log(LOG_ENABLED, "Sleep Command", LOG_LEVEL, 3, log_name);
 
           // get the sleep duration
@@ -113,21 +113,21 @@ void tcp_tick(netcode::Socket sock) {
           STATE.inner.sleep = (long)(sleep->duration() * 1000);
           break;
         }
-        case HiveCommon::CommandUnion_Owner:
-        case HiveCommon::CommandUnion_NONE:
+        case HIVE::Commons::Flatbuffers::Generated::CommandUnion_Owner:
+        case HIVE::Commons::Flatbuffers::Generated::CommandUnion_NONE:
           logging::log(LOG_ENABLED, "Invalid Command", LOG_LEVEL, 2, log_name);
           break;
         }
 
         break;
       }
-      case HiveCommon::EntityUnion_Robot:
-      case HiveCommon::EntityUnion_Generic:
-      case HiveCommon::EntityUnion_Geometry:
-      case HiveCommon::EntityUnion_Headset:
-      case HiveCommon::EntityUnion_Observer:
-      case HiveCommon::EntityUnion_Presenter:
-      case HiveCommon::EntityUnion_NONE:
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Robot:
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Generic:
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Geometry:
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Headset:
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Observer:
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_Presenter:
+      case HIVE::Commons::Flatbuffers::Generated::EntityUnion_NONE:
         logging::log(LOG_ENABLED, "Invalid Entity Type", LOG_LEVEL, 2, log_name);
         break;
       }
@@ -147,7 +147,7 @@ inline void tcp_setup(netcode::Socket sock) {
 
   // create subscriber
   uint16_t sub = 0;
-  sub = utils::misc::encodeSubscriptionType(HiveCommon::SubscriptionType_Own, sub);
+  sub = utils::misc::encodeSubscriptionType(HIVE::Commons::Flatbuffers::Generated::SubscriptionType_Own, sub);
 
   // initise flatbuf builders
   flatbuffers::FlatBufferBuilder fbb1;
@@ -155,8 +155,8 @@ inline void tcp_setup(netcode::Socket sock) {
 
   // create robot
   const auto fb_name = fbb1.CreateString(STATE.read().name);
-  const auto robot = HiveCommon::CreateRobot(fbb1, STATE.read().id, fb_name, sub, HiveCommon::SubscriptionRate_Half);
-  const auto entity = HiveCommon::CreateEntity(fbb1, HiveCommon::EntityUnion_Robot, robot.Union());
+  const auto robot = HIVE::Commons::Flatbuffers::Generated::CreateRobot(fbb1, STATE.read().id, fb_name, sub, HIVE::Commons::Flatbuffers::Generated::SubscriptionRate_Half);
+  const auto entity = HIVE::Commons::Flatbuffers::Generated::CreateEntity(fbb1, HIVE::Commons::Flatbuffers::Generated::EntityUnion_Robot, robot.Union());
 
   // finish entity
   fbb1.Finish(entity);
@@ -165,14 +165,14 @@ inline void tcp_setup(netcode::Socket sock) {
 
   // Build the Payload which is to be used in the State as a payload vector
   const auto entityVec = fbb2.CreateVector(fbb1.GetBufferPointer(), fbb1.GetSize());
-  const auto payload = HiveCommon::CreatePayload(fbb2, entityVec);
+  const auto payload = HIVE::Commons::Flatbuffers::Generated::CreatePayload(fbb2, entityVec);
   logging::log(LOG_ENABLED, "Payload Built", LOG_LEVEL, 4, log_name);
 
   // Build the State
-  std::vector<flatbuffers::Offset<HiveCommon::Payload>> payloadVector;
+  std::vector<flatbuffers::Offset<HIVE::Commons::Flatbuffers::Generated::Payload>> payloadVector;
   payloadVector.push_back(payload);
   const auto payloads = fbb2.CreateVector(payloadVector);
-  const auto state = HiveCommon::CreateState(fbb2, payloads);
+  const auto state = HIVE::Commons::Flatbuffers::Generated::CreateState(fbb2, payloads);
   fbb2.FinishSizePrefixed(state);
   logging::log(LOG_ENABLED, "State Built", LOG_LEVEL, 4, log_name);
 
