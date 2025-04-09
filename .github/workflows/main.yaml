@@ -1,10 +1,10 @@
 name: Push commit
 on: 
   push:
-    paths:
-      - 'src/**'
-      - 'scripts/**'
-      - 'Makefile'
+    # paths:
+    #   - 'src/**'
+    #   - 'scripts/**'
+    #   - 'Makefile'
     # tags-ignore:
     #   - '**'
 jobs:
