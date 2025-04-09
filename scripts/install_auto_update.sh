@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 
 # set vars
-DIR_REM="https://github.com/UoH-HIVE/rpi_wifi_controller.git"
+DIR_REM="https://github.com/UOHHIVE/rpi_wifi_controller.git"
 DIR_SRC="/root/src"
 DIR_TARGET="$DIR_SRC/target"
 DIR_LOCAL="/root/local"
