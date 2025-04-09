@@ -5,8 +5,8 @@ on:
       - 'src/**'
       - 'scripts/**'
       - 'Makefile'
-    tags-ignore:
-      - '**'
+    # tags-ignore:
+    #   - '**'
 jobs:
   report:
     runs-on: ubuntu-22.04-arm
