@@ -5,6 +5,8 @@ on:
     #   - 'src/**'
     #   - 'scripts/**'
     #   - 'Makefile'
+    paths-ignore:
+        - '*.tar.gz'
     # tags-ignore:
     #   - '**'
 jobs:
