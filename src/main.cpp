@@ -1,30 +1,34 @@
 #include "main.hpp"
 #include "commons/src/dotenv/dotenv.hpp"
-#include "commons/src/logging/logging.hpp"
+#include "commons/src/logging/logger.hpp"
 #include "commons/src/zumo/zumo.hpp"
 
 #include <string>
 #include <thread>
 
-utils::Lock<BotState> STATE;
+HIVE::Commons::Utils::Lock<BotState> STATE;
 // netcode::Socket SOCK;
 
+using namespace HIVE::Commons::Logging;
+using namespace HIVE::Commons::Zumo;
+using namespace HIVE::Commons::Dotenv;
+
 inline void setup() {
-  const std::string log_name = "main.cpp::setup";
 
   // setup zumo config
-  zumo::utils::setup();
+  HIVE::Commons::Zumo::GPIO::setup();
 
   // pull bot name and id from env
-  std::string name = dotenv::DotEnv::get("BOT_NAME");
-  std::string id_str = dotenv::DotEnv::get("ID_OVERRIDE");
-  logging::log(LOG_ENABLED, "Read EnVars", LOG_LEVEL, 2, log_name);
-  logging::log(LOG_ENABLED, "Name Aquired: `" + name + "`", LOG_LEVEL, 3, log_name);
-  logging::log(LOG_ENABLED, "ID STR: `" + id_str + "`", LOG_LEVEL, 3, log_name);
+
+  std::string name = DotEnv::get("BOT_NAME");
+  std::string id_str = DotEnv::get("ID_OVERRIDE");
+
+  Logger::log("Bot Name: " + name, LogLevel::Level::INFO);
+  Logger::log("Bot ID: " + id_str, LogLevel::Level::INFO);
 
   // convert id hex string to decimal
   uint64_t id = std::stoull(id_str, nullptr, 16); // Convert hex string to decimal
-  logging::log(LOG_ENABLED, "Saving ID...", LOG_LEVEL, 3, log_name);
+  Logger::log("Bot ID: " + std::to_string(id), LogLevel::Level::INFO);
 
   // save id and name to state
   std::lock_guard<std::mutex> lock(STATE.mtx);
@@ -35,8 +39,7 @@ inline void setup() {
 }
 
 int main(int argc, char *argv[]) {
-  const std::string log_name = "main.cpp::main";
-  logging::log(LOG_ENABLED, "Startup", LOG_LEVEL, 0, log_name);
+  Logger::log("Starting Bot", LogLevel::Level::INFO);
 
   // load envfile, default path is ./config.env
   std::string config_path = "./config.env";
@@ -46,28 +49,28 @@ int main(int argc, char *argv[]) {
     config_path = argv[1];
   }
 
-  logging::log(LOG_ENABLED, "Loading Config: " + config_path, LOG_LEVEL, 2, log_name);
+  Logger::log("Loading Config: " + config_path, LogLevel::Level::INFO);
 
   // load envfile into dotenv
-  dotenv::DotEnv::load(config_path);
-  logging::log(LOG_ENABLED, "Loaded Envfile", LOG_LEVEL, 2, log_name);
+  DotEnv::load(config_path);
+  Logger::log("Loaded Envfile", LogLevel::Level::INFO);
 
   // setup bot
   setup();
-  logging::log(LOG_ENABLED, "Setup Complete", LOG_LEVEL, 2, log_name);
+  Logger::log("Setup Complete", LogLevel::Level::INFO);
 
   // spawn tcp listener
   std::thread p_listener(tcp_listener);
-  logging::log(LOG_ENABLED, "Spawned Listener", LOG_LEVEL, 2, log_name);
+  Logger::log("Spawned TCP Listener", LogLevel::Level::INFO);
 
   // spawn bot logic
   std::thread p_bot(bot_logic);
-  logging::log(LOG_ENABLED, "Spawned Bot Logic", LOG_LEVEL, 2, log_name);
+  Logger::log("Spawned Bot Logic", LogLevel::Level::INFO);
 
   // joins threads
   p_bot.join();
   p_listener.join();
 
-  logging::log(LOG_ENABLED, "Shutdown...", LOG_LEVEL, 0, log_name);
+  Logger::log("Shutdown Complete", LogLevel::Level::INFO);
   return 0;
 }

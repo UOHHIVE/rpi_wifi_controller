@@ -21,15 +21,15 @@
 #define HBREAK 26          // Break Pin
 #define DRY_RUN            // use dry run for testing, pins will send debug messages instead of moving
 
-using namespace hive::math;
+using namespace HIVE::Commons::Math;
 
 // Struct representing the bots state
 struct BotState {
   uint64_t id;           // Bot's ID, pulled from the environment
   std::string name;      // Bot's name, pulled from the environment
-  vec::Vec3 current_pos; // Bot's current position (x, y, z)
-  vec::Vec3 target_pos;  // Bot's target position (x, y, z)
-  vec::Vec4 current_rot; // Bot's current rotation quaternion (x, y, z, w)
+  Vec::Vec3 current_pos; // Bot's current position (x, y, z)
+  Vec::Vec3 target_pos;  // Bot's target position (x, y, z)
+  Vec::Vec4 current_rot; // Bot's current rotation quaternion (x, y, z, w)
   bool target_completed; // Flag to indicate if the target has been reached
   bool sleep;            // Flag to indicate if the bot is sleeping
   long duration;         // Duration of the sleep, if 0, sleep is permanent
@@ -39,7 +39,7 @@ struct BotState {
 };
 
 // Global State
-extern hive::utils::Lock<BotState> STATE;
+extern HIVE::Commons::Utils::Lock<BotState> STATE;
 // extern netcode::Socket SOCK; // this could be an issue...
 
 // // Function declarations
