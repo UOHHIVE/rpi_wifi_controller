@@ -1,6 +1,5 @@
 #include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/logging/logger.hpp"
-#include "commons/src/math/vec/vec4.hpp"
 #include "commons/src/netcode/client.hpp"
 #include "commons/src/utils/misc.hpp"
 #include "main.hpp"
