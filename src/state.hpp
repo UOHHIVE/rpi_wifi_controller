@@ -40,10 +40,5 @@ struct BotState {
 
 // Global State
 extern HIVE::Commons::Utils::Lock<BotState> STATE;
-// extern netcode::Socket SOCK; // this could be an issue...
-
-// // Function declarations
-extern void bot_logic();
-extern void tcp_listener();
 
 #endif // MAIN
