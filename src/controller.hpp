@@ -1,13 +1,13 @@
 #ifndef H_ROBOTCONTROLLER
 #define H_ROBOTCONTROLLER
 
+#include "commons/src/logging/logger.hpp"
 #include "commons/src/math/vec/vec3.hpp"
 #include "commons/src/math/vec/vec4.hpp"
-#include "main.hpp"
-
-#include "commons/src/logging/logger.hpp"
 #include "commons/src/threading/tickable.hpp"
 #include "commons/src/zumo/zumo.hpp"
+
+#include "state.hpp"
 
 #include <string>
 #include <thread>
@@ -44,7 +44,6 @@ public:
     Logger::log("T: x=" + std::to_string(T.getX()) + ", y=" + std::to_string(T.getY()) + ", z=" + std::to_string(T.getZ()), LogLevel::Level::INFO);
 
     // check if bot is within eb of target
-    // if (Math::Vec3::distance(P, T) < EB_XYZ) {
     if (P.distance(T) < EB_XYZ) {
       std::lock_guard<std::mutex> lock(STATE.mtx);
       STATE.inner.target_completed = true;
@@ -91,16 +90,6 @@ public:
       std::this_thread::sleep_for(std::chrono::seconds(1));
       return;
     }
-
-    // // pull out the current rotation and position
-    // const Vec::Vec4 &Q = s.current_rot;
-    // const Vec::Vec3 &P = s.current_pos;
-    // const Vec::Vec3 &T = s.target_pos;
-
-    // // log current position
-    // Logger::log("Q: w=" + std::to_string(Q.getW()) + ", x=" + std::to_string(Q.getX()) + ", y=" + std::to_string(Q.getY()) + ", z=" + std::to_string(Q.getZ()), LogLevel::Level::INFO);
-    // Logger::log("P: x=" + std::to_string(P.getX()) + ", y=" + std::to_string(P.getY()) + ", z=" + std::to_string(P.getZ()), LogLevel::Level::INFO);
-    // Logger::log("T: x=" + std::to_string(T.getX()) + ", y=" + std::to_string(T.getY()) + ", z=" + std::to_string(T.getZ()), LogLevel::Level::INFO);
 
     // if target is completed, stop
     if (s.target_completed) {
@@ -157,11 +146,6 @@ public:
       break;
     }
   }
-
-  // void Start() {
-  //   // start the tick
-  //   Tickable::Start();
-  // }
 
 private:
   BotState state;

@@ -4,7 +4,7 @@
 #include "commons/src/flatbuffers/generated/commons_generated.h"
 #include "commons/src/logging/logger.hpp"
 #include "commons/src/netcode/fbreader.hpp"
-#include "main.hpp"
+#include "state.hpp"
 
 using namespace HIVE::Commons::Netcode;
 using namespace HIVE::Commons::Logging;

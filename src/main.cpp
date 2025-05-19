@@ -1,17 +1,15 @@
-#include "main.hpp"
 #include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/logging/logger.hpp"
 #include "commons/src/netcode/client.hpp"
 #include "commons/src/utils/misc.hpp"
 #include "commons/src/zumo/zumo.hpp"
-#include "robot_controller.hpp"
-#include "robot_reader.hpp"
+#include "controller.hpp"
+#include "reader.hpp"
+#include "state.hpp"
 
 #include <string>
-// #include <thread>
 
 HIVE::Commons::Utils::Lock<BotState> STATE;
-// netcode::Socket SOCK;
 
 using namespace HIVE::Commons::Logging;
 using namespace HIVE::Commons::Zumo;
@@ -22,6 +20,9 @@ using namespace HIVE::Orchestrator;
 
 using namespace std::chrono_literals;
 
+// good luck if this is yr first exposure to flatbuffers lmao
+
+// set up state obj
 inline void setup() {
 
   // setup zumo config
@@ -49,9 +50,6 @@ inline void setup() {
 
 // Function to set up the TCP connection
 inline void tcp_setup(Client &client) {
-  const std::string log_name = "tcp_listener.cpp::tcp_setup";
-
-  // good luck if this is yr first exposure to flatbuffers lmao
 
   // create subscriber
   uint16_t sub = 0;
@@ -115,32 +113,17 @@ int main(int argc, char *argv[]) {
   setup();
   Logger::log("Setup Complete", LogLevel::Level::INFO);
 
-  // spawn bot logic
-  // std::thread p_bot(bot_logic);
-  // bot_logic();
-  // Logger::log("Spawned Bot Logic", LogLevel::Level::INFO);
-
   // make zumo safe
   HIVE::Commons::Zumo::Utils::safe();
   Logger::log("Bot Marked Safe", LogLevel::Level::INFO);
 
-  // utils::tick(tick_bot, MSPT, TICK);
   // spawn the bot logic
   RobotController c = RobotController(TPS);
-  c.Start();
-
   Logger::log("Spawned Bot Logic", LogLevel::Level::INFO);
 
-  // spawn tcp listener
-  // std::thread p_listener(tcp_listener);
-  // Logger::log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Tickable started", LogLevel::Level::INFO);
-
-  // tcp_listener();
-  // Logger::log("Spawned TCP Listener", LogLevel::Level::INFO);
-
-  // // joins threads
-  // // p_bot.join();
-  // // p_listener.join();
+  // start the bot logic
+  c.Start();
+  Logger::log("Bot Logic Started", LogLevel::Level::INFO);
 
   Logger::log("Starting Listener...", LogLevel::Level::INFO);
 
@@ -149,10 +132,6 @@ int main(int argc, char *argv[]) {
   string dc_port = DotEnv::get("DC_PORT");
   Logger::log("Read EnVars", LogLevel::Level::INFO);
   Logger::log("Connecting to: " + dc_address + ":" + dc_port, LogLevel::Level::INFO);
-
-  // // Create the socket
-  // Client client = Client(dc_address.data(), std::stoi(dc_port));
-  // Logger::log("Socket Created", LogLevel::Level::INFO);
 
   // Create the socket as a shared pointer
   auto client = std::make_shared<Client>(dc_address.data(), std::stoi(dc_port));
@@ -168,13 +147,12 @@ int main(int argc, char *argv[]) {
 
   // Start the reader
   r.Start();
-
   Logger::log("TCP Setup Complete", LogLevel::Level::INFO);
 
   // wait for bot logic to finish
   r._thread.join();
   c._thread.join();
 
-  Logger::log("Shutdown Complete", LogLevel::Level::INFO);
+  Logger::log("Shutting Down...", LogLevel::Level::INFO);
   return 0;
 }
