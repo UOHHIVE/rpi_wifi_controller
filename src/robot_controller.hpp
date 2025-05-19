@@ -92,6 +92,16 @@ public:
       return;
     }
 
+    // // pull out the current rotation and position
+    // const Vec::Vec4 &Q = s.current_rot;
+    // const Vec::Vec3 &P = s.current_pos;
+    // const Vec::Vec3 &T = s.target_pos;
+
+    // // log current position
+    // Logger::log("Q: w=" + std::to_string(Q.getW()) + ", x=" + std::to_string(Q.getX()) + ", y=" + std::to_string(Q.getY()) + ", z=" + std::to_string(Q.getZ()), LogLevel::Level::INFO);
+    // Logger::log("P: x=" + std::to_string(P.getX()) + ", y=" + std::to_string(P.getY()) + ", z=" + std::to_string(P.getZ()), LogLevel::Level::INFO);
+    // Logger::log("T: x=" + std::to_string(T.getX()) + ", y=" + std::to_string(T.getY()) + ", z=" + std::to_string(T.getZ()), LogLevel::Level::INFO);
+
     // if target is completed, stop
     if (s.target_completed) {
       Logger::log("Target Completed", LogLevel::Level::INFO);
