@@ -1,10 +1,14 @@
 #include "main.hpp"
 #include "commons/src/dotenv/dotenv.hpp"
 #include "commons/src/logging/logger.hpp"
+#include "commons/src/netcode/client.hpp"
+#include "commons/src/utils/misc.hpp"
 #include "commons/src/zumo/zumo.hpp"
+#include "robot_controller.hpp"
+#include "robot_reader.hpp"
 
 #include <string>
-#include <thread>
+// #include <thread>
 
 HIVE::Commons::Utils::Lock<BotState> STATE;
 // netcode::Socket SOCK;
@@ -12,6 +16,11 @@ HIVE::Commons::Utils::Lock<BotState> STATE;
 using namespace HIVE::Commons::Logging;
 using namespace HIVE::Commons::Zumo;
 using namespace HIVE::Commons::Dotenv;
+using namespace HIVE::Commons::Math;
+using namespace HIVE::Commons::Utils;
+using namespace HIVE::Orchestrator;
+
+using namespace std::chrono_literals;
 
 inline void setup() {
 
@@ -38,7 +47,54 @@ inline void setup() {
   STATE.inner.target_completed = true;
 }
 
+// Function to set up the TCP connection
+inline void tcp_setup(Client &client) {
+  const std::string log_name = "tcp_listener.cpp::tcp_setup";
+
+  // good luck if this is yr first exposure to flatbuffers lmao
+
+  // create subscriber
+  uint16_t sub = 0;
+  sub = HIVE::Commons::Utils::encodeSubscriptionType(Generated::SubscriptionType_Own, sub);
+
+  // initise flatbuf builders
+  flatbuffers::FlatBufferBuilder fbb1;
+  flatbuffers::FlatBufferBuilder fbb2;
+
+  // create robot
+  const auto fb_name = fbb1.CreateString(STATE.read().name);
+  const auto robot = HIVE::Commons::Flatbuffers::Generated::CreateRobot(fbb1, STATE.read().id, fb_name, sub, HIVE::Commons::Flatbuffers::Generated::SubscriptionRate_Half);
+  const auto entity = HIVE::Commons::Flatbuffers::Generated::CreateEntity(fbb1, HIVE::Commons::Flatbuffers::Generated::EntityUnion_Robot, robot.Union());
+
+  // finish entity
+  fbb1.Finish(entity);
+  fbb1.ForceVectorAlignment(fbb1.GetSize(), sizeof(uint8_t), fbb1.GetBufferMinAlignment());
+  Logger::log("Entity Built", LogLevel::Level::INFO);
+
+  // Build the Payload which is to be used in the State as a payload vector
+  const auto entityVec = fbb2.CreateVector(fbb1.GetBufferPointer(), fbb1.GetSize());
+  const auto payload = HIVE::Commons::Flatbuffers::Generated::CreatePayload(fbb2, entityVec);
+  Logger::log("Payload Built", LogLevel::Level::INFO);
+
+  // Build the State
+  std::vector<flatbuffers::Offset<HIVE::Commons::Flatbuffers::Generated::Payload>> payloadVector;
+  payloadVector.push_back(payload);
+  const auto payloads = fbb2.CreateVector(payloadVector);
+  const auto state = HIVE::Commons::Flatbuffers::Generated::CreateState(fbb2, payloads);
+  fbb2.FinishSizePrefixed(state);
+  Logger::log("State Built", LogLevel::Level::INFO);
+
+  // send the connection message
+  client.Socket::send_data(reinterpret_cast<char *>(fbb2.GetBufferPointer()), fbb2.GetSize());
+  Logger::log("Connection Message Sent", LogLevel::Level::INFO);
+
+  // flag as connected
+  std::lock_guard<std::mutex> lock(STATE.mtx);
+  STATE.inner.connected = true;
+}
+
 int main(int argc, char *argv[]) {
+  Logger::set_severity(5);
   Logger::log("Starting Bot", LogLevel::Level::INFO);
 
   // load envfile, default path is ./config.env
@@ -59,17 +115,65 @@ int main(int argc, char *argv[]) {
   setup();
   Logger::log("Setup Complete", LogLevel::Level::INFO);
 
-  // spawn tcp listener
-  std::thread p_listener(tcp_listener);
-  Logger::log("Spawned TCP Listener", LogLevel::Level::INFO);
-
   // spawn bot logic
-  std::thread p_bot(bot_logic);
+  // std::thread p_bot(bot_logic);
+  // bot_logic();
+  // Logger::log("Spawned Bot Logic", LogLevel::Level::INFO);
+
+  // make zumo safe
+  HIVE::Commons::Zumo::Utils::safe();
+  Logger::log("Bot Marked Safe", LogLevel::Level::INFO);
+
+  // utils::tick(tick_bot, MSPT, TICK);
+  // spawn the bot logic
+  RobotController c = RobotController(TPS);
+  c.Start();
+
   Logger::log("Spawned Bot Logic", LogLevel::Level::INFO);
 
-  // joins threads
-  p_bot.join();
-  p_listener.join();
+  // spawn tcp listener
+  // std::thread p_listener(tcp_listener);
+  // Logger::log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Tickable started", LogLevel::Level::INFO);
+
+  // tcp_listener();
+  // Logger::log("Spawned TCP Listener", LogLevel::Level::INFO);
+
+  // // joins threads
+  // // p_bot.join();
+  // // p_listener.join();
+
+  Logger::log("Starting Listener...", LogLevel::Level::INFO);
+
+  //! If any of these are blank, code may crash, needs to be fixed
+  string dc_address = DotEnv::get("DC_ADDRESS");
+  string dc_port = DotEnv::get("DC_PORT");
+  Logger::log("Read EnVars", LogLevel::Level::INFO);
+  Logger::log("Connecting to: " + dc_address + ":" + dc_port, LogLevel::Level::INFO);
+
+  // // Create the socket
+  // Client client = Client(dc_address.data(), std::stoi(dc_port));
+  // Logger::log("Socket Created", LogLevel::Level::INFO);
+
+  // Create the socket as a shared pointer
+  auto client = std::make_shared<Client>(dc_address.data(), std::stoi(dc_port));
+  Logger::log("Socket Created", LogLevel::Level::INFO);
+
+  // Set up the TCP connection
+  tcp_setup(*client);
+  Logger::log("TCP Setup", LogLevel::Level::INFO);
+
+  // Create the reader
+  RobotReader r = RobotReader(client, TPS);
+  Logger::log("Reader Created", LogLevel::Level::INFO);
+
+  // Start the reader
+  r.Start();
+
+  Logger::log("TCP Setup Complete", LogLevel::Level::INFO);
+
+  // wait for bot logic to finish
+  r._thread.join();
+  c._thread.join();
 
   Logger::log("Shutdown Complete", LogLevel::Level::INFO);
   return 0;

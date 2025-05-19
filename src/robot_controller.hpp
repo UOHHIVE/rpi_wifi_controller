@@ -1,5 +1,5 @@
-#ifndef H_ROBOT
-#define H_ROBOT
+#ifndef H_ROBOTCONTROLLER
+#define H_ROBOTCONTROLLER
 
 #include "commons/src/math/vec/vec3.hpp"
 #include "commons/src/math/vec/vec4.hpp"
@@ -19,11 +19,11 @@ using namespace HIVE::Commons::Utils;
 
 using namespace std::chrono_literals;
 
-class Robot : HIVE::Commons::Threading::Tickable {
+class RobotController : public HIVE::Commons::Threading::Tickable {
 public:
   enum EBotActions { FORWARD, TURN_LEFT, TURN_RIGHT, STOP };
 
-  Robot(int tps) : Tickable(tps) { HIVE::Commons::Zumo::GPIO::setup(); }
+  RobotController(int tps) : Tickable(tps, "Robot") { HIVE::Commons::Zumo::GPIO::setup(); }
 
   inline EBotActions do_action(BotState &s) {
     const std::string log_name = "bot_logic.cpp::do_action";
@@ -84,6 +84,14 @@ public:
   void OnTick() override {
     auto s = STATE.read();
 
+    // if not connected, set mspt to 1s, and sleep
+    if (!s.connected) {
+      Logger::log("Waiting for Connection... Sleeping bot", LogLevel::Level::DEBUG);
+      Movement::stop();
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      return;
+    }
+
     // if target is completed, stop
     if (s.target_completed) {
       Logger::log("Target Completed", LogLevel::Level::INFO);
@@ -139,6 +147,11 @@ public:
       break;
     }
   }
+
+  // void Start() {
+  //   // start the tick
+  //   Tickable::Start();
+  // }
 
 private:
   BotState state;
