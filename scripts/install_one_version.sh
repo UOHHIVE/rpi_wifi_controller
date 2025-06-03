@@ -13,7 +13,7 @@ apt update -y
 apt upgrade -y
 
 # make sure required software is installed
-apt install software-properties-common wget xz-utils gcc build-essential clang make cmake -y
+apt install software-properties-common wget xz-utils gcc build-essential clang make cmake git -y
 apt install python3 python3-pip -y
 apt install gpiod libgpoid-dev -y
 apt install fakeroot gettext-base -y
@@ -53,10 +53,12 @@ if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
 if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
 
 # cd into dir
-cd "$DIR_SRC"
+# cd "$DIR_SRC"
 
 # curl DIR_REM
-curl -sSfL "$DIR_REM" -o target.tar.gz
+git clone https://github.com/UOHHIVE/rpi_wifi_controller.git
+mv rpi_wifi_controller/target.tar.gz .
+tar -xvf ~/target.tar.gz -C "$DIR_SRC"
 
 # unzip target tarball into target dir
 rm -rf "$DIR_TARGET"/*

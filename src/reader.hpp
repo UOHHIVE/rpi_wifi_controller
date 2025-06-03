@@ -37,6 +37,9 @@ protected:
     const auto pos = data->position();
     const auto rot = data->rotation();
 
+    Logger::log("New Position: (" + std::to_string(pos->x()) + ", " + std::to_string(pos->y()) + ", " + std::to_string(pos->z()) + ")", LogLevel::Level::INFO);
+    Logger::log("New Rotation: (" + std::to_string(rot->x()) + ", " + std::to_string(rot->y()) + ", " + std::to_string(rot->z()) + ", " + std::to_string(rot->w()) + ")", LogLevel::Level::INFO);
+
     // update the state
     std::lock_guard<std::mutex> lock(STATE.mtx);
     STATE.inner.current_pos = HIVE::Commons::Math::Vec::Vec3(pos);
