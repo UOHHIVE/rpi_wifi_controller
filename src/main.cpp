@@ -42,6 +42,7 @@ inline void setup() {
 
   // save id and name to state
   std::lock_guard<std::mutex> lock(STATE.mtx);
+  Logger::log("Inside Lock: Setting Bot ID and Name", LogLevel::Level::INFO);
   STATE.inner.id = id;
   STATE.inner.name = name;
   STATE.inner.aligned = false;
@@ -88,6 +89,7 @@ inline void tcp_setup(Client &client) {
 
   // flag as connected
   std::lock_guard<std::mutex> lock(STATE.mtx);
+  Logger::log("Inside Lock: Setting Bot Connected", LogLevel::Level::INFO);
   STATE.inner.connected = true;
 }
 

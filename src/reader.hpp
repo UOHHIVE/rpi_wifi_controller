@@ -42,6 +42,7 @@ protected:
 
     // update the state
     std::lock_guard<std::mutex> lock(STATE.mtx);
+    Logger::log("Inside Lock: updating position", LogLevel::Level::INFO);
     STATE.inner.current_pos = HIVE::Commons::Math::Vec::Vec3(pos);
     STATE.inner.current_rot = HIVE::Commons::Math::Vec::Vec4(rot);
   }
@@ -59,6 +60,8 @@ protected:
 
     // update the state
     std::lock_guard<std::mutex> lock(STATE.mtx);
+    Logger::log("Inside Lock: Updating State From MoveTo", LogLevel::Level::INFO);
+
     STATE.inner.aligned = false;
     STATE.inner.target_completed = false;
     STATE.inner.target_pos = HIVE::Commons::Math::Vec::Vec3(moveto);
@@ -77,6 +80,8 @@ protected:
 
     // update the state
     std::lock_guard<std::mutex> lock(STATE.mtx);
+    Logger::log("Inside Lock: Updating State From Sleep", LogLevel::Level::INFO);
+
     STATE.inner.sleep = data->sleep();
     STATE.inner.sleep = (long)(sleep * 1000);
   }

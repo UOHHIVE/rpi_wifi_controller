@@ -46,6 +46,8 @@ public:
     // check if bot is within eb of target
     if (P.distance(T) < EB_XYZ) {
       std::lock_guard<std::mutex> lock(STATE.mtx);
+      Logger::log("Inside Lock: checking if target completed", LogLevel::Level::INFO);
+
       STATE.inner.target_completed = true;
       return STOP;
     }
@@ -107,6 +109,7 @@ public:
       if (s.sleep > 0) {
         std::this_thread::sleep_for(std::chrono::microseconds(s.sleep));
         std::lock_guard<std::mutex> lock(STATE.mtx);
+        Logger::log("Inside Lock: Waking Bot", LogLevel::Level::INFO);
         STATE.inner.duration = 0;
         STATE.inner.sleep = false;
       }
@@ -119,6 +122,7 @@ public:
       Logger::log("Stopping Bot", LogLevel::Level::INFO);
       Movement::stop();
       std::lock_guard<std::mutex> lock(STATE.mtx);
+      Logger::log("Inside Lock: Target Completed", LogLevel::Level::INFO);
       STATE.inner.target_completed = true;
       return;
     }
