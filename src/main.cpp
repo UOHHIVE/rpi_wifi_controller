@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
   Logger::log("Bot Marked Safe", LogLevel::Level::INFO);
 
   // spawn the bot logic
-  RobotController c = RobotController(TPS);
+  RobotController c = RobotController(20);
   Logger::log("Spawned Bot Logic", LogLevel::Level::INFO);
 
   // start the bot logic

@@ -48,6 +48,10 @@ apt install ./wiringpi*.deb
 cd .. 
 rm -rf WiringPi/
 
+# remove old directories if they exist
+if [ -d rpi_wifi_controller ]; then rm -rf rpi_wifi_controller; fi
+if [ -d "$DIR_SRC" ]; then rm -rf "$DIR_SRC"; fi
+
 # make sure target dirs exist
 if [ ! -d "$DIR_SRC" ]; then mkdir $DIR_SRC; fi
 if [ ! -d "$DIR_TARGET" ]; then mkdir "$DIR_TARGET"; fi
