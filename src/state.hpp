@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <string>
 
-#define TPS 120            // ticks per second
+#define TPS 240            // ticks per second
 #define MSPT 1000000 / TPS // microseconds per tick
 #define TICK true          // true: run every tick, false: run once
 #define EB_XYZ 0.15        // error bound for position
