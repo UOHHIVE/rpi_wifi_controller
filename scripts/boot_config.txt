@@ -90,9 +90,10 @@ dtparam=sd_poll_once
 temp_limit=75
 initial_turbo=20
 
+# Uncomment the 2 freq under this section to underclock (saves battery energy)
 #over_voltage=0
-arm_freq=169
-core_freq=42
+#arm_freq=169
+#core_freq=42
 
 #over_voltage_min=0
 #arm_freq_min=300
