@@ -36,7 +36,7 @@ jobs:
       run: |
         git add VERSION
         git commit -m "Add VERSION file for release $TAG_NAME"
-        git push --set-upstream origin $TAG_NAME
+        git push origin $TAG_NAME
 
     - name: Checkout main branch
       run: git checkout main
