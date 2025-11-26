@@ -46,7 +46,7 @@ jobs:
 
             ls -al flatbuffers-25.2.10
 
-            mv flatbuffers-25.2.10 /~/flatbuffers
+            mv flatbuffers-25.2.10 ~/flatbuffers
 
             # symlink include directory
             if [ ! -L /usr/include/flatbuffers/ ]; then sudo ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
