@@ -21,11 +21,11 @@ apt install python3 python3-pip -y
 apt install gpiod libgpoid-dev -y
 apt install fakeroot gettext-base -y
 
-# FLATBUFFER_VERISON = 24.3.6
+# FLATBUFFER_VERISON = 25.2.10
 
 # manually install flatbuffers header files bc its not packaged properly
 if [ -d ~/flatbuffers ]; then rm -rf ~/flatbuffers; fi
-curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v24.12.23.tar.gz -o ~/flatbuffers.tar.gz
+curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v25.2.10.tar.gz -o ~/flatbuffers.tar.gz
 tar -xvzf ~/flatbuffers.tar.gz
 mv ~/flatbuffers-* ~/flatbuffers
 
