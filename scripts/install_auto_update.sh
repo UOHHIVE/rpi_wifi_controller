@@ -27,7 +27,7 @@ apt install fakeroot gettext-base -y
 if [ -d ~/flatbuffers ]; then rm -rf ~/flatbuffers; fi
 curl -sSfL https://github.com/google/flatbuffers/archive/refs/tags/v25.2.10.tar.gz -o ~/flatbuffers.tar.gz
 tar -xvzf ~/flatbuffers.tar.gz
-mv ~/flatbuffers-* ~/flatbuffers
+mv ~/flatbuffers-25.2.10 ~/flatbuffers
 
 # symlink include directory
 if [ ! -L /usr/include/flatbuffers/ ]; then ln -s ~/flatbuffers/include/flatbuffers/ /usr/include/flatbuffers; fi
