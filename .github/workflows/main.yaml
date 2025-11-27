@@ -76,7 +76,8 @@ jobs:
           git add target.tar.gz || exit 0
 
           git commit -am "automated: build action" || exit 0
-          git push
+          git push origin HEAD:main
+          
       # - name: Release
       #   uses: ncipollo/release-action@v1
       #   with:
