@@ -19,10 +19,10 @@ jobs:
         git config user.name "RPI WiFi Controller Auto-Build"
         git config user.email "action@github.com"
 
-    - name: Create new branch from tag
-      run: |
-        TAG_NAME=${{ github.event.release.tag_name }}
-        git checkout -b $TAG_NAME
+    # - name: Create new branch from tag
+    # run: |
+    #   TAG_NAME=${{ github.event.release.tag_name }}
+    #   git checkout -b $TAG_NAME
 
     - name: Dump tag into VERSION file
       run: echo "${{ github.event.release.tag_name }}" > VERSION
@@ -32,16 +32,22 @@ jobs:
     #     echo "## ${{ github.event.release.tag_name }}" >> CHANGELOG.md
     #     echo "${{ github.event.release.body }}" >> CHANGELOG.md
 
+   # - name: Commit and push to release branch
+   #   run: |
+   #     git add VERSION
+   #     git commit -m "Add VERSION file for release $TAG_NAME"
+   #     git push origin $TAG_NAME
+
     - name: Commit and push to release branch
       run: |
         git add VERSION
-        git commit -m "Add VERSION file for release $TAG_NAME"
-        git push origin $TAG_NAME
-
+        git commit -m "Add VERSION file for release"
+        git push origin main
+        
     - name: Checkout main branch
       run: git checkout main
 
-    - name: Merge release branch into main
-      run: |
-        git merge $TAG_NAME
-        git push origin main
+    #- name: Merge release branch into main
+    #  run: |
+    #    git merge $TAG_NAME
+    #    git push origin main
