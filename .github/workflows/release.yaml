@@ -34,9 +34,10 @@ jobs:
 
     - name: Commit and push to release branch
       run: |
+        TAG_NAME=${{ github.event.release.tag_name }}
         git add VERSION
         git commit -m "Add VERSION file for release $TAG_NAME"
-        git push origin HEAD:$TAG_NAME
+        git push --set-upstream origin $TAG_NAME
 
     #- name: Debug - Check available branches
     #  run: |
@@ -58,5 +59,6 @@ jobs:
 
     - name: Merge release branch into main
       run: |
-        git merge HEAD:$TAG_NAME
-        git push origin HEAD:main
+        TAG_NAME=${{ github.event.release.tag_name }}
+        git merge $TAG_NAME
+        git push origin main
