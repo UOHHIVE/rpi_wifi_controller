@@ -19,60 +19,44 @@ jobs:
         git config user.name "RPI WiFi Controller Auto-Build"
         git config user.email "action@github.com"
 
-    - name: Create new branch from tag
-      run: |
-       TAG_NAME=${{ github.event.release.tag_name }}
-       git checkout -b $TAG_NAME
-
     - name: Dump tag into VERSION file
       run: echo "${{ github.event.release.tag_name }}" > VERSION
+
+    # - name: Create new branch from tag
+    # run: |
+    #   TAG_NAME=${{ github.event.release.tag_name }}
+    #   git checkout -b $TAG_NAME
 
     # - name: Update Changelog
     #   run: |
     #     echo "## ${{ github.event.release.tag_name }}" >> CHANGELOG.md
     #     echo "${{ github.event.release.body }}" >> CHANGELOG.md
 
-    #- name: Debug current state
-    #  run: |
-    #   echo "TAG_NAME from context: ${{ github.event.release.tag_name }}"
-    #   echo "Current branch: $(git branch --show-current)"
-    #   echo "Files in directory:"
-    #   ls -la
-    #   echo "VERSION file content:"
-    #   cat VERSION || echo "VERSION file not found"
+   # - name: Commit and push to release branch
+   #   run: |
+   #     git add VERSION
+   #     git commit -m "Add VERSION file for release $TAG_NAME"
+   #     git push origin $TAG_NAME
 
-    #- name: Debug - Check available branches
-    #  run: |
-    #    echo "=== Local branches ==="
-    #    git branch -a
-    #    echo "=== Remote branches ==="
-    #    git ls-remote --heads origin
-    #    echo "=== Default branch ==="
-    #    git remote show origin | grep 'HEAD branch'
-       
-    #- name: Commit and push to release branch
-    #  run: |
-    #    git add VERSION
-    #    git commit -m "Add VERSION file for release"
-    #    git push origin HEAD:main
-
-    - name: Debug branch info
-      run: |
-        echo "Current branch: $(git branch --show-current)"
-        echo "All branches:"
-        git branch -a
-
+   # - name: Debug - Check available branches
+   #   run: |
+   #     echo "=== Local branches ==="
+   #     git branch -a
+   #     echo "=== Remote branches ==="
+   #     git ls-remote --heads origin
+   #     echo "=== Default branch ==="
+   #     git remote show origin | grep 'HEAD branch'
+        
     - name: Commit and push to release branch
       run: |
         git add VERSION
-        git commit -m "Add VERSION file for release ${{ github.event.release.tag_name }}"
-        git push --set-upstream origin release-${{ github.event.release.tag_name }}
-
+        git commit -m "Add VERSION file for release"
+        git push origin HEAD:main
+        
     - name: Checkout main branch
       run: git checkout main
 
-    - name: Merge release branch into main
-      run: |
-        TAG_NAME=${{ github.event.release.tag_name }}
-        git merge $TAG_NAME
-        git push origin main
+    #- name: Merge release branch into main
+    #  run: |
+    #    git merge $TAG_NAME
+    #    git push origin main
