@@ -51,7 +51,7 @@ jobs:
       run: |
         git add VERSION
         git commit -m "Add VERSION file for release"
-        git push origin master
+        git push origin HEAD:main
         
     - name: Checkout main branch
       run: git checkout main
