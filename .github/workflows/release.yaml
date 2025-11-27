@@ -32,21 +32,14 @@ jobs:
     #     echo "## ${{ github.event.release.tag_name }}" >> CHANGELOG.md
     #     echo "${{ github.event.release.body }}" >> CHANGELOG.md
 
-    - name: Debug current state
-      run: |
-       echo "TAG_NAME from context: ${{ github.event.release.tag_name }}"
-       echo "Current branch: $(git branch --show-current)"
-       echo "Files in directory:"
-       ls -la
-       echo "VERSION file content:"
-       cat VERSION || echo "VERSION file not found"
-
-    - name: Commit and push to release branch
-      run: |
-        TAG_NAME=${{ github.event.release.tag_name }}
-        git add VERSION
-        git commit -m "Add VERSION file for release $TAG_NAME"
-        git push --set-upstream origin $TAG_NAME
+    #- name: Debug current state
+    #  run: |
+    #   echo "TAG_NAME from context: ${{ github.event.release.tag_name }}"
+    #   echo "Current branch: $(git branch --show-current)"
+    #   echo "Files in directory:"
+    #   ls -la
+    #   echo "VERSION file content:"
+    #   cat VERSION || echo "VERSION file not found"
 
     #- name: Debug - Check available branches
     #  run: |
@@ -62,7 +55,13 @@ jobs:
     #    git add VERSION
     #    git commit -m "Add VERSION file for release"
     #    git push origin HEAD:main
-        
+
+    - name: Commit and push to release branch
+      run: |
+       git add VERSION
+       git diff --staged --quiet || git commit -m "Add VERSION file for release ${{ github.event.release.tag_name }}"
+       git push --set-upstream origin ${{ github.event.release.tag_name }}
+
     - name: Checkout main branch
       run: git checkout main
 
