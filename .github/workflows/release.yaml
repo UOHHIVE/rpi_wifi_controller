@@ -47,7 +47,16 @@ jobs:
     #    git ls-remote --heads origin
     #    echo "=== Default branch ==="
     #    git remote show origin | grep 'HEAD branch'
-
+      
+    - name: Debug current state
+      run: |
+       echo "TAG_NAME from context: ${{ github.event.release.tag_name }}"
+       echo "Current branch: $(git branch --show-current)"
+       echo "Files in directory:"
+       ls -la
+       echo "VERSION file content:"
+       cat VERSION || echo "VERSION file not found"
+       
     #- name: Commit and push to release branch
     #  run: |
     #    git add VERSION
