@@ -38,6 +38,15 @@ jobs:
    #     git commit -m "Add VERSION file for release $TAG_NAME"
    #     git push origin $TAG_NAME
 
+    - name: Debug - Check available branches
+      run: |
+        echo "=== Local branches ==="
+        git branch -a
+        echo "=== Remote branches ==="
+        git ls-remote --heads origin
+        echo "=== Default branch ==="
+        git remote show origin | grep 'HEAD branch'
+
     - name: Commit and push to release branch
       run: |
         git add VERSION
