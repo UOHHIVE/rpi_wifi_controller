@@ -58,9 +58,9 @@ jobs:
 
     - name: Commit and push to release branch
       run: |
-       git add VERSION
-       git diff --staged --quiet || git commit -m "Add VERSION file for release ${{ github.event.release.tag_name }}"
-       git push --set-upstream origin ${{ github.event.release.tag_name }}
+        git add VERSION
+        git commit -m "Add VERSION file for release ${{ github.event.release.tag_name }}"
+        git push --set-upstream origin release-${{ github.event.release.tag_name }}
 
     - name: Checkout main branch
       run: git checkout main
