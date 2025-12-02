@@ -53,10 +53,12 @@ To use these submodules for dev purposes, you must initialise them one by one on
 Ensure you've already ssh into the robot. To update the submodules: 
 
 1. Ensure you have updated the submodule's repository first
-2. Then you can open cmd in the local rpi_wifi_controller folder and update it (using "git submodule update --init" or "git submodule update --remote") and then commiting it with a message
-3. Open your file explorer, find the local folder and press view -> show -> hidden items
-4. Open .git folder and delete index.lock file
-5. Open github desktop and push your commit
+2. Open cmd in the local rpi_wifi_controller folder
+3. git submodule update --init
+4. git submodule update --remote
+5. git add .
+6. git commit -m "<Your commit message here>"
+7. git push
 
 ## Dev
 
