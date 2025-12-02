@@ -57,7 +57,7 @@ Ensure you've already ssh into the robot. To update the submodules:
 3. git submodule update --init
 4. git submodule update --remote
 5. git add .
-6. git commit -m "<Your commit message here>"
+6. git commit -m "<*Your commit message here*>"
 7. git push
 
 ## Dev
@@ -69,4 +69,4 @@ At some point, you may need to do dev directly on the pi. To do that, you will n
 3. Check if repo is public or private
    - If public, copy link of tar.gz file in releases and use curl in robot to download it
    - If private, ensure you are a collaborator of the repository, create a Personal Access Token on GitHub in your settings, and then use wget in the robot like this:
-      wget --header "Authorization: token <a Personal Access Token from your account>" https://github.com/???
+      wget --header "Authorization: token <*a Personal Access Token from your account*>" https://github.com/???
