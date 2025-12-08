@@ -20,13 +20,13 @@ If the robot is not connecting then consider the following possible issues:
 
 ## SSH
 
-This will allow you to connect to the robots from your pc. Can view logs, move files, downlaod repos, etc.
+This will allow you to connect to the robots from your pc. Can view logs, move files, download repos, etc.
 
 1. Ensure the robot is on and connected to data centre.
 2. Open cmd
 3. Type: ssh user@hostIP (The user should be “root” and hostIP should be the IP of the robot when connected to data centre)
 4. Type “yes” when it asks if youre sure you want to continue connecting
-5. Password: hive-P00* --> Asterisk being replaced by the number on the robot. E.g. R2-D2’s number is P004, so the password would be “hive-P004”.
+5. Password: hive-P00* --> Asterisk being replaced by the number on the robot
 
 ## Installation
 
@@ -50,7 +50,7 @@ To use these submodules for dev purposes, you must initialise them one by one on
 
 ### Update
 
-Ensure you've already ssh into the robot. To update the submodules: 
+Ensure you've already pulled the rpi controller repository (The one this README is from).
 
 1. Ensure you have updated the submodule's repository first
 2. Open cmd in the local rpi_wifi_controller folder
