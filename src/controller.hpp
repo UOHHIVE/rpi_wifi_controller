@@ -36,15 +36,18 @@ public:
     // pull out the current rotation and position
     const Vec::Vec4 &Q = s.current_rot;
     const Vec::Vec3 &P = s.current_pos;
-    const Vec::Vec3 &T = s.target_pos;
+    const Vec::Vec2 T(s.target_pos.getX(), s.target_pos.getZ()); // Using X and Z for 2D plane
 
     // log current position
     Logger::log("Q: w=" + std::to_string(Q.getW()) + ", x=" + std::to_string(Q.getX()) + ", y=" + std::to_string(Q.getY()) + ", z=" + std::to_string(Q.getZ()), LogLevel::Level::INFO);
     Logger::log("P: x=" + std::to_string(P.getX()) + ", y=" + std::to_string(P.getY()) + ", z=" + std::to_string(P.getZ()), LogLevel::Level::INFO);
-    Logger::log("T: x=" + std::to_string(T.getX()) + ", y=" + std::to_string(T.getY()) + ", z=" + std::to_string(T.getZ()), LogLevel::Level::INFO);
+     Logger::log("T: x=" + std::to_string(T.getX()) + ", y=" + std::to_string(T.getY()), LogLevel::Level::INFO);
 
-    // check if bot is within eb of target
-    if (P.distance(T) < EB_XYZ) {
+    // Convert current position to Vec2 for 2D distance calculation
+    Vec::Vec2 P2D(P.getX(), P.getZ());
+
+    // check if bot is within eb of target (2D distance)
+    if (P2D.distance(T) < EB_XYZ) {
       std::lock_guard<std::mutex> lock(STATE.mtx);
       Logger::log("Inside Lock: checking if target completed", LogLevel::Level::INFO);
 
@@ -58,15 +61,19 @@ public:
     // rotate axis by quaternion
     Vec::Vec3 robot_dir = axis.rotate(Q);
 
-    // get required direction
-    Vec::Vec3 required_dir = (T - P);
+    // Convert robot direction to 2D (project onto XZ plane)
+    Vec::Vec2 robot_dir_2D(robot_dir.getX(), robot_dir.getZ());
+    robot_dir_2D.norm();
 
-    // normalize the vector
-    required_dir.norm();
+    // get required direction (2D)
+    Vec::Vec2 required_dir = T - P2D;
+    required_dir.norm(); // normalize the vector
 
-    // dot and cross product to get error and direction
-    float error = 1.0f - robot_dir.dot(required_dir);
-    bool turn_right = robot_dir.cross(required_dir).getY() > 0;
+    // dot and cross product to get error and direction (2D)
+    float error = 1.0f - robot_dir_2D.dot(required_dir);
+    // For 2D, cross product gives scalar (z-component)
+    float cross_z = robot_dir_2D.getX() * required_dir.getY() - robot_dir_2D.getY() * required_dir.getX();
+    bool turn_right = cross_z > 0;
 
     // log error
     Logger::log("Error: " + std::to_string(error), LogLevel::Level::INFO);
@@ -117,8 +124,12 @@ public:
       return;
     }
 
-    // if current position is within error bounds, stop
-    if (s.current_pos.distance(s.target_pos) < EB_XYZ) {
+     // Convert positions to Vec2 for 2D distance check
+    Vec::Vec2 P2D(s.current_pos.getX(), s.current_pos.getZ());
+    Vec::Vec2 T2D(s.target_pos.getX(), s.target_pos.getZ());
+
+    // if current position is within error bounds (2D), stop
+    if (P2D.distance(T2D) < EB_XYZ) {
       Logger::log("Stopping Bot", LogLevel::Level::INFO);
       Movement::stop();
       std::lock_guard<std::mutex> lock(STATE.mtx);
@@ -126,7 +137,7 @@ public:
       STATE.inner.target_completed = true;
       return;
     }
-
+    
     // always remove handbreak
     Movement::start();
 
