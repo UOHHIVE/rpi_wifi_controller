@@ -2,7 +2,7 @@
 #define H_ROBOTCONTROLLER
 
 #include "commons/src/logging/logger.hpp"
-#include "commons/src/logging/vec2.hpp"
+#include "commons/src/math/vec/vec2.hpp"
 #include "commons/src/math/vec/vec3.hpp"
 #include "commons/src/math/vec/vec4.hpp"
 #include "commons/src/threading/tickable.hpp"
