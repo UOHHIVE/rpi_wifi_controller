@@ -76,6 +76,8 @@ jobs:
           git add target.tar.gz || exit 0
 
           git commit -am "automated: build action" || exit 0
+          git fetch origin
+          git rebase origin/main
           git push origin HEAD:main --force
           
       # - name: Release
