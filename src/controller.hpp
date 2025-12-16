@@ -105,7 +105,7 @@ public:
 
     // if target is completed, stop
     if (s.target_completed) {
-      Logger::log("Target Completed", LogLevel::Level::INFO);
+      Logger::log("Target Completed", LogLevel::Level::DEBUG);
       Movement::stop();
       return;
     }
