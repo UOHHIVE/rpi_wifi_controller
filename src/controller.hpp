@@ -22,7 +22,7 @@ using namespace std::chrono_literals;
 
 class RobotController : public HIVE::Commons::Threading::Tickable {
 public:
-  enum EBotActions { FORWARD, TURN_LEFT, TURN_RIGHT, STOP };
+  enum EBotActions { FORWARD, BACKWARD, TURN_LEFT, TURN_RIGHT, STOP };
 
   RobotController(int tps) : Tickable(tps, "Robot") { HIVE::Commons::Zumo::GPIO::setup(); }
 
@@ -78,17 +78,28 @@ public:
     Vec::Vec3 cross = robot_dir_flat.cross(required_dir_3D);
     bool turn_right = cross.getY() > 0;
 
+    // dot product in 3D (go forwards or backwards)
+	float dot = robot_dir_flat.dot(required_dir_3D);
+
     // log error
     Logger::log("Error: " + std::to_string(error), LogLevel::Level::INFO);
 
-    if (error < EB_ROT) {  // if error is within bounds
-      return FORWARD;      //   move forward
-    } else {               // else
-      if (turn_right) {    //   if turn right
-        return TURN_RIGHT; //     turn right
-      } else {             //   else
-        return TURN_LEFT;  //     turn left
-      }
+    if (dot > 0) {
+        if (error < EB_ROT) {
+            return FORWARD; // move forward if aligned
+        }
+        else {
+            // need to turn
+            if (turn_right) {
+				return TURN_RIGHT;
+            }
+            else {
+				return TURN_LEFT;
+            }
+        }
+    }
+    else {
+		return BACKWARD; // move backward if facing away from target
     }
   }
 
@@ -150,6 +161,10 @@ public:
       Logger::log("Moving Forward", LogLevel::Level::INFO);
       Movement::forward();
       break;
+	case BACKWARD:
+      Logger::log("Moving Backward", LogLevel::Level::INFO);
+      Movement::backward();
+	  break;
     case TURN_LEFT:
       Logger::log("Turning Left", LogLevel::Level::INFO);
       Movement::turn_left();
