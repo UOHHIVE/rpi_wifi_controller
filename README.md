@@ -48,7 +48,10 @@ To install the repository on the pi:
 ## Submodules
 
 This repository contains submodules.
-To use these submodules for dev purposes, you must initialise them one by one on the robots (can be done by curl the release).
+
+To use these submodules for dev purposes, you must initialise them one by one on the robots (can be done by curl the release) - The long way.
+
+Or alternatively, call the correct target of the makefile - The short way.
 
 ### Update
 
@@ -64,7 +67,11 @@ Ensure you've already pulled the rpi controller repository (The one this README 
 
 ## Dev
 
-At some point, you may need to do dev directly on the pi. To do that, you will need to curl and extract all the submodules of this repository. Ensure you've already ssh into the robot.
+At some point, you may need to do dev directly on the pi, and you will need access to all submodules of this repository. 
+
+The short way is to use the Makefile in this repository and call the correct target like so: make submodules
+
+The long way: curl and extract all the submodules of this repository. Ensure you've already ssh into the robot.
 
 1. Change directories to the empty file in place of the submodule
 2. Create a release on the GitHub repo or if there is already one, click on it to display
