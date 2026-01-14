@@ -84,22 +84,31 @@ public:
     // log error
     Logger::log("Error: " + std::to_string(error), LogLevel::Level::INFO);
 
-    if (dot > 0) {
-        if (error < EB_ROT) {
+    if (dot > 0.1f) {
+        if (error < EB_ROT) { // if error is within rotation error bounds
             return FORWARD; // move forward if aligned
         }
         else {
             // need to turn
             if (turn_right) {
-				return TURN_RIGHT;
+                return TURN_RIGHT;
             }
             else {
-				return TURN_LEFT;
+                return TURN_LEFT;
             }
         }
     }
+    else if (dot < -0.1f){
+        return BACKWARD; // move backward if facing away from target
+    }
     else {
-		return BACKWARD; // move backward if facing away from target
+        // when dot is near 0, turn only
+        if (turn_right) {
+           return TURN_RIGHT;
+        }
+        else {
+           return TURN_LEFT;
+        }
     }
   }
 
