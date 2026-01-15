@@ -94,7 +94,6 @@ inline void tcp_setup(Client &client) {
 }
 
 int main(int argc, char *argv[]) {
-  Logger::set_severity(5);
   Logger::log("Starting Bot", LogLevel::Level::INFO);
 
   // load envfile, default path is ./config.env
